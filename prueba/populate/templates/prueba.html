@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Amazon Login</title>
+    <script src="https://assets.loginwithamazon.com/sdk/na/login1.js"></script>
+</head>
+<body>
+    <script>
+      options = {} ;
+      options.client_id = "amzn1.application-oa2-client.7c0d83cb1c9d4f048bfa5e9b4f390806";
+      options.scope = 'profile';
+      options.response_type = 'code';
+      console.log(options);
+      amazon.Login.authorize(options, 'https://127.0.0.1:8000');
+    </script>
+</body>
+</html>

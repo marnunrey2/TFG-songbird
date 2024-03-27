@@ -1,0 +1,14 @@
+<h1>Songs</h1>
+{% for song in songs %}
+    <p>{{ song.duration }} - {{ song.name }} by {{ song.artist.name }}</p>
+{% endfor %}
+
+<h1>Artists</h1>
+{% for artist in artists %}
+    <p>{{ artist.name }}</p>
+{% endfor %}
+
+<h1>Genres</h1>
+{% for genre in genres %}
+    <p>{{ genre.name }}</p>
+{% endfor %}
