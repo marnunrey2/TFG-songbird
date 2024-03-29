@@ -195,3 +195,146 @@ def spotify_api():
     playlist_id = "37i9dQZEVXbJwoKy8qKpHG"
     get_playlist_spotify(playlist_id, headers)
     """
+
+
+""" MAKING LESS REQUESTS (NOT SURE IF WORKS)
+
+def get_playlist_spotify(playlist_id, headers):
+    # Endpoint to make the request
+    endpoint = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
+
+    # Make the GET request to Spotify API
+    response = requests.get(endpoint, headers=headers)
+
+    # added_at, added_by, is_local, primary_color, track, video_thumbnail
+    items = response.json()["items"]
+
+    # Get all song ids, album ids and artist ids
+    song_ids = [item["track"]["id"] for item in items]
+    album_ids = [item["track"]["album"]["id"] for item in items]
+    artist_ids = [artist["id"] for item in items for artist in item["track"]["artists"]]
+
+    # Get all songs, albums and artists in a single request
+    songs = get_songs_spotify(song_ids, headers)
+    albums = get_albums_spotify(album_ids, headers)
+    artists = get_artists_spotify(artist_ids, headers)
+
+    for i, item in enumerate(items):
+        song_info = item["track"]
+
+        # Get the song, album and artists from the lists
+        song = songs[i]
+        album = albums[i]
+        song_artists = [artist for artist in artists if artist["id"] in [a["id"] for a in song_info["artists"]]]
+
+        # Add the artists to the song and album
+        song.artists.set(song_artists)
+        album.artists.set(song_artists)
+
+    return None  # No need to return anything as we're saving to the database
+    
+def get_songs_spotify(song_ids, headers):
+    # Make the GET request to Spotify API
+    endpoint = f"https://api.spotify.com/v1/tracks?ids={','.join(song_ids)}"
+    response = requests.get(endpoint, headers=headers)
+
+    songs_info = response.json()["tracks"]
+
+    songs = []
+    for song_info in songs_info:
+        # Extract the song information
+        song_name = song_info["name"]
+        song_duration = song_info["duration_ms"]
+        song_explicit = song_info["explicit"]
+        song_popularity = song_info["popularity"]
+
+        # Get or create the song
+        song, created = Song.objects.get_or_create(
+            id=song_info["id"],
+            defaults={
+                "name": song_name,
+                "duration": song_duration,
+                "explicit": song_explicit,
+                "popularity": song_popularity,
+            },
+        )
+
+        songs.append(song)
+
+    return songs
+
+def get_albums_spotify(album_ids, headers):
+    # Make the GET request to Spotify API
+    endpoint = f"https://api.spotify.com/v1/albums?ids={','.join(album_ids)}"
+    response = requests.get(endpoint, headers=headers)
+
+    albums_info = response.json()["albums"]
+
+    albums = []
+    for album_info in albums_info:
+        # Extract the album information
+        album_name = album_info["name"]
+        album_genre = album_info["genres"]
+        album_images = album_info["images"][0]["url"]
+        album_popularity = album_info["popularity"]
+        album_release_date = album_info["release_date"]
+        album_total_tracks = album_info["total_tracks"]
+
+        # Get or create the album
+        album, created = Album.objects.get_or_create(
+            id=album_info["id"],
+            defaults={
+                "name": album_name,
+                "images": album_images,
+                "popularity": album_popularity,
+                "release_date": album_release_date,
+                "total_tracks": album_total_tracks,
+            },
+        )
+
+        # Get or create the genres and add them to the album
+        for genre_name in album_genre:
+            genre, created = Genre.objects.get_or_create(name=genre_name)
+            album.genre.add(genre)
+
+        albums.append(album)
+
+    return albums
+
+def get_artists_spotify(artist_ids, headers):
+    # Make the GET request to Spotify API
+    endpoint = f"https://api.spotify.com/v1/artists?ids={','.join(artist_ids)}"
+    response = requests.get(endpoint, headers=headers)
+
+    artists_info = response.json()["artists"]
+
+    artists = []
+    for artist_info in artists_info:
+        # Extract the artist information
+        artist_name = artist_info["name"]
+        artist_genres = artist_info["genres"]
+        artist_followers = artist_info["followers"]["total"]
+        artist_images = artist_info["images"][0]["url"]
+        artist_popularity = artist_info["popularity"]
+
+        # Get or create the artist
+        artist, created = Artist.objects.get_or_create(
+            id=artist_info["id"],
+            defaults={
+                "name": artist_name,
+                "followers": artist_followers,
+                "images": artist_images,
+                "popularity": artist_popularity,
+                "href": artist_info["href"],
+            },
+        )
+
+        # Get or create the genres and add them to the artist
+        for genre_name in artist_genres:
+            genre, created = Genre.objects.get_or_create(name=genre_name)
+            artist.genres.add(genre)
+
+        artists.append(artist)
+
+    return artists
+"""

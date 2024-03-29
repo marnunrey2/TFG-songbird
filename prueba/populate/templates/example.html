@@ -1,5 +1,10 @@
 <h1>Songs</h1>
 
-{% for song in songs %}
-    {{ song }}
+{% for genre, song_list in songs.items %}
+    <h2>{{ genre }}</h2>
+    <ul>
+    {% for song in song_list %}
+        <li>{{ song }}</li>
+    {% endfor %}
+    </ul>
 {% endfor %}
