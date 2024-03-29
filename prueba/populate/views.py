@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .populate import populate
-from .models import Song, Playlist
+from .models import Song, Playlist, Artist, Genre, Album
 from .amazonMusic import amazon_music_api
+from .spotify import spotify_api
+
 
 """
 def populate_view(request):
@@ -26,9 +28,17 @@ def populate_view(request):
 
 
 def populate_view(request):
-    amazon_music_api()  # Call the populate function
+    spotify_api()
 
     songs = Song.objects.all()
-    playlists = Playlist.objects.all()
+    artists = Artist.objects.all()
+    albums = Album.objects.all()
 
-    return render(request, "example.html", {"songs": songs, "playlists": playlists})
+    # Pass the objects to the template
+    context = {
+        "songs": songs,
+        "artists": artists,
+        "albums": albums,
+    }
+
+    return render(request, "database.html", context)

@@ -1,6 +1,10 @@
+<p>Number of songs: {{ songs|length }}</p>
+<p>Number of artists: {{ artists|length }}</p>
+<p>Number of albums: {{ albums|length }}</p>
+
 <h1>Songs</h1>
 {% for song in songs %}
-    <p>{{ song.duration }} - {{ song.name }} by {{ song.artist.name }}</p>
+    <p>{{ forloop.counter }}. {{ song.name }}</p>
 {% endfor %}
 
 <h1>Artists</h1>
@@ -8,7 +12,7 @@
     <p>{{ artist.name }}</p>
 {% endfor %}
 
-<h1>Genres</h1>
-{% for genre in genres %}
-    <p>{{ genre.name }}</p>
+<h1>Albums</h1>
+{% for album in albums %}
+    <p>{{ album.name }}</p>
 {% endfor %}
