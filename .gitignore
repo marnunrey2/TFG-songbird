@@ -2,3 +2,4 @@ myenv/
 .vscode/
 migrations/
 __pycache__/
+*.pyc
