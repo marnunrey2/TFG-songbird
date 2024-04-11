@@ -3,15 +3,33 @@ from populate.models import Playlist, Song
 import time
 
 
+songs_ids = set()
 albums_ids = set()
 artists_ids = set()
 
+songs = []
+artists = []
+albums = []
+
+
+def amazon_music_api():
+
+    # Top 50 Most played: International -> B07QHGBGC9
+    playlist_id = "B07QHGBGC9"
+    get_playlist_songs(playlist_id)
+
+    # Today Hits: Spain -> B073PW84YH
+    playlist_id = "B073PW84YH"
+    get_playlist_songs(playlist_id)
+
+    return songs, artists, albums
+
 
 def get_playlist_songs(playlist_id):
-    global albums_ids, artists_ids
+    global songs_ids, albums_ids, artists_ids
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIOcVMLRn7fXbSP1QzZeF_IE64_y-taO3UN3juWpWuNfHI7I8iunnf3ZYZ6XcUHgd3oNtmd6kGcPCIpPZcgcR_UTCvRgL9MTk7E60Xr0MFVHqzeYl9HG6QYmuj1oOVrekdL6wNcS6EvC2HfGtyCxFommgDkKUKwayDQyBIKWj65qfqL2nVmy7rJ59joQfE9kqwW4IgUduLpgP-aE88jmUqcwPWCdcfPsOvU6Hy7LYCEZ9lLDJXV6wLdPq1o1XLoyO-p98rU2u35srY6zrGeYAB4eF2ydFoRyZkRTa29tjBZQGB6WL2rKcIACL557BwU206elTM7RN_1X5XMVg0xSrmjTSUZ_MzhCKlxVgmP4l6SLpVQYT0zoaS_lHUleCtdODODYeKWWQE_se-qPn3kx3LN4uU6BXEbzmzXbFaAiKfFtGCg"
+    access_token = "Atza|IwEBIF64wtKhDtU7PYhN4AgPglx8h8pLB317kriQA9cldmw_APWYnl5S-WFbJwmVM1rI7e8dQ_Rz-zZ6QyjobfGO6nat1XOj6RJexGGt8R42P0nkz9X9iFlWk3BamD9g_NDQ9My-bTAU5S_vn_TYHB7jSu9gGT4k9KIWY-H-8KSUwDlzuFmNsYf3toSpwwvofd9trtQFjW2R05gQNzimNTeuFBpt_lPQANnQUdoUtwTlSmzgsTdJBDBx2FWWoHJVmpSZ7SZVM4-C99TnbYdXBTvfTgyWP5fi36yFn_4fwf6VFtMEfjfZJDHXqcxCDUgMP8x8N_BWIE0fiS1uJxwB2KvKD34YhKz35tSI-oJ52x1RjzImKZYD_R3vjrFuc90mnGedRojkXW28Dkh-YlXTK1cgUAA78ITR1AUVwiQesEFkW5AIVA"
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
@@ -32,8 +50,6 @@ def get_playlist_songs(playlist_id):
     playlist_name = response.json()["data"]["playlist"]["title"]
     tracks = response.json()["data"]["playlist"]["tracks"]["edges"]
 
-    songs_ids = []
-
     for track in tracks:
 
         # POSITION
@@ -43,7 +59,7 @@ def get_playlist_songs(playlist_id):
 
         # SONG ID
         song_id = track_info["id"]
-        songs_ids.append(song_id)
+        songs_ids.add(song_id)
 
         # ALBUM ID
         album_id = track_info["album"]["id"]
@@ -56,15 +72,118 @@ def get_playlist_songs(playlist_id):
             artist_id = art["id"]
             artists_ids.add(artist_id)
 
-    Playlist.objects.create(name=playlist_name)
-
+    get_artists(artists_ids)
+    get_albums(albums_ids)
     get_songs(songs_ids)
 
 
-def get_songs(songs_ids):
+def get_artists(artist_ids):
+    global artists
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIOcVMLRn7fXbSP1QzZeF_IE64_y-taO3UN3juWpWuNfHI7I8iunnf3ZYZ6XcUHgd3oNtmd6kGcPCIpPZcgcR_UTCvRgL9MTk7E60Xr0MFVHqzeYl9HG6QYmuj1oOVrekdL6wNcS6EvC2HfGtyCxFommgDkKUKwayDQyBIKWj65qfqL2nVmy7rJ59joQfE9kqwW4IgUduLpgP-aE88jmUqcwPWCdcfPsOvU6Hy7LYCEZ9lLDJXV6wLdPq1o1XLoyO-p98rU2u35srY6zrGeYAB4eF2ydFoRyZkRTa29tjBZQGB6WL2rKcIACL557BwU206elTM7RN_1X5XMVg0xSrmjTSUZ_MzhCKlxVgmP4l6SLpVQYT0zoaS_lHUleCtdODODYeKWWQE_se-qPn3kx3LN4uU6BXEbzmzXbFaAiKfFtGCg"
+    access_token = "Atza|IwEBIF64wtKhDtU7PYhN4AgPglx8h8pLB317kriQA9cldmw_APWYnl5S-WFbJwmVM1rI7e8dQ_Rz-zZ6QyjobfGO6nat1XOj6RJexGGt8R42P0nkz9X9iFlWk3BamD9g_NDQ9My-bTAU5S_vn_TYHB7jSu9gGT4k9KIWY-H-8KSUwDlzuFmNsYf3toSpwwvofd9trtQFjW2R05gQNzimNTeuFBpt_lPQANnQUdoUtwTlSmzgsTdJBDBx2FWWoHJVmpSZ7SZVM4-C99TnbYdXBTvfTgyWP5fi36yFn_4fwf6VFtMEfjfZJDHXqcxCDUgMP8x8N_BWIE0fiS1uJxwB2KvKD34YhKz35tSI-oJ52x1RjzImKZYD_R3vjrFuc90mnGedRojkXW28Dkh-YlXTK1cgUAA78ITR1AUVwiQesEFkW5AIVA"
+
+    # Security Id
+    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
+
+    for artist_id in artist_ids:
+
+        url = f"https://api.music.amazon.dev/v1/artists/{artist_id}"
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "x-api-key": profile_id,
+            "Content-Type": "application/json",
+        }
+
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            print(response.json())
+            return
+
+        track_info = response.json()["data"]["artist"]
+
+        # SONG NAME
+        name = track_info["name"]
+
+        # IMAGE URL
+        image_url = track_info["images"][0]["url"]
+
+        artists.append(
+            {
+                "name": name,
+                "image_url": image_url,
+            }
+        )
+
+        time.sleep(1)  # pauses for 1 second
+
+
+def get_albums(album_ids):
+    global albums
+
+    # Access token (expires in 1 hour)
+    access_token = "Atza|IwEBIF64wtKhDtU7PYhN4AgPglx8h8pLB317kriQA9cldmw_APWYnl5S-WFbJwmVM1rI7e8dQ_Rz-zZ6QyjobfGO6nat1XOj6RJexGGt8R42P0nkz9X9iFlWk3BamD9g_NDQ9My-bTAU5S_vn_TYHB7jSu9gGT4k9KIWY-H-8KSUwDlzuFmNsYf3toSpwwvofd9trtQFjW2R05gQNzimNTeuFBpt_lPQANnQUdoUtwTlSmzgsTdJBDBx2FWWoHJVmpSZ7SZVM4-C99TnbYdXBTvfTgyWP5fi36yFn_4fwf6VFtMEfjfZJDHXqcxCDUgMP8x8N_BWIE0fiS1uJxwB2KvKD34YhKz35tSI-oJ52x1RjzImKZYD_R3vjrFuc90mnGedRojkXW28Dkh-YlXTK1cgUAA78ITR1AUVwiQesEFkW5AIVA"
+
+    # Security Id
+    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
+
+    for album_id in album_ids:
+
+        url = f"https://api.music.amazon.dev/v1/albums/{album_id}"
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "x-api-key": profile_id,
+            "Content-Type": "application/json",
+        }
+
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            print(response.json())
+            return
+
+        track_info = response.json()["data"]["album"]
+
+        # SONG NAME
+        name = track_info["shortTitle"]
+
+        # DURATION
+        duration = track_info["duration"]
+
+        # RELEASE DATE
+        release_date = track_info["releaseDate"]
+
+        # EXPLICIT LANGUAGE
+        explicit = track_info["parentalSettings"]["hasExplicitLanguage"]
+
+        # IMAGE URL
+        image_url = track_info["images"][0]["url"]
+
+        albums.append(
+            {
+                "name": name,
+                "duration": duration,
+                "release_date": release_date,
+                "explicit": explicit,
+                "image_url": image_url,
+            }
+        )
+
+        # ARTISTS
+        # for artist in track_info["artists"]:
+        #     artists_ids.add(artist["id"])
+        # for track in track_info["tracks"]:
+        #     songs_ids.add(track["id"])
+
+        time.sleep(1)  # pauses for 1 second
+
+
+def get_songs(songs_ids):
+    global songs
+
+    # Access token (expires in 1 hour)
+    access_token = "Atza|IwEBIF64wtKhDtU7PYhN4AgPglx8h8pLB317kriQA9cldmw_APWYnl5S-WFbJwmVM1rI7e8dQ_Rz-zZ6QyjobfGO6nat1XOj6RJexGGt8R42P0nkz9X9iFlWk3BamD9g_NDQ9My-bTAU5S_vn_TYHB7jSu9gGT4k9KIWY-H-8KSUwDlzuFmNsYf3toSpwwvofd9trtQFjW2R05gQNzimNTeuFBpt_lPQANnQUdoUtwTlSmzgsTdJBDBx2FWWoHJVmpSZ7SZVM4-C99TnbYdXBTvfTgyWP5fi36yFn_4fwf6VFtMEfjfZJDHXqcxCDUgMP8x8N_BWIE0fiS1uJxwB2KvKD34YhKz35tSI-oJ52x1RjzImKZYD_R3vjrFuc90mnGedRojkXW28Dkh-YlXTK1cgUAA78ITR1AUVwiQesEFkW5AIVA"
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
@@ -101,25 +220,18 @@ def get_songs(songs_ids):
         # IMAGE URL
         image_url = track_info["images"][0]["url"]
 
-        Song.objects.create(
-            name=name,
-            release_date=release_date,
-            duration=duration,
-            explicit=explicit,
-            image=image_url,
+        songs.append(
+            {
+                "name": name,
+                "duration": duration,
+                "release_date": release_date,
+                "explicit": explicit,
+                "image_url": image_url,
+            }
         )
 
+        # albums_ids.add(track_info["album"]["id"])
+        # for artist in track_info["artists"]:
+        #     artists_ids.add(artist["id"])
+
         time.sleep(1)  # pauses for 1 second
-
-
-def amazon_music_api():
-    Playlist.objects.all().delete()
-    Song.objects.all().delete()
-
-    # Top 50 Most played: International -> B07QHGBGC9
-    playlist_id = "B07QHGBGC9"
-    get_playlist_songs(playlist_id)
-
-    # Today Hits: Spain -> B073PW84YH
-    playlist_id = "B073PW84YH"
-    get_playlist_songs(playlist_id)

@@ -89,11 +89,9 @@ def get_multiple_artists_spotify(artist_ids, headers):
         response = requests.get(endpoint, headers=headers)
         artists_info = response.json()["artists"]
         for artist_info in artists_info:
-            print(artist_info)
 
             # Extract the artist information
             artist_name = artist_info["name"]
-            artist_genres = artist_info["genres"]
             artist_followers = artist_info["followers"]["total"]
             artist_images = (
                 artist_info["images"][0]["url"] if artist_info["images"] else None
@@ -103,9 +101,8 @@ def get_multiple_artists_spotify(artist_ids, headers):
 
             # Get or create the artist
             artist, created = Artist.objects.get_or_create(
-                id=artist_info["id"],
+                name=artist_name,
                 defaults={
-                    "name": artist_name,
                     "followers": artist_followers,
                     "images": artist_images,
                     "popularity": artist_popularity,
@@ -114,7 +111,7 @@ def get_multiple_artists_spotify(artist_ids, headers):
             )
 
             # Get or create the genres and add them to the artist
-            for genre_name in artist_genres:
+            for genre_name in artist_info["genres"]:
                 genre, created = Genre.objects.get_or_create(name=genre_name)
                 artist.genres.add(genre)
 
@@ -131,18 +128,24 @@ def get_multiple_albums_spotify(album_ids, headers):
 
             # Extract the album information
             album_name = album_info["name"]
-            album_genre = album_info["genres"]
             album_images = album_info["images"][0]["url"]
             album_popularity = album_info["popularity"]
             album_release_date = album_info["release_date"]
             album_total_tracks = album_info["total_tracks"]
             album_href = album_info["href"]
 
+            artist_name = album_info["artists"][0]["name"]
+            artist, created = Artist.objects.get_or_create(name=artist_name)
+
+            # If the artist was created, add its id to artists_id
+            if created:
+                artist_ids.add(album_info["artists"][0]["id"])
+
             # Get or create the album
             album, created = Album.objects.get_or_create(
-                id=album_info["id"],
+                name=album_name,
+                artist=artist,
                 defaults={
-                    "name": album_name,
                     "images": album_images,
                     "popularity": album_popularity,
                     "release_date": album_release_date,
@@ -152,7 +155,7 @@ def get_multiple_albums_spotify(album_ids, headers):
             )
 
             # Get or create the genres and add them to the album
-            for genre_name in album_genre:
+            for genre_name in album_info["genres"]:
                 genre, created = Genre.objects.get_or_create(name=genre_name)
                 album.genre.add(genre)
 
@@ -160,20 +163,11 @@ def get_multiple_albums_spotify(album_ids, headers):
             new_song_ids = {
                 song["id"]
                 for song in album_info["tracks"]["items"]
-                if not Song.objects.filter(id=song["id"]).exists()
-            }
-            new_artist_ids = {
-                art["id"]
-                for art in album_info["artists"]
-                if not Artist.objects.filter(id=art["id"]).exists()
+                if not Song.objects.filter(name=song["name"]).exists()
             }
 
             song_ids.update(new_song_ids)
-            artist_ids.update(new_artist_ids)
 
-            # Add the songs and artists to the album
-            artists = Artist.objects.filter(id__in=artist_ids)
-            album.artists.set(artists)
             album.save()
 
 
@@ -194,11 +188,29 @@ def get_multiple_songs_spotify(song_ids, headers):
             song_popularity = song_info["popularity"]
             song_href = song_info["href"]
 
+            # Get/create the album
+            album_name = song_info["album"]["name"]
+            album_artist = song_info["album"]["artists"][0]["name"]
+            album, created = Album.objects.get_or_create(
+                name=album_name, artist__name=album_artist
+            )
+
+            if created:
+                album_ids.append(song_info["album"]["id"])
+
+            # Get/create the artist
+            main_artist, created = Artist.objects.get_or_create(
+                name=song_info["artists"][0]["name"]
+            )
+
+            if created:
+                artist_ids.add(song_info["artists"][0]["id"])
+
             # Get or create the song
             song, created = Song.objects.get_or_create(
-                id=song_info["id"],
+                name=song_name,
+                main_artist=main_artist,
                 defaults={
-                    "name": song_name,
                     "duration": song_duration,
                     "explicit": song_explicit,
                     "popularity": song_popularity,
@@ -206,28 +218,21 @@ def get_multiple_songs_spotify(song_ids, headers):
                 },
             )
 
-            # Get the album and artists for the song
-            new_album_id = (
-                song_info["album"]["id"]
-                if not Album.objects.filter(id=song_info["album"]["id"]).exists()
-                else None
-            )
+            # Add the album and collaborators to the song
+            if len(song_info["artists"]) > 1:
+                for artist_info in song_info["artists"][1:]:
+                    artist, created = Artist.objects.get_or_create(
+                        name=artist_info["name"]
+                    )
+                    song.collaborators.add(artist)
+
+            song.album = album
+            song.save()
+
             new_artist_ids = {
                 art["id"]
                 for art in song_info["artists"]
-                if not Artist.objects.filter(id=art["id"]).exists()
+                if not Artist.objects.filter(name=art["name"]).exists()
             }
 
-            if new_album_id:
-                album_ids.add(new_album_id)
             artist_ids.update(new_artist_ids)
-
-            # Get the album and artists for the song
-            album = Album.objects.get(id=song_info["album"]["id"])
-            artists_ids = [art["id"] for art in song_info["artists"]]
-            artists = Artist.objects.filter(id__in=artists_ids)
-
-            # Add the album and artists to the song
-            song.album = album
-            song.artists.set(artists)
-            song.save()

@@ -9,7 +9,9 @@ client_secret = (
 url = "https://api.amazon.com/auth/o2/token"
 
 redirect_uri = "https://api.music.amazon.dev/"
-code = "ANoZJJUUjclIzkCdkfzw"
+# MODIFY THE CODE
+code = "ANJmQACxJwiNnTCVVNUU"
+
 grant_type = "authorization_code"
 data = {
     "grant_type": grant_type,
