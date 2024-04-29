@@ -77,7 +77,7 @@ WSGI_APPLICATION = "songbird.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "songbirddb",
+        "NAME": "songbirdb",
         "USER": "songbird",
         "PASSWORD": "songbird",
         "HOST": "localhost",

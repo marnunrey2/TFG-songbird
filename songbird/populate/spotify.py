@@ -4,6 +4,9 @@ from .models import (
     Album,
     Artist,
     Genre,
+    Website,
+    Playlist,
+    PlaylistSong,
 )
 from itertools import islice
 
@@ -39,16 +42,28 @@ def spotify_api():
         "Content-Type": "application/json",
     }
 
-    # Weekly Top Global
-    playlist_id = "37i9dQZEVXbNG2KDcFcKOF"
-    get_playlist_spotify(playlist_id, headers)
+    # Define the playlists
+    playlists = {
+        "Weekly Top Global": "37i9dQZEVXbNG2KDcFcKOF",
+        "Weekly Top Spain": "37i9dQZEVXbJwoKy8qKpHG",
+        "Weekly Top USA": "37i9dQZEVXbLp5XoPON0wI",
+        "Weekly Top France": "37i9dQZEVXbKQ1ogMOyW9N",
+        "Weekly Top Colombia": "37i9dQZEVXbL1Fl8vdBUba",
+        "Weekly Top Argentina": "37i9dQZEVXbKPTKrnFPD0G",
+        "Weekly Top Germany": "37i9dQZEVXbK8BKKMArIyl",
+        "Weekly Top India": "37i9dQZEVXbMWDif5SCBJq",
+        "Weekly Top Italy": "37i9dQZEVXbJUPkgaWZcWG",
+        "Weekly Top Japan": "37i9dQZEVXbKqiTGXuCOsB",
+        "Weekly Top South Korea": "37i9dQZEVXbJZGli0rRP3r",
+        "Weekly Top UK": "37i9dQZEVXbMwmF30ppw50",
+    }
 
-    # Weekly Top Spain
-    playlist_id = "37i9dQZEVXbJwoKy8qKpHG"
-    get_playlist_spotify(playlist_id, headers)
+    # Fetch the songs, albums, and artists from all the playlists
+    for playlist_name, playlist_id in playlists.items():
+        get_playlist_spotify(playlist_name, playlist_id, headers)
 
 
-def get_playlist_spotify(playlist_id, headers):
+def get_playlist_spotify(playlist_name, playlist_id, headers):
     global song_ids, album_ids, artist_ids
 
     # Endpoint to make the request
@@ -59,6 +74,10 @@ def get_playlist_spotify(playlist_id, headers):
 
     # added_at, added_by, is_local, primary_color, track, video_thumbnail
     items = response.json()["items"]
+
+    # Create a Website and Playlist instance
+    website, _ = Website.objects.get_or_create(name="Spotify")
+    playlist, _ = Playlist.objects.get_or_create(name=playlist_name, website=website)
 
     for item in items:
         song_info = item["track"]
@@ -79,6 +98,19 @@ def get_playlist_spotify(playlist_id, headers):
         if song_ids:
             get_multiple_songs_spotify(song_ids.copy(), headers)
             song_ids.clear()
+
+    for index, item in enumerate(items):
+        song_info = item["track"]
+
+        # Get the song, album, and artist
+        main_artist = Artist.objects.get(name=song_info["artists"][0]["name"])
+        song = Song.objects.get(name=song_info["name"], main_artist=main_artist)
+
+        print(playlist, index + 1, song, main_artist)
+        # Create or update a PlaylistSong instance
+        playlist_song, created = PlaylistSong.objects.update_or_create(
+            song=song, playlist=playlist, defaults={"position": index + 1}
+        )
 
 
 def get_multiple_artists_spotify(artist_ids, headers):
@@ -188,23 +220,10 @@ def get_multiple_songs_spotify(song_ids, headers):
             song_popularity = song_info["popularity"]
             song_href = song_info["href"]
 
-            # Get/create the album
-            album_name = song_info["album"]["name"]
-            album_artist = song_info["album"]["artists"][0]["name"]
-            album, created = Album.objects.get_or_create(
-                name=album_name, artist__name=album_artist
-            )
-
-            if created:
-                album_ids.append(song_info["album"]["id"])
-
             # Get/create the artist
             main_artist, created = Artist.objects.get_or_create(
                 name=song_info["artists"][0]["name"]
             )
-
-            if created:
-                artist_ids.add(song_info["artists"][0]["id"])
 
             # Get or create the song
             song, created = Song.objects.get_or_create(
@@ -225,6 +244,16 @@ def get_multiple_songs_spotify(song_ids, headers):
                         name=artist_info["name"]
                     )
                     song.collaborators.add(artist)
+
+            # Get/create the album
+            album_name = song_info["album"]["name"]
+            album_artist = song_info["album"]["artists"][0]["name"]
+            album, created = Album.objects.get_or_create(
+                name=album_name, artist__name=album_artist
+            )
+
+            if created:
+                album_ids.append(song_info["album"]["id"])
 
             song.album = album
             song.save()
