@@ -7,6 +7,7 @@ from .models import (
     Website,
     Playlist,
     PlaylistSong,
+    Position,
 )
 from itertools import islice
 
@@ -65,7 +66,9 @@ def top_playlists():
 
     # Fetch the songs, albums, and artists from all the playlists
     for playlist_name, playlist_id in top_playlists.items():
-        get_playlist_spotify(playlist_name, playlist_id, True, headers)
+        get_playlist_spotify(
+            playlist_name, playlist_id, top_playlist=True, headers=headers
+        )
 
 
 def genre_playlists():
@@ -123,7 +126,9 @@ def genre_playlists():
     # Fetch the songs, albums, and artists from all the playlists
     for playlist_name, playlist_ids in genre_playlists.items():
         for playlist_id in playlist_ids:
-            get_playlist_spotify(playlist_name, playlist_id, False, headers)
+            get_playlist_spotify(
+                playlist_name, playlist_id, top_playlist=False, headers=headers
+            )
 
 
 def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
@@ -137,10 +142,6 @@ def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
 
     # added_at, added_by, is_local, primary_color, track, video_thumbnail
     items = response.json()["items"]
-
-    # Create a Website and Playlist instance
-    website, _ = Website.objects.get_or_create(name="Spotify")
-    playlist, _ = Playlist.objects.get_or_create(name=playlist_name, website=website)
 
     for item in items:
         song_info = item["track"]
@@ -164,16 +165,23 @@ def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
             song_ids.clear()
 
     if top_playlist:
+        # Create a Website and Playlist instance
+        website, _ = Website.objects.get_or_create(name="Spotify")
+        playlist, _ = Playlist.objects.get_or_create(
+            name=playlist_name, website=website
+        )
+
         for index, item in enumerate(items):
             song_info = item["track"]
 
             # Get the song, album, and artist
             main_artist = Artist.objects.get(name=song_info["artists"][0]["name"])
             song = Song.objects.get(name=song_info["name"], main_artist=main_artist)
+            position, _ = Position.objects.get_or_create(position=index + 1)
 
             # Create or update a PlaylistSong instance
-            playlist_song, created = PlaylistSong.objects.update_or_create(
-                song=song, playlist=playlist, defaults={"position": index + 1}
+            PlaylistSong.objects.update_or_create(
+                song=song, playlist=playlist, position=position
             )
 
 
@@ -196,7 +204,7 @@ def get_multiple_artists_spotify(artist_ids, headers):
             artist_href = artist_info["href"]
 
             # Get or create the artist
-            artist, created = Artist.objects.get_or_create(
+            artist, created = Artist.objects.update_or_create(
                 name=artist_name,
                 defaults={
                     "followers": artist_followers,
@@ -247,7 +255,7 @@ def get_multiple_albums_spotify(album_ids, headers):
                 artist_ids.add(album_info["artists"][0]["id"])
 
             # Get or create the album
-            album, created = Album.objects.get_or_create(
+            album, created = Album.objects.update_or_create(
                 name=album_name,
                 artist=artist,
                 defaults={
@@ -299,7 +307,7 @@ def get_multiple_songs_spotify(song_ids, headers):
             )
 
             # Get or create the song
-            song, created = Song.objects.get_or_create(
+            song, created = Song.objects.update_or_create(
                 name=song_name,
                 main_artist=main_artist,
                 defaults={

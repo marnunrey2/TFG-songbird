@@ -1,25 +1,60 @@
-from populate.models import Genre, Artist, Album, Song
-
 from bs4 import BeautifulSoup
 import urllib.request
 import json
 from datetime import timedelta
 
+import requests
+from .models import (
+    Song,
+    Album,
+    Artist,
+    Genre,
+    Website,
+    Playlist,
+    PlaylistSong,
+    Position,
+)
+from itertools import islice
+
+song_ids = set()
+album_ids = set()
+artist_ids = set()
+
 
 def deezer():
 
+    # Define the playlists
+    top_playlists = {
+        "Top Global": "3155776842",
+        "Top Spain": "1116190041",
+        "Top USA": "1313621735",
+        "Top France": "1109890291",
+        "Top Colombia": "1116188451",
+        "Top Argentina": "1279119721",
+        "Top Germany": "1111143121",
+        "Top Italy": "1116187241",
+        "Top Japan": "1362508955",
+        "Top South Korea": "1362510315",
+        "Top UK": "1111142221",
+    }
+
+    website, _ = Website.objects.get_or_create(name="Deezer")
+
+    # Fetch the songs, albums, and artists from all the playlists
+    for playlist_name, playlist_id in top_playlists.items():
+        get_playlist_deezer(playlist_name, playlist_id)
+
+
+def get_playlist_deezer(playlist_name, playlist_id):
+
     # BeautifulSoup
-    url = "https://www.deezer.com/es/playlist"
-    codigo = "/1116190041"
-    f = urllib.request.urlopen(url + codigo)
+    url = "https://www.deezer.com/es/playlist/"
+    f = urllib.request.urlopen(url + playlist_id)
     s = BeautifulSoup(f, "lxml")
 
     song_links = s.find("body").find("div", id="dzr-app").find("script").string
 
     playlist = json.loads(song_links.split(" = ")[1])
-
-    # PLAYLIST_ID, TITLE, TITLE_SEO, TYPE, STATUS, PARENT_PLAYLIST_ID, PARENT_USER_ID, PARENT_USERNAME, PARENT_USER_PICTURE, DESCRIPTION, PLAYLIST_PICTURE, PICTURE_TYPE, DURATION, NB_SONG, FANS, RANK, CHECKSUM, NB_FAN, DATE_ADD, DATE_MOD, HAS_ARTIST_LINKED, IS_SPONSORED, __TYPE__, IS_FAVORITE
-    playlist_info = playlist["DATA"]
 
     # SNG_ID, PRODUCT_TRACK_ID, UPLOAD_ID, SNG_TITLE, ART_ID, PROVIDER_ID, ART_NAME, ARTIST_IS_DUMMY, ARTISTS, ALB_ID, ALB_TITLE, VIDEO, DURATION, ALB_PICTURE, ART_PICTURE, RANK_SNG, FILESIZE, GAIN, MEDIA_VERSION, DISK_NUMBER, TRACK_NUMBER, TRACK_TOKEN, TRACK_TOKEN_EXPIRE, VERSION, MEDIA, EXPLICIT_LYRICS, RIGHTS, ISRC, DATE_ADD, HIERARCHICAL_TITLE, SNG_CONTRIBUTORS, LYRICS_ID, EXPLICIT_TRACK_CONTENT, VARIATION,__TYPE__
     songs_list = playlist["SONGS"]["data"]
@@ -30,14 +65,9 @@ def deezer():
         name = song_info["SNG_TITLE"]
 
         # Create or update the artist
-        artist_name = song_info["ART_NAME"]
-        artist_picture = song_info["ART_PICTURE"]
-        artist, created = Artist.objects.get_or_create(name=artist_name)
-
-        # If the artist was created or if it exists and images is None, update the images field
-        if created or (artist.images is None and artist_picture is not None):
-            artist.images = artist_picture
-            artist.save()
+        for art_info in song_info["ARTISTS"]:
+            artist_name = art_info["ART_NAME"]
+            artist, created = Artist.objects.get_or_create(name=artist_name)
 
         # Create or update the album
         album_name = song_info["ALB_TITLE"]
@@ -55,13 +85,10 @@ def deezer():
         # EXPLICIT_LYRICS -> EXPLICIT_LYRICS
         explicit = True if song_info["EXPLICIT_LYRICS"] == "1" else False
 
-        # LYRICS -> LYRICS_ID
-        # MEDIA -> HREF (url a un trozo de la cancion)
-
         # Create or update the song
         song, created = Song.objects.update_or_create(
             name=name,
-            main_artist=artist,
+            main_artist=Artist.objects.get(name=song_info["ART_NAME"]),
             defaults={
                 "duration": duration,
                 "explicit": explicit,
@@ -84,4 +111,32 @@ def deezer():
                 # Add the collaborator to the song's collaborators
                 song.collaborators.add(colab)
 
+        # Create or update a PlaylistSong instance
+        ranking = song_info["RANK_SNG"]
+        position, _ = Position.objects.get_or_create(position=ranking)
+        playlist, _ = Playlist.objects.get_or_create(
+            name="All Time Top", website=Website.objects.get(name="Deezer")
+        )
+        PlaylistSong.objects.update_or_create(
+            song=song, playlist=playlist, position=position
+        )
+
         song.save()
+
+    # Create a Playlist instance
+    playlist, _ = Playlist.objects.get_or_create(
+        name=playlist_name, website=Website.objects.get(name="Deezer")
+    )
+
+    for index, song_info in enumerate(songs_list):
+
+        position, _ = Position.objects.get_or_create(position=index + 1)
+
+        # Get the song, album, and artist
+        main_artist = Artist.objects.get(name=song_info["ART_NAME"])
+        song = Song.objects.get(name=song_info["SNG_TITLE"], main_artist=main_artist)
+
+        # Create or update a PlaylistSong instance
+        PlaylistSong.objects.update_or_create(
+            song=song, playlist=playlist, position=position
+        )

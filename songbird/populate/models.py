@@ -90,15 +90,20 @@ class Playlist(models.Model):
         return self.name
 
 
+class Position(models.Model):
+    position = models.IntegerField(unique=True)
+
+    def __str__(self):
+        return str(self.position)
+
+
 class PlaylistSong(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     playlist = models.ForeignKey(
         Playlist, on_delete=models.CASCADE, related_name="playlist_songs"
     )
-    position = models.IntegerField()
-
-    class Meta:
-        unique_together = (
-            "playlist",
-            "position",
-        )
+    position = models.ForeignKey(
+        Position,
+        on_delete=models.CASCADE,
+        related_name="playlist_position",
+    )
