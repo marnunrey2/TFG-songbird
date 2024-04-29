@@ -25,6 +25,11 @@ def chunks(data, SIZE=50):
 
 
 def spotify_api():
+    top_playlists()
+    genre_playlists()
+
+
+def top_playlists():
     client_id = "25c561e06c384a0c8a24901dc80f8114"
     client_secret = "f7e84ccb68384876a6b3264eb3d74d77"
     auth_url = "https://accounts.spotify.com/api/token"
@@ -43,7 +48,7 @@ def spotify_api():
     }
 
     # Define the playlists
-    playlists = {
+    top_playlists = {
         "Weekly Top Global": "37i9dQZEVXbNG2KDcFcKOF",
         "Weekly Top Spain": "37i9dQZEVXbJwoKy8qKpHG",
         "Weekly Top USA": "37i9dQZEVXbLp5XoPON0wI",
@@ -59,11 +64,69 @@ def spotify_api():
     }
 
     # Fetch the songs, albums, and artists from all the playlists
-    for playlist_name, playlist_id in playlists.items():
-        get_playlist_spotify(playlist_name, playlist_id, headers)
+    for playlist_name, playlist_id in top_playlists.items():
+        get_playlist_spotify(playlist_name, playlist_id, True, headers)
 
 
-def get_playlist_spotify(playlist_name, playlist_id, headers):
+def genre_playlists():
+    client_id = "25c561e06c384a0c8a24901dc80f8114"
+    client_secret = "f7e84ccb68384876a6b3264eb3d74d77"
+    auth_url = "https://accounts.spotify.com/api/token"
+    data = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
+
+    auth_response = requests.post(auth_url, data=data)
+    access_token = auth_response.json().get("access_token")
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    # Define the playlists
+    genre_playlists = {
+        "Latina": ["37i9dQZF1DX10zKzsJ2jva"],
+        "Reggaeton": ["37i9dQZF1DWY7IeIP1cdjF"],
+        "Pop": [
+            "37i9dQZF1DWUa8ZRTfalHk",
+            "37i9dQZF1DXcBWIGoYBM5M",
+            "37i9dQZF1DX3sCT1ItXgNd",
+            "37i9dQZF1DWSpF87bP6JSF",
+        ],
+        "Rock": ["37i9dQZF1DWZryfp6NSvtz", "37i9dQZF1DX1MT1Ubz4wvO"],
+        "Metal": ["37i9dQZF1DX5J7FIl4q56G"],
+        "Hip hop": ["37i9dQZF1DX2sQHbtx0sdt"],
+        "Flamenco": ["37i9dQZF1DWYJd705x6Zbc"],
+        "Dance": ["37i9dQZF1DX0BcQWzuB7ZO"],
+        "Indie": ["37i9dQZF1DXdbXrPNafg9d"],
+        "R&B": ["37i9dQZF1DWUzFXarNiofw"],
+        "K-pop": ["37i9dQZF1DXe5W6diBL5N4"],
+        "Jazz": ["37i9dQZF1DX7YCknf2jT6s"],
+        "Clasica": ["37i9dQZF1DWV0gynK7G6pD"],
+        "Folk": ["37i9dQZF1DWYV7OOaGhoH0"],
+        "Soul": ["37i9dQZF1DWSXWSaQmvWOB"],
+        "Reggae": ["37i9dQZF1DXbSbnqxMTGx9"],
+        "Instrumental": ["37i9dQZF1DXaImRpG7HXqp"],
+        "Punk": ["37i9dQZF1DX0KpeLFwA3tO"],
+        "Blues": ["37i9dQZF1DX0QNpebF7rcL"],
+        "Alternativa": ["37i9dQZF1DX2G2VrXHSPQG"],
+        "Afro": ["37i9dQZF1DWT6SJaitNDax"],
+        "Funk": ["37i9dQZF1DX70TzPK5buVf"],
+        "Cumbia": ["37i9dQZF1DWT1viuVscXm2"],
+        "Salsa": ["37i9dQZF1DX1UHxedJfnRM"],
+        "Country": ["37i9dQZF1DX7hnECllVaUq"],
+    }
+
+    # Fetch the songs, albums, and artists from all the playlists
+    for playlist_name, playlist_ids in genre_playlists.items():
+        for playlist_id in playlist_ids:
+            get_playlist_spotify(playlist_name, playlist_id, False, headers)
+
+
+def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
     global song_ids, album_ids, artist_ids
 
     # Endpoint to make the request
@@ -83,9 +146,10 @@ def get_playlist_spotify(playlist_name, playlist_id, headers):
         song_info = item["track"]
 
         # Add the song, album, and artist IDs to the sets
-        song_ids.add(song_info["id"])
-        album_ids.add(song_info["album"]["id"])
-        artist_ids.update(art["id"] for art in song_info["artists"])
+        if song_info is not None:
+            song_ids.add(song_info["id"])
+            album_ids.add(song_info["album"]["id"])
+            artist_ids.update(art["id"] for art in song_info["artists"])
 
     # Fetch the songs, albums, and artists
     while song_ids or album_ids or artist_ids:
@@ -99,18 +163,18 @@ def get_playlist_spotify(playlist_name, playlist_id, headers):
             get_multiple_songs_spotify(song_ids.copy(), headers)
             song_ids.clear()
 
-    for index, item in enumerate(items):
-        song_info = item["track"]
+    if top_playlist:
+        for index, item in enumerate(items):
+            song_info = item["track"]
 
-        # Get the song, album, and artist
-        main_artist = Artist.objects.get(name=song_info["artists"][0]["name"])
-        song = Song.objects.get(name=song_info["name"], main_artist=main_artist)
+            # Get the song, album, and artist
+            main_artist = Artist.objects.get(name=song_info["artists"][0]["name"])
+            song = Song.objects.get(name=song_info["name"], main_artist=main_artist)
 
-        print(playlist, index + 1, song, main_artist)
-        # Create or update a PlaylistSong instance
-        playlist_song, created = PlaylistSong.objects.update_or_create(
-            song=song, playlist=playlist, defaults={"position": index + 1}
-        )
+            # Create or update a PlaylistSong instance
+            playlist_song, created = PlaylistSong.objects.update_or_create(
+                song=song, playlist=playlist, defaults={"position": index + 1}
+            )
 
 
 def get_multiple_artists_spotify(artist_ids, headers):
@@ -163,6 +227,15 @@ def get_multiple_albums_spotify(album_ids, headers):
             album_images = album_info["images"][0]["url"]
             album_popularity = album_info["popularity"]
             album_release_date = album_info["release_date"]
+
+            # Check if the release date is just a year
+            if len(album_release_date) == 4:
+                # Append "-01-01" to make it a valid date
+                album_release_date = album_release_date + "-01-01"
+            elif len(album_release_date) == 7:
+                # Append "-01" to make it a valid date
+                album_release_date = album_release_date + "-01"
+
             album_total_tracks = album_info["total_tracks"]
             album_href = album_info["href"]
 
