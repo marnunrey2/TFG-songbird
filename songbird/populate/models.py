@@ -82,7 +82,7 @@ class Song(models.Model):
     name = models.CharField(max_length=255)
     duration = models.IntegerField(null=True, blank=True)
     explicit = models.BooleanField(null=True, blank=True)
-    popularity = models.IntegerField(null=True, blank=True)
+    spotify_streams = models.BigIntegerField(null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
     images = models.CharField(max_length=255, null=True, blank=True)
     lyrics = models.TextField(null=True, blank=True)
