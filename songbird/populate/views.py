@@ -34,6 +34,7 @@ def populate_view(request):
     artists = Artist.objects.all()
     albums = Album.objects.all()
     playlists = Playlist.objects.all()
+    genres = Genre.objects.all()
 
     # Pass the objects to the template
     context = {
@@ -41,5 +42,6 @@ def populate_view(request):
         "artists": artists,
         "albums": albums,
         "playlists": playlists,
+        "genres": genres,
     }
     return render(request, "database.html", context)

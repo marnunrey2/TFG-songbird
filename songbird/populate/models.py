@@ -2,7 +2,51 @@ from django.db import models
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=255, null=True, blank=True)
+    BASE_GENRES = [
+        "POP",
+        "ROCK",
+        "HIP HOP",
+        "TRAP",
+        "RAP",
+        "REGGAETON",
+        "URBAN",
+        "LATIN",
+        "BLUES",
+        "METAL",
+        "ALT",
+        "COUNTRY",
+        "SOUL",
+        "PUNK",
+        "FUNK",
+        "FOLK",
+        "HOUSE",
+        "DANCE",
+        "DISCO",
+        "EDM",
+        "TECHNO",
+        "ELECTRO",
+        "REGGAE",
+        "AFR",
+        "SALSA",
+        "BACHATA",
+        "FLAMENCO",
+        "RUMBA",
+        "JAPAN",
+        "KOREAN",
+        "CUMBIA",
+        "R&B",
+        "INDIE",
+        "JAZZ",
+        "CLASSICAL",
+        "CHOIR",
+        "INSTRUMENTAL",
+        "SONGWRITER",
+    ]
+
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Artist(models.Model):

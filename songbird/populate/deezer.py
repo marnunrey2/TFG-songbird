@@ -38,7 +38,7 @@ def deezer():
         "Top UK": "1111142221",
     }
 
-    website, _ = Website.objects.get_or_create(name="Deezer")
+    Website.objects.get_or_create(name="Deezer")
 
     # Fetch the songs, albums, and artists from all the playlists
     for playlist_name, playlist_id in top_playlists.items():
