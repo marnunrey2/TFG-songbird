@@ -297,7 +297,7 @@ def get_multiple_songs_spotify(song_ids, headers):
 
             # Extract the song information
             song_name = song_info["name"]
-            song_duration = song_info["duration_ms"]
+            song_duration = song_info["duration_ms"] // 1000  # Convert to seconds
             song_explicit = song_info["explicit"]
             # song_popularity = song_info["popularity"]
             # song_href = song_info["href"]
@@ -331,6 +331,7 @@ def get_multiple_songs_spotify(song_ids, headers):
             album, created = Album.objects.get_or_create(
                 name=album_name, artist__name=album_artist
             )
+            song.available_at.append("YouTube")
             song.album = album
             song.save()
 

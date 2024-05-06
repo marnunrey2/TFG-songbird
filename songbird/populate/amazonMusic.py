@@ -269,7 +269,7 @@ def get_multiple_songs_amazon(song_ids):
 
                     if created:
                         artists_ids.add(artist_info["id"])
-
+            song.available_at.append("Amazon Music")
             song.save()
 
         time.sleep(1.5)  # pauses for 1 second

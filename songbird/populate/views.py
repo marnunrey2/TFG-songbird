@@ -14,6 +14,7 @@ from .deezer import deezer
 from .amazonMusic import amazon_music_api
 from .kworb import kworb_all_time
 from .appleMusic import apple_music
+from .youtube import youtube_api
 
 
 def delete_all_objects():
@@ -28,6 +29,8 @@ def delete_all_objects():
 
 
 def populate_view(request):
+
+    deezer()
 
     # Query all objects from each model
     songs = Song.objects.all()

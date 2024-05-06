@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class Genre(models.Model):
@@ -79,14 +80,29 @@ class Album(models.Model):
 
 
 class Song(models.Model):
+
+    PLATFORMS = [
+        ("Spotify", "Spotify"),
+        ("Amazon Music", "Amazon Music"),
+        ("Deezer", "Deezer"),
+        ("YouTube", "YouTube"),
+        ("Apple Music", "Apple Music"),
+    ]
+
     name = models.CharField(max_length=255)
     duration = models.IntegerField(null=True, blank=True)
     explicit = models.BooleanField(null=True, blank=True)
-    spotify_streams = models.BigIntegerField(null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
     images = models.CharField(max_length=255, null=True, blank=True)
     lyrics = models.TextField(null=True, blank=True)
-    href = models.CharField(max_length=255, null=True, blank=True)
+    available_at = ArrayField(
+        models.CharField(
+            choices=PLATFORMS,
+        ),
+        default=list,
+    )
+    reproductions = models.JSONField(default=dict)
+
     album = models.ForeignKey(
         Album,
         on_delete=models.CASCADE,

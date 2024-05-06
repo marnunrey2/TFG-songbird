@@ -37,11 +37,13 @@ def kworb_spotify_all_time():
         streams = int(song_info[1].text.strip().replace(",", ""))
 
         main_artist, _ = Artist.objects.get_or_create(name=artist_name)
-        song, _ = Song.objects.update_or_create(
+        song, _ = Song.objects.get_or_create(
             name=song_name,
             main_artist=main_artist,
-            defaults={"spotify_streams": streams},
         )
+        song.available_at.append("Spotify")
+        song.reproductions["Spotify"] = streams
+        song.save()
 
         position, _ = Position.objects.get_or_create(position=pos)
 
@@ -78,11 +80,13 @@ def kworb_apple_music_all_time():
         streams = int(song_info[4].text.strip().replace(",", ""))
 
         main_artist, _ = Artist.objects.get_or_create(name=artist_name)
-        song, _ = Song.objects.update_or_create(
+        song, _ = Song.objects.get_or_create(
             name=song_name,
             main_artist=main_artist,
-            defaults={"spotify_streams": streams},
         )
+        song.available_at.append("Apple Music")
+        song.reproductions["Apple Music"] = streams
+        song.save()
 
         position, _ = Position.objects.get_or_create(position=pos)
 

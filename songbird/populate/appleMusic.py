@@ -99,6 +99,8 @@ def get_songs(href, playlist):
             name=song_name,
             main_artist=main_artist,
         )
+        song.available_at.append("Apple Music")
+        song.save()
 
         position, _ = Position.objects.get_or_create(position=pos)
 

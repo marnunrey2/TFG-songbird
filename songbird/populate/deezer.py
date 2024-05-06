@@ -120,7 +120,7 @@ def get_playlist_deezer(playlist_name, playlist_id):
         PlaylistSong.objects.update_or_create(
             song=song, playlist=playlist, position=position
         )
-
+        song.available_at.append("Deezer")
         song.save()
 
     # Create a Playlist instance
