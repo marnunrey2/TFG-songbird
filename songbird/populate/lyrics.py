@@ -1,39 +1,39 @@
-from bs4 import BeautifulSoup
-import urllib.request
-from selenium import webdriver
+import lyricsgenius
+
+genius = lyricsgenius.Genius()
+song_name = "To You"
+artist_name = "Andy Shauf"
+song = genius.search_song(song_name, artist_name)
+print(song.lyrics)
 
 
-def get_lyrics(song_name, artist_name):
-    # Step 3
-    search_query = f"{song_name} {artist_name}".replace(" ", "%20")
+# Try search_songs with a chunk of 5 songs
 
-    # Initialize the Chrome driver
-    driver = webdriver.Edge(r"C:\Users\W10\Downloads\edgedriver_win32\msedgedriver.exe")
-
-    # BeautifulSoup
-    url = f"https://genius.com/search?q={search_query}"
-    driver.get(url)
-    s = BeautifulSoup(driver.page_source, "lxml")
-
-    print(s)
-
-    # Step 6
-    song_url = s.find("div", class_="u-quarter_vertical_margins u-clickable")
-    print(song_url)
-
-    # Open the song URL
-    driver.get(song_url)
-
-    # Step 8
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-
-    # Step 9
-    lyrics_div = soup.find("div", {"data-lyrics-container": "true"})
-    print(lyrics_div.text)
-
-    # Close the driver
-    driver.quit()
+# Try to get artist info (instagram, twitter, facebook, etc.) by
+# artist = genius.search_artist("Andy Shauf")
+# artist.save_lyrics() (json file)
 
 
-# Example usage:
-get_lyrics("LA RONDA", "myke towers")
+import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # take environment variables from .env.
+
+
+def search_genius(query):
+    url = "https://api.genius.com/search"
+    token = os.getenv("GENIUS_ACCESS_TOKEN")  # get the token from environment variables
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"q": query}
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+
+# Usage
+query = "Kendrick Lamar"
+result = search_genius(query)

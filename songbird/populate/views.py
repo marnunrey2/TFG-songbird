@@ -30,7 +30,9 @@ def delete_all_objects():
 
 def populate_view(request):
 
-    deezer()
+    # delete_all_objects()
+
+    # youtube_api()
 
     # Query all objects from each model
     songs = Song.objects.all()

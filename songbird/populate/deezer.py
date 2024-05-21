@@ -28,14 +28,16 @@ def deezer():
         "Top Global": "3155776842",
         "Top Spain": "1116190041",
         "Top USA": "1313621735",
+        "Top UK": "1111142221",
+        "Top Canada": "1652248171",
+        "Top South Korea": "1362510315",
         "Top France": "1109890291",
+        "Top Germany": "1111143121",
+        "Top Australia": "1313616925",
         "Top Colombia": "1116188451",
         "Top Argentina": "1279119721",
-        "Top Germany": "1111143121",
         "Top Italy": "1116187241",
         "Top Japan": "1362508955",
-        "Top South Korea": "1362510315",
-        "Top UK": "1111142221",
     }
 
     Website.objects.get_or_create(name="Deezer")

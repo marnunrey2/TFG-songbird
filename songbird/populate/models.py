@@ -53,20 +53,16 @@ class Genre(models.Model):
 class Artist(models.Model):
     name = models.CharField(max_length=255, primary_key=True)
     genres = models.ManyToManyField(Genre, blank=True)
-    followers = models.IntegerField(null=True, blank=True)
+    followers = models.JSONField(default=dict)
     images = models.CharField(max_length=255, null=True, blank=True)
-    popularity = models.IntegerField(null=True, blank=True)
-    href = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Album(models.Model):
     name = models.CharField(max_length=255)
     genre = models.ManyToManyField(Genre, blank=True)
     images = models.CharField(max_length=255, null=True, blank=True)
-    popularity = models.IntegerField(null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
     total_tracks = models.IntegerField(null=True, blank=True)
-    href = models.CharField(max_length=255, null=True, blank=True)
 
     artist = models.ForeignKey(
         Artist, on_delete=models.CASCADE, related_name="artist", null=True, blank=True
@@ -90,6 +86,10 @@ class Song(models.Model):
     ]
 
     name = models.CharField(max_length=255)
+    youtube_name = ArrayField(
+        models.CharField(),
+        default=list,
+    )
     duration = models.IntegerField(null=True, blank=True)
     explicit = models.BooleanField(null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
@@ -127,6 +127,12 @@ class Song(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Ensure available_at and youtube_name does not contain duplicates
+        self.youtube_name = list(set(self.youtube_name))
+        self.available_at = list(set(self.available_at))
+        super().save(*args, **kwargs)
 
 
 class Website(models.Model):

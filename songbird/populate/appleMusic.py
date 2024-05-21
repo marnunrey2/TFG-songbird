@@ -13,17 +13,17 @@ BASE_URL = "https://kworb.net"
 
 countries = [
     "Worldwide",
-    "spain",
+    "Spain",
     "United States",
+    "United Kingdom",
+    "Canada" "South Korea",
     "France",
+    "Germany",
+    "Australia",
     "Colombia",
     "Argentina",
-    "Germany",
-    "India",
     "Italy",
     "Japan",
-    "South Korea",
-    "United Kingdom",
 ]
 
 

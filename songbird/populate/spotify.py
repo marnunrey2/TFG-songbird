@@ -20,15 +20,16 @@ top_playlists = {
     "Weekly Top Global": "37i9dQZEVXbNG2KDcFcKOF",
     "Weekly Top Spain": "37i9dQZEVXbJwoKy8qKpHG",
     "Weekly Top USA": "37i9dQZEVXbLp5XoPON0wI",
+    "Weekly Top UK": "37i9dQZEVXbMwmF30ppw50",
+    "Weekly Top Canada": "37i9dQZEVXbMda2apknTqH",
+    "Weekly Top South Korea": "37i9dQZEVXbJZGli0rRP3r",
     "Weekly Top France": "37i9dQZEVXbKQ1ogMOyW9N",
+    "Weekly Top Germany": "37i9dQZEVXbK8BKKMArIyl",
+    "Weekly Top Australia": "37i9dQZEVXbK4fwx2r07XW",
     "Weekly Top Colombia": "37i9dQZEVXbL1Fl8vdBUba",
     "Weekly Top Argentina": "37i9dQZEVXbKPTKrnFPD0G",
-    "Weekly Top Germany": "37i9dQZEVXbK8BKKMArIyl",
-    "Weekly Top India": "37i9dQZEVXbMWDif5SCBJq",
     "Weekly Top Italy": "37i9dQZEVXbJUPkgaWZcWG",
     "Weekly Top Japan": "37i9dQZEVXbKqiTGXuCOsB",
-    "Weekly Top South Korea": "37i9dQZEVXbJZGli0rRP3r",
-    "Weekly Top UK": "37i9dQZEVXbMwmF30ppw50",
 }
 
 genre_playlists = {
@@ -201,10 +202,10 @@ def get_multiple_artists_spotify(artist_ids, headers):
             artist, created = Artist.objects.update_or_create(
                 name=artist_name,
                 defaults={
-                    "followers": artist_followers,
                     "images": artist_images,
                 },
             )
+            artist.followers["Spotify"] = artist_followers
 
             # Get or create the genres and add them to the artist
             for genre_name in artist_info["genres"]:
