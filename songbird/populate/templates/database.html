@@ -10,24 +10,11 @@
     <p>{{ website.name }}</p>
 {% endfor %}
 
-<h1>Playlists</h1>
-{% for pl in playlists %}
-    <p>{{ pl.name }}</p>
-{% endfor %}
-
-<h1>Songs</h1>
-{% for song in songs %}
-    <p>{{ song.name }}</p>
-{% endfor %}
-
-<h1>Artists</h1>
-{% for artist in artists %}
-    <p>{{ artist.name }}</p>
-{% endfor %}
-
-<h1>Albums</h1>
-{% for album in albums %}
-    <p>{{ album.name }}</p>
+{% for playlist in playlists %}
+    <h2>{{ playlist.name }}</h2>
+    {% for playlist_song in playlist.playlist_songs.all %}
+        <p>{{ playlist_song.position }}: {{ playlist_song.song.name }}</p>
+    {% endfor %}
 {% endfor %}
 
 

@@ -16,7 +16,8 @@ countries = [
     "Spain",
     "United States",
     "United Kingdom",
-    "Canada" "South Korea",
+    "Canada",
+    "South Korea",
     "France",
     "Germany",
     "Australia",
@@ -94,9 +95,9 @@ def get_songs(href, playlist):
         artist_name = song[0].strip()
         song_name = song[1].strip()
 
-        main_artist, _ = Artist.objects.get_or_create(name=artist_name)
+        main_artist, _ = Artist.objects.get_or_create(name__icontains=artist_name)
         song, _ = Song.objects.get_or_create(
-            name=song_name,
+            name__icontains=song_name,
             main_artist=main_artist,
         )
         song.available_at.append("Apple Music")

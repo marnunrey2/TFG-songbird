@@ -11,9 +11,9 @@ from .models import (
 )
 from .spotify import spotify_api
 from .deezer import deezer
-from .amazonMusic import amazon_music_api
 from .kworb import kworb_all_time
 from .appleMusic import apple_music
+from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
 
 
@@ -32,7 +32,12 @@ def populate_view(request):
 
     # delete_all_objects()
 
-    # youtube_api()
+    # spotify_api()
+    # apple_music()
+    # kworb_all_time()
+    # deezer()
+    # amazon_music_api()
+    youtube_api()
 
     # Query all objects from each model
     songs = Song.objects.all()
@@ -41,6 +46,7 @@ def populate_view(request):
     genres = Genre.objects.all()
     playlists = Playlist.objects.all()
     websites = Website.objects.all()
+    playlists_songs = Playlist.objects.prefetch_related("playlist_songs").all()
 
     # Pass the objects to the template
     context = {
@@ -50,5 +56,6 @@ def populate_view(request):
         "playlists": playlists,
         "genres": genres,
         "websites": websites,
+        "playlists_songs": playlists_songs,
     }
     return render(request, "database.html", context)

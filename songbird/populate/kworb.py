@@ -11,6 +11,10 @@ from .models import (
 
 
 def kworb_all_time():
+
+    Website.objects.get_or_create(name="Spotify")
+    Website.objects.get_or_create(name="Apple Music")
+
     kworb_spotify_all_time()
     kworb_apple_music_all_time()
 
@@ -36,18 +40,26 @@ def kworb_spotify_all_time():
         song_name = s[1].strip()
         streams = int(song_info[1].text.strip().replace(",", ""))
 
-        main_artist, _ = Artist.objects.get_or_create(name=artist_name)
-        song, _ = Song.objects.get_or_create(
-            name=song_name,
-            main_artist=main_artist,
-        )
+        # Get or create the main artist
+        main_artist = Artist.objects.filter(name__icontains=artist_name).first()
+
+        if main_artist is None:
+            main_artist = Artist.objects.create(name=artist_name)
+
+        # Get or create the song
+        song = Song.objects.filter(
+            name__icontains=song_name, main_artist=main_artist
+        ).first()
+
+        if song is None:
+            song = Song.objects.create(name=song_name, main_artist=main_artist)
+
         song.available_at.append("Spotify")
         song.reproductions["Spotify"] = streams
         song.save()
 
+        # Update "All Time Top" playlist
         position, _ = Position.objects.get_or_create(position=pos)
-
-        # Create or update a PlaylistSong instance
         PlaylistSong.objects.update_or_create(
             song=song, playlist=playlist, position=position
         )
@@ -79,18 +91,26 @@ def kworb_apple_music_all_time():
         song_name = s[1].strip()
         streams = int(song_info[4].text.strip().replace(",", ""))
 
-        main_artist, _ = Artist.objects.get_or_create(name=artist_name)
-        song, _ = Song.objects.get_or_create(
-            name=song_name,
-            main_artist=main_artist,
-        )
+        # Get or create the main artist
+        main_artist = Artist.objects.filter(name__icontains=artist_name).first()
+
+        if main_artist is None:
+            main_artist = Artist.objects.create(name=artist_name)
+
+        # Get or create the song
+        song = Song.objects.filter(
+            name__icontains=song_name, main_artist=main_artist
+        ).first()
+
+        if song is None:
+            song = Song.objects.create(name=song_name, main_artist=main_artist)
+
         song.available_at.append("Apple Music")
         song.reproductions["Apple Music"] = streams
         song.save()
 
+        # Update "All Time Top" playlist
         position, _ = Position.objects.get_or_create(position=pos)
-
-        # Create or update a PlaylistSong instance
         PlaylistSong.objects.update_or_create(
             song=song, playlist=playlist, position=position
         )

@@ -1,5 +1,13 @@
 import requests
-from populate.models import Playlist, Song, Artist, Album
+from populate.models import (
+    Playlist,
+    Song,
+    Artist,
+    Album,
+    Website,
+    Position,
+    PlaylistSong,
+)
 import time
 from datetime import datetime
 from itertools import islice
@@ -21,6 +29,8 @@ def chunks(data, SIZE=25):
 
 def amazon_music_api():
 
+    Website.objects.get_or_create(name="Amazon Music")
+
     # Top 50 Most played: International -> B07QHGBGC9
     playlist_id = "B07QHGBGC9"
     get_playlist_songs(playlist_id)
@@ -34,7 +44,7 @@ def get_playlist_songs(playlist_id):
     global songs_ids, albums_ids, artists_ids
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIImm0S3CLAqJAzWkIK3O1xVoEV2nnPlQ6qCd8jgnrs-80zSCD8mDW7btHFh7IZye-2-pAy1A5arkHlNS4yk-DvzZ7190C4z4Q5vd1-t89IoqjXf9wWUTAJTO6oWrP5oYuVmQ_cNZwEoWORwjwBJDDUrjjiTVPU6fPOr2hu4S5_F6Bgpg5K_2UaiaD9mHd0hW3netpQCPSkqDFmGOBcewx2pQC2rtLc81bZ83s7YjzH1dfwowu_yWvMFswqfSIX00Uz9fPskzNleII-l_IJWE4Gk-kvVHllbRTo46duZHY-wfeyZuFhshAZKphsOkRdn83cQsltEHTm4w1eTdsl-GMAzQGosBKr85Yw8qTNE8NvexxJDItvvd4ld5ahUm71ODyNCikhiqo5m5fj-U3C08cTgcYkdONQSznC--3-dQXOq8QA"
+    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
@@ -63,7 +73,7 @@ def get_playlist_songs(playlist_id):
         track_info = track["node"]
 
         # Add the song, album, and artist IDs to the sets
-        songs_ids.add(track_info["id"])
+        songs_ids.add((playlist_name, position, track_info["id"]))
         albums_ids.add(track_info["album"]["id"])
         artists_ids.update(art["id"] for art in track_info["artists"])
 
@@ -83,7 +93,7 @@ def get_playlist_songs(playlist_id):
 def get_multiple_artists_amazon(artist_ids):
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIImm0S3CLAqJAzWkIK3O1xVoEV2nnPlQ6qCd8jgnrs-80zSCD8mDW7btHFh7IZye-2-pAy1A5arkHlNS4yk-DvzZ7190C4z4Q5vd1-t89IoqjXf9wWUTAJTO6oWrP5oYuVmQ_cNZwEoWORwjwBJDDUrjjiTVPU6fPOr2hu4S5_F6Bgpg5K_2UaiaD9mHd0hW3netpQCPSkqDFmGOBcewx2pQC2rtLc81bZ83s7YjzH1dfwowu_yWvMFswqfSIX00Uz9fPskzNleII-l_IJWE4Gk-kvVHllbRTo46duZHY-wfeyZuFhshAZKphsOkRdn83cQsltEHTm4w1eTdsl-GMAzQGosBKr85Yw8qTNE8NvexxJDItvvd4ld5ahUm71ODyNCikhiqo5m5fj-U3C08cTgcYkdONQSznC--3-dQXOq8QA"
+    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
@@ -127,7 +137,7 @@ def get_multiple_albums_amazon(album_ids):
     global artists_ids, songs_ids
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIImm0S3CLAqJAzWkIK3O1xVoEV2nnPlQ6qCd8jgnrs-80zSCD8mDW7btHFh7IZye-2-pAy1A5arkHlNS4yk-DvzZ7190C4z4Q5vd1-t89IoqjXf9wWUTAJTO6oWrP5oYuVmQ_cNZwEoWORwjwBJDDUrjjiTVPU6fPOr2hu4S5_F6Bgpg5K_2UaiaD9mHd0hW3netpQCPSkqDFmGOBcewx2pQC2rtLc81bZ83s7YjzH1dfwowu_yWvMFswqfSIX00Uz9fPskzNleII-l_IJWE4Gk-kvVHllbRTo46duZHY-wfeyZuFhshAZKphsOkRdn83cQsltEHTm4w1eTdsl-GMAzQGosBKr85Yw8qTNE8NvexxJDItvvd4ld5ahUm71ODyNCikhiqo5m5fj-U3C08cTgcYkdONQSznC--3-dQXOq8QA"
+    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
 
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
 
@@ -184,7 +194,7 @@ def get_multiple_albums_amazon(album_ids):
                 if not Song.objects.filter(name=song["title"]).exists()
             }
 
-            songs_ids.update(new_song_ids)
+            songs_ids.update((None, None, new_song_ids))
 
         time.sleep(1.5)  # pauses for 1 second
 
@@ -193,14 +203,19 @@ def get_multiple_songs_amazon(song_ids):
     global albums_ids, artists_ids
 
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIImm0S3CLAqJAzWkIK3O1xVoEV2nnPlQ6qCd8jgnrs-80zSCD8mDW7btHFh7IZye-2-pAy1A5arkHlNS4yk-DvzZ7190C4z4Q5vd1-t89IoqjXf9wWUTAJTO6oWrP5oYuVmQ_cNZwEoWORwjwBJDDUrjjiTVPU6fPOr2hu4S5_F6Bgpg5K_2UaiaD9mHd0hW3netpQCPSkqDFmGOBcewx2pQC2rtLc81bZ83s7YjzH1dfwowu_yWvMFswqfSIX00Uz9fPskzNleII-l_IJWE4Gk-kvVHllbRTo46duZHY-wfeyZuFhshAZKphsOkRdn83cQsltEHTm4w1eTdsl-GMAzQGosBKr85Yw8qTNE8NvexxJDItvvd4ld5ahUm71ODyNCikhiqo5m5fj-U3C08cTgcYkdONQSznC--3-dQXOq8QA"
+    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
 
     for chunk in chunks(song_ids):
 
-        url = f"https://api.music.amazon.dev/v1/tracks/?ids={','.join(chunk)}"
+        playlists_in_chunk = [song_id[0] for song_id in chunk]
+        positions_in_chunk = [song_id[1] for song_id in chunk]
+        song_ids_in_chunk = [song_id[2] for song_id in chunk]
+        url = (
+            f"https://api.music.amazon.dev/v1/tracks/?ids={','.join(song_ids_in_chunk)}"
+        )
 
         headers = {
             "Authorization": f"Bearer {access_token}",
@@ -215,7 +230,7 @@ def get_multiple_songs_amazon(song_ids):
 
         tracks_info = response.json()["data"]["track"]
 
-        for track_info in tracks_info:
+        for index, track_info in enumerate(tracks_info):
 
             # Extract the song information
             name = track_info["shortTitle"]
@@ -227,25 +242,36 @@ def get_multiple_songs_amazon(song_ids):
             explicit = track_info["parentalSettings"]["hasExplicitLanguage"]
             image_url = track_info["images"][0]["url"]
 
-            # Get/create the album
-            album_name = track_info["album"]["title"]
-            album, created = Album.objects.get_or_create(name=album_name)
+            # Get main artist
+            main_artist_name = track_info["artists"][0]["name"]
+            main_artist = Artist.objects.filter(
+                name__icontains=main_artist_name
+            ).first()
 
-            if created:
-                albums_ids.append(track_info["album"]["id"])
-
-            # Get/create the artist
-            main_artist, created = Artist.objects.get_or_create(
-                name=track_info["artists"][0]["name"]
-            )
-
-            if created:
+            if main_artist is None:
+                main_artist = Artist.objects.create(name=main_artist_name)
                 artists_ids.add(track_info["artists"][0]["id"])
 
+            # Create or update the album
+            album_name = track_info["album"]["title"]
+            album = Album.objects.filter(
+                name__icontains=album_name, artist=main_artist
+            ).first()
+
+            if album is None:
+                album = Album.objects.create(name=album_name, artist=main_artist)
+                albums_ids.append(track_info["album"]["id"])
+
             # Create or update the song
-            song, created = Song.objects.get_or_create(
-                name=name, main_artist=main_artist
-            )
+            song = Song.objects.filter(
+                name__icontains=name, main_artist=main_artist
+            ).first()
+
+            if song is None:
+                song = Song.objects.create(name=name, main_artist=main_artist)
+                created = True
+            else:
+                created = False
 
             # If the song was created or if it exists and a field is None, update the field
             if created or (song.images is None and image_url is not None):
@@ -259,17 +285,30 @@ def get_multiple_songs_amazon(song_ids):
             if created or (song.album is None and album is not None):
                 song.album = album
 
-            # Add collaborators to the song
-            if len(track_info["artists"]) > 1:
-                for artist_info in track_info["artists"][1:]:
-                    artist, created = Artist.objects.get_or_create(
-                        name=artist_info["name"]
-                    )
-                    song.collaborators.add(artist)
+            # Create or update the collaborator
+            for art_info in track_info["artists"][1:]:
+                colab_name = art_info["name"]
+                colab = Artist.objects.filter(name__icontains=colab_name).first()
 
-                    if created:
-                        artists_ids.add(artist_info["id"])
+                if colab is None:
+                    colab = Artist.objects.create(name=colab_name)
+                    artists_ids.add(art_info["id"])
+
+                # Add the collaborator to the song's collaborators
+                song.collaborators.add(colab)
+
             song.available_at.append("Amazon Music")
             song.save()
+
+            # Update "Top Country" playlist
+            playlist_name = playlists_in_chunk[index]
+            pos = positions_in_chunk[index]
+            position, _ = Position.objects.get_or_create(position=pos)
+            playlist, _ = Playlist.objects.get_or_create(
+                name=playlist_name, website=Website.objects.get(name="Amazon Music")
+            )
+            PlaylistSong.objects.update_or_create(
+                song=song, playlist=playlist, position=position
+            )
 
         time.sleep(1.5)  # pauses for 1 second

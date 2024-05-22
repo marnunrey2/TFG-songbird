@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+import os
 import requests
 from .models import (
     Song,
@@ -76,10 +78,12 @@ def chunks(data, SIZE=50):
 
 
 def get_token():
+    # Load the .env file
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
     # Get the access token
-    client_id = "25c561e06c384a0c8a24901dc80f8114"
-    client_secret = "f7e84ccb68384876a6b3264eb3d74d77"
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
     auth_url = "https://accounts.spotify.com/api/token"
     data = {
         "grant_type": "client_credentials",
@@ -157,7 +161,11 @@ def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
     response = requests.get(endpoint, headers=headers)
 
     # added_at, added_by, is_local, primary_color, track, video_thumbnail
-    items = response.json()["items"]
+    try:
+        items = response.json()["items"]
+    except:
+        print(response.json())
+        return
 
     for item in items:
         song_info = item["track"]

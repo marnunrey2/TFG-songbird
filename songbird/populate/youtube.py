@@ -1,5 +1,7 @@
+from dotenv import load_dotenv
 import re
 import datetime
+import os
 from googleapiclient.discovery import build
 from .models import Artist, Playlist, PlaylistSong, Position, Song, Website, Album
 
@@ -17,8 +19,6 @@ top_playlists = {
     "Weekly Top Argentina": "PL4fGSI1pDJn403fWAsjzCMsLEgBTOa25K",
     "Weekly Top Italy": "PL4fGSI1pDJn5BPviUFX4a3IMnAgyknC68",
 }
-YOUTUBE_API_KEY = "AIzaSyDe_YVMg0D4aoXk8-oZO2gI4hAeihKakgY"
-
 
 SONG_INFO = {
     "Shree Hanuman Chalisa": ("Shree Hanuman Chalisa", "Hariharan", []),
@@ -108,7 +108,11 @@ def youtube_api():
 
 
 def youtube_token():
-    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    # Load the .env file
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+    youtube_api_key = os.getenv("YOUTUBE_API_KEY")
+    youtube = build("youtube", "v3", developerKey=youtube_api_key)
     return youtube
 
 
@@ -211,23 +215,46 @@ def get_songs(response, playlist):
         artist = artist.strip() if artist else None
 
         # Creating artists and songs
-        if artist:
-            main_artist, _ = Artist.objects.get_or_create(name=artist)
-            song, created = Song.objects.get_or_create(
-                name=name,
-                main_artist=main_artist,
-            )
-        else:
-            song, created = Song.objects.get_or_create(
-                name=name,
-            )
+        if artist is None:
+            # Create or update the song
+            song = Song.objects.filter(name__icontains=name).first()
 
+            if song is None:
+                song = Song.objects.create(name=name)
+                created = True
+            else:
+                created = False
+
+        else:
+            # Get main artist
+            main_artist = Artist.objects.filter(name__icontains=artist).first()
+
+            if main_artist is None:
+                main_artist = Artist.objects.create(name=artist)
+
+            # Create or update the song
+            song = Song.objects.filter(
+                name__icontains=name, main_artist=main_artist
+            ).first()
+
+            if song is None:
+                song = Song.objects.create(name=name, main_artist=main_artist)
+                created = True
+            else:
+                created = False
+
+        # Create or update the collaborators
         for colab in collaborators:
-            colab = colab.strip()
-            if colab == "":
+            colab_name = colab.strip()
+            if colab_name == "":
                 continue
-            artist, _ = Artist.objects.get_or_create(name=colab)
-            song.collaborators.add(artist)
+
+            colab = Artist.objects.filter(name__icontains=colab_name).first()
+
+            if colab is None:
+                colab = Artist.objects.create(name=colab_name)
+
+            song.collaborators.add(colab)
 
         if created or not song.images:
             song.images = image
@@ -238,12 +265,11 @@ def get_songs(response, playlist):
         if created or not song.release_date:
             song.release_date = release_date
 
+        if "YouTube" not in song.reproductions:
+            song.reproductions["YouTube"] = views
+
         song.youtube_name.append(youtube_name)
         song.available_at.append("YouTube")
-        if "YouTube" in song.reproductions:
-            song.reproductions["YouTube"] += views
-        else:
-            song.reproductions["YouTube"] = views
 
         song.save()
 
