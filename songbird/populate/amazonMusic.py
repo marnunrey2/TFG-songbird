@@ -31,23 +31,23 @@ def amazon_music_api():
 
     Website.objects.get_or_create(name="Amazon Music")
 
-    # Top 50 Most played: International -> B07QHGBGC9
-    playlist_id = "B07QHGBGC9"
-    get_playlist_songs(playlist_id)
-
-    # Today Hits: Spain -> B073PW84YH
-    playlist_id = "B073PW84YH"
-    get_playlist_songs(playlist_id)
-
-
-def get_playlist_songs(playlist_id):
-    global songs_ids, albums_ids, artists_ids
-
     # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
+    access_token = input("Please enter a new access token: ")
 
     # Security Id
     profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
+
+    # Top 50 Most played: International -> B07QHGBGC9
+    playlist_id = "B0794G8R8W"
+    get_playlist_songs(playlist_id, access_token, profile_id)
+
+    # Today Hits: Spain -> B073PW84YH
+    playlist_id = "B073PW84YH"
+    get_playlist_songs(playlist_id, access_token, profile_id)
+
+
+def get_playlist_songs(playlist_id, access_token, profile_id):
+    global songs_ids, albums_ids, artists_ids
 
     url = f"https://api.music.amazon.dev/v1/playlists/{playlist_id}/tracks"
 
@@ -58,6 +58,15 @@ def get_playlist_songs(playlist_id):
     }
 
     response = requests.get(url, headers=headers)
+
+    # Check the response status code
+    if response.status_code == 429:  # "Too Many Requests"
+        access_token = input("Please enter a new access token: ")
+
+        # Retry the request with the next token
+        headers["Authorization"] = f"Bearer {access_token}"
+        response = requests.get(url, headers=headers)
+
     if response.status_code != 200:
         print(response.json())
         return
@@ -90,13 +99,7 @@ def get_playlist_songs(playlist_id):
             songs_ids.clear()
 
 
-def get_multiple_artists_amazon(artist_ids):
-
-    # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
-
-    # Security Id
-    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
+def get_multiple_artists_amazon(artist_ids, access_token, profile_id):
 
     for chunk in chunks(artist_ids):
 
@@ -110,9 +113,17 @@ def get_multiple_artists_amazon(artist_ids):
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code != 200:
-            print(response.json())
-            return
+        # Check the response status code
+        if response.status_code == 429:  # "Too Many Requests"
+            access_token = input("Please enter a new access token: ")
+
+            # Retry the request with the next token
+            headers["Authorization"] = f"Bearer {access_token}"
+            response = requests.get(url, headers=headers)
+
+        # if response.status_code != 200:
+        #     print(response.json())
+        #     return
 
         artists_info = response.json()["data"]["artist"]
 
@@ -133,13 +144,8 @@ def get_multiple_artists_amazon(artist_ids):
         time.sleep(1.5)  # pauses for 1 second
 
 
-def get_multiple_albums_amazon(album_ids):
+def get_multiple_albums_amazon(album_ids, access_token, profile_id):
     global artists_ids, songs_ids
-
-    # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
-
-    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
 
     for chunk in chunks(album_ids):
 
@@ -152,9 +158,18 @@ def get_multiple_albums_amazon(album_ids):
         }
 
         response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            print(response.json())
-            return
+
+        # Check the response status code
+        if response.status_code == 429:  # "Too Many Requests"
+            access_token = input("Please enter a new access token: ")
+
+            # Retry the request with the next token
+            headers["Authorization"] = f"Bearer {access_token}"
+            response = requests.get(url, headers=headers)
+
+        # if response.status_code != 200:
+        #     print(response.json())
+        #     return
 
         albums_info = response.json()["data"]["album"]
 
@@ -199,14 +214,8 @@ def get_multiple_albums_amazon(album_ids):
         time.sleep(1.5)  # pauses for 1 second
 
 
-def get_multiple_songs_amazon(song_ids):
+def get_multiple_songs_amazon(song_ids, access_token, profile_id):
     global albums_ids, artists_ids
-
-    # Access token (expires in 1 hour)
-    access_token = "Atza|IwEBIND-v_bDP0e_LE-1lCreiXR5yuyGmSlb3nhlMDkZgRIyPvHopXeqB9Rqa24vgMZahld_GVjU67o7m3JhLWMe7PiL2x9SSfWm39Z7_FfEyWEr0LZ5Okz2DMsmv5EkU1f_kCHVKWJqjL-MPjhO-xQ6szDnzPYj1t_m27DW1Lv-yG-0-eDOa9xKTzUaEgK_rx7JBh6JvbkaLC_7j_qlT2vk_Ff-hOFbl77P5vf5RYZCqLg3TNtK-gxRwlFjwz7fypsM4ye-GkapaD2mOXGiBr-MQeJSlwe0h_qUv_rvt_xhSTJdce4YNtOHzKoeiZPZoVJHcDw4URnTHjW11-F3ykItD6ew0NiPbWw8593qWbJzyiufrbazu-NCb3ApGNYb7gl_8iJpscwPtao9J8T59YsP6Uwe"
-
-    # Security Id
-    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
 
     for chunk in chunks(song_ids):
 
@@ -224,9 +233,18 @@ def get_multiple_songs_amazon(song_ids):
         }
 
         response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            print(response.json())
-            return
+
+        # Check the response status code
+        if response.status_code == 429:  # "Too Many Requests"
+            access_token = input("Please enter a new access token: ")
+
+            # Retry the request with the next token
+            headers["Authorization"] = f"Bearer {access_token}"
+            response = requests.get(url, headers=headers)
+
+        # if response.status_code != 200:
+        #     print(response.json())
+        #     return
 
         tracks_info = response.json()["data"]["track"]
 

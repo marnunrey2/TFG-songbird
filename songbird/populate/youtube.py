@@ -6,15 +6,15 @@ from googleapiclient.discovery import build
 from .models import Artist, Playlist, PlaylistSong, Position, Song, Website, Album
 
 top_playlists = {
-    "All Time Top": "PL8A83124F1D79BD4F",
-    "Weekly Top Global": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM",
-    "Weekly Top Spain": "PL4fGSI1pDJn4jhQB4kb9M36dvVmJQPt4T",
-    "Weekly Top USA": "PL4fGSI1pDJn69On1f-8NAvX_CYlx7QyZc",
-    "Weekly Top UK": "PL4fGSI1pDJn688ebB8czINn0_nov50e3A",
-    "Weekly Top Canada": "PL4fGSI1pDJn4IeWA7bBJYh__qgOCRMkIh",
-    "Weekly Top France": "PL4fGSI1pDJn50iCQRUVmgUjOrCggCQ9nR",
-    "Weekly Top Germany": "PL4fGSI1pDJn4X-OicSCOy-dChXWdTgziQ",
-    "Weekly Top Australia": "PL4fGSI1pDJn44PMHPLYatj8rta8WYtZ8_",
+    # "All Time Top": "PL8A83124F1D79BD4F",
+    # "Weekly Top Global": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM",
+    # "Weekly Top Spain": "PL4fGSI1pDJn4jhQB4kb9M36dvVmJQPt4T",
+    # "Weekly Top USA": "PL4fGSI1pDJn69On1f-8NAvX_CYlx7QyZc",
+    # "Weekly Top UK": "PL4fGSI1pDJn688ebB8czINn0_nov50e3A",
+    # "Weekly Top Canada": "PL4fGSI1pDJn4IeWA7bBJYh__qgOCRMkIh",
+    # "Weekly Top France": "PL4fGSI1pDJn50iCQRUVmgUjOrCggCQ9nR",
+    # "Weekly Top Germany": "PL4fGSI1pDJn4X-OicSCOy-dChXWdTgziQ",
+    # "Weekly Top Australia": "PL4fGSI1pDJn44PMHPLYatj8rta8WYtZ8_",
     "Weekly Top Colombia": "PL4fGSI1pDJn4ObZYxzctc1AM45GSWm2DC",
     "Weekly Top Argentina": "PL4fGSI1pDJn403fWAsjzCMsLEgBTOa25K",
     "Weekly Top Italy": "PL4fGSI1pDJn5BPviUFX4a3IMnAgyknC68",
@@ -22,10 +22,11 @@ top_playlists = {
 
 SONG_INFO = {
     "Shree Hanuman Chalisa": ("Shree Hanuman Chalisa", "Hariharan", []),
-    "The Gummy Bear Song": ("The Gummy Bear Song", None, []),
+    "The Gummy Bear Song": ("The Gummy Bear Song", "Gummibär", []),
     "GulabiSadi": ("GulabiSadi", "Sanju Rathod", ["G-SPXRK"]),
     "Maroon Color": ("Maroon Color", "Neelkamal Singh", ["Kalpana", "Om Jha"]),
     "Kurchi Madathapetti": ("Kurchi Madathapetti", "Thaman S", []),
+    "Jale 2": ("Jale 2", "Shiva Choudhary", ["Sapna Choudhary"]),
     "Bhojpuri Song 2024": (
         "Bhojpuri Song 2024",
         "Khesari Lal Yadav",
@@ -57,6 +58,8 @@ SONG_INFO = {
         "Jacqueline Fernandez",
         ["Rajat Nagpal", "Shreya Ghoshal", "Tayc"],
     ),
+    "สวยขยี้ใจ - บ่าวบุ๊ค": ("บ่าวบุ๊ค", "สวยขยี้ใจ", ["ทิดแอม", "คำมอส"]),
+    "สีแชทบ่คือเก่า - เบนซ์ ปรีชา": ("สีแชทบ่คือเก่า", "เบนซ์ ปรีชา", ["พนมรุ้งเรคคอร์ด"]),
     "Bling-Bang-Bang-Born": ("Bling-Bang-Bang-Born", "Creepy Nuts", []),
     "CASCA DE BALA": ("Casca de Bala", "Thrullio Milionário", []),
     "PUSHPA PUSHPA": ("PUSHPA PUSHPA", "DSP", []),
@@ -87,6 +90,11 @@ SONG_INFO = {
         "A Mimir en el Chat",
         "Dejavu FF",
         ["Angi Fire", "Las Gemelas del Free"],
+    ),
+    "Por Mi Mexico Remix": (
+        "Por Mi Mexico Remix",
+        "Lefty SM",
+        ["Santa Fe Klan", "Dharius", "C-Kan", "MC Davo", "Neto Peña"],
     ),
     "EL AMOR Y LA FELICIDAD": ("EL AMOR Y LA FELICIDAD", "Chakal Del Sur", []),
     "Clavelitos": ("Clavelitos", "Romulo Caicedo", []),
@@ -136,6 +144,9 @@ def get_playlist(playlist_id, playlist_name):
 
 def get_songs(response, playlist):
     for song_info in response["items"]:
+
+        if song_info["snippet"]["title"] == "Private video":
+            continue
 
         content_details = song_info["contentDetails"]
         video_id = content_details["videoId"]
@@ -194,7 +205,7 @@ def get_songs(response, playlist):
                 name = "Regalada Sales Cara (Remix)"
             artists = song_name.split(" - ")[1].replace(" x ", ", ").split(", ")
             artist = artists[0]
-            collaborators = artists[1:]
+            collaborators = [art.replace("(Remix)", "") for art in artists[1:]]
         elif "Elder Dayán" in song_name:
             name = song_name.split(" - ")[0]
             artists = song_name.split(" - ")[1].replace(" y ", ", ").split(", ")
@@ -209,39 +220,31 @@ def get_songs(response, playlist):
                 name, artist, collaborators = extract_info(song_name)
 
         # print({"song_name": name, "artist": artist, "collaborators": collaborators})
-        print(name)
+        # print(name)
 
         name = name.strip()
         artist = artist.strip() if artist else None
 
         # Creating artists and songs
         if artist is None:
-            # Create or update the song
-            song = Song.objects.filter(name__icontains=name).first()
+            artist = "Unknown"
 
-            if song is None:
-                song = Song.objects.create(name=name)
-                created = True
-            else:
-                created = False
+        # Get main artist
+        main_artist = Artist.objects.filter(name__icontains=artist).first()
 
+        if main_artist is None:
+            main_artist = Artist.objects.create(name=artist)
+
+        # Create or update the song
+        song = Song.objects.filter(
+            name__icontains=name, main_artist=main_artist
+        ).first()
+
+        if song is None:
+            song = Song.objects.create(name=name, main_artist=main_artist)
+            created = True
         else:
-            # Get main artist
-            main_artist = Artist.objects.filter(name__icontains=artist).first()
-
-            if main_artist is None:
-                main_artist = Artist.objects.create(name=artist)
-
-            # Create or update the song
-            song = Song.objects.filter(
-                name__icontains=name, main_artist=main_artist
-            ).first()
-
-            if song is None:
-                song = Song.objects.create(name=name, main_artist=main_artist)
-                created = True
-            else:
-                created = False
+            created = False
 
         # Create or update the collaborators
         for colab in collaborators:
@@ -357,13 +360,14 @@ def extract_info(song_name):
         song == "Madness & Badness"
         or song == "I P ME, TU P TE"
         or song == "Bloods & Crips"
+        or song == "Beauty & The Beast 2"
     ):
         main_song = song
     elif any(indicator in song for indicator in especial_indicators) and not any(
         indicator in song for indicator in artist_only_indicators
     ):
         main_song = main_artist
-        for indicator in artist_indicators:
+        for indicator in especial_indicators:
             song = song.replace(indicator, ",")
         song = [s.strip() for s in song.split(",") if s.strip() != ""]
         main_artist = song[0]
@@ -401,12 +405,12 @@ def remove_phrases(song_name):
     song_name = re.sub(r"\(.*Prod\..*\)", "", song_name)
     song_name = re.sub(r"\[.*prod\..*\]", "", song_name)
     song_name = re.sub(r"\[.*Prod\..*\]", "", song_name)
-    song_name = re.sub(r"\bMV\b", "", song_name)
 
     replacements = [
         "#30GRADOS",
         "#FLOWBR",
         "#OFB",
+        "#Tiktok (Videoclip Oficial)",
         "#",
         "The Official 2010 FIFA World Cup™ Song",
         "Official Music Video 2024",
@@ -510,6 +514,7 @@ def remove_phrases(song_name):
         "New Unreleased Video",
         "( Cover Versión )",
         "( Full Video )",
+        "[OFFICIAL MV]",
         "OFFICIAL MV",
         "Official MV",
         "OFFICIEL",
@@ -569,8 +574,8 @@ def remove_phrases(song_name):
         "prod.Israel Amador",
         "PURPOSE : The Movement",
         "SHOT BY BELVEDERE",
-        "Mxrci",
-        "Deol Harman",
+        " Mxrci ",
+        " Deol Harman ",
         "Juke Dock",
         "Tiktok",
         "CYRIL ",
@@ -595,6 +600,8 @@ def remove_phrases(song_name):
         "[]",
         "@",
     ]
+
+    song_name = re.sub(r"\bMV\b", "", song_name)
 
     for replacement in replacements:
         song_name = song_name.replace(replacement, "")

@@ -86,26 +86,59 @@ def get_songs(href, playlist):
 
         pos = int(tds[0].text.strip())
 
+        # Get the top 100 songs
+        if pos > 100:
+            break
+
         if len(tds) < 3:
             song_info = tds[-1].text.strip()
         else:
             song_info = tds[2].text
 
+        # Get Info
         song = song_info.split(" - ")
-        artist_name = song[0].strip()
         song_name = song[1].strip()
 
-        main_artist, _ = Artist.objects.get_or_create(name__icontains=artist_name)
-        song, _ = Song.objects.get_or_create(
-            name__icontains=song_name,
-            main_artist=main_artist,
+        artists = song[0].replace(" & ", ",").split(",")
+        artist_name = artists[0].strip()
+
+        collaborators = artists[1:]
+        more_colabs = (
+            song[1].split("feat. ")[1].replace(")", "").replace(" & ", ",").split(",")
+            if "feat. " in song[1]
+            else []
         )
+        collaborators += [colab.strip() for colab in more_colabs]
+
+        # Get main artist
+        main_artist = Artist.objects.filter(name__icontains=artist_name).first()
+
+        if main_artist is None:
+            main_artist = Artist.objects.create(name=artist_name)
+
+        # Create or update the song
+        song = Song.objects.filter(
+            name__icontains=song_name, main_artist=main_artist
+        ).first()
+
+        if song is None:
+            song = Song.objects.create(name=song_name, main_artist=main_artist)
+
+        # Create or update the collaborator
+        for colab_name in collaborators:
+            colab = Artist.objects.filter(name__icontains=colab_name).first()
+
+            if colab is None:
+                colab = Artist.objects.create(name=colab_name)
+
+            # Add the collaborator to the song's collaborators
+            song.collaborators.add(colab)
+
         song.available_at.append("Apple Music")
         song.save()
 
+        # Update "Top Country" playlist
         position, _ = Position.objects.get_or_create(position=pos)
-
-        # Create or update a PlaylistSong instance
         PlaylistSong.objects.update_or_create(
             song=song, playlist=playlist, position=position
         )

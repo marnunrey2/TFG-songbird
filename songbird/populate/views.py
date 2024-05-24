@@ -15,6 +15,8 @@ from .kworb import kworb_all_time
 from .appleMusic import apple_music
 from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
+from .billboard import billboard
+from .lyrics import genius_lyrics
 
 
 def delete_all_objects():
@@ -30,14 +32,17 @@ def delete_all_objects():
 
 def populate_view(request):
 
-    # delete_all_objects()
-
     # spotify_api()
     # apple_music()
     # kworb_all_time()
     # deezer()
+    # youtube_api()
+    # billboard()
+
+    # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # amazon_music_api()
-    youtube_api()
+
+    # genius_lyrics()
 
     # Query all objects from each model
     songs = Song.objects.all()
