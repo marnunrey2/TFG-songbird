@@ -18,6 +18,19 @@ from .youtube import youtube_api
 from .billboard import billboard
 from .lyrics import genius_lyrics
 
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import viewsets
+from .serializers import (
+    GenreSerializer,
+    ArtistSerializer,
+    AlbumSerializer,
+    SongSerializer,
+    WebsiteSerializer,
+    PlaylistSerializer,
+    PositionSerializer,
+    PlaylistSongSerializer,
+)
+
 
 def delete_all_objects():
     Song.objects.all().delete()
@@ -64,3 +77,54 @@ def populate_view(request):
         "playlists_songs": playlists_songs,
     }
     return render(request, "database.html", context)
+
+
+class SmallSetPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = "limit"
+    max_page_size = 1000
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class ArtistViewSet(viewsets.ModelViewSet):
+    queryset = Artist.objects.all()
+    serializer_class = ArtistSerializer
+    pagination_class = SmallSetPagination
+
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+    pagination_class = SmallSetPagination
+
+
+class SongViewSet(viewsets.ModelViewSet):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+    pagination_class = SmallSetPagination
+
+
+class WebsiteViewSet(viewsets.ModelViewSet):
+    queryset = Website.objects.all()
+    serializer_class = WebsiteSerializer
+
+
+class PlaylistViewSet(viewsets.ModelViewSet):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
+    pagination_class = SmallSetPagination
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    pagination_class = SmallSetPagination
+
+
+class PlaylistSongViewSet(viewsets.ModelViewSet):
+    queryset = PlaylistSong.objects.all()
+    serializer_class = PlaylistSongSerializer
