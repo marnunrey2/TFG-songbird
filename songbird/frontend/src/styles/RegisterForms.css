@@ -4,11 +4,15 @@ h1 {
 }
 
 .btn-primary {
-    background-color: #e600e6;
-    border-color: #e600e6;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     display: block;
     margin-top: 20px !important;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 100px !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color-hover);
 }

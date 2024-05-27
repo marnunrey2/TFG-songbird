@@ -1,5 +1,5 @@
 .custom-navbar {
-    background-color: #e600e6;
+    background-color: var(--primary-color);
     z-index: 900;
 }
 .navbar-brand {
@@ -23,12 +23,12 @@
 }
 
 .custom-navbar .btn-outline-light:hover {
-    color: #e600e6;
+    color: var(--primary-color);
 }
 
 .custom-navbar .active-link {
     background-color: white;
-    color: #e600e6 !important;
+    color: var(--primary-color) !important;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     padding: 5px 20px !important;
@@ -45,7 +45,7 @@
 
 .custom-dropdown:focus {
     color: white;
-    background-color: #e600e6;
+    background-color: var(--primary-color);
 }
 
 .custom-dropdown:focus:hover {

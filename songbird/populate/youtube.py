@@ -219,7 +219,7 @@ def get_songs(response, playlist):
             else:
                 name, artist, collaborators = extract_info(song_name)
 
-        # print({"song_name": name, "artist": artist, "collaborators": collaborators})
+        print({"song_name": name, "artist": artist, "collaborators": collaborators})
         # print(name)
 
         name = name.strip()

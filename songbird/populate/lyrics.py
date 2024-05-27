@@ -38,9 +38,6 @@ def genius_lyrics():
 
         # Check if genius_song is None
         if genius_song is None:
-            print(
-                f"No Genius song found for song {song_name} by {artist_name}. Skipping to next song."
-            )
             continue
 
         # Refactor lyrics

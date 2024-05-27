@@ -41,6 +41,7 @@ from django.contrib.auth import authenticate
 from django.forms.models import model_to_dict
 
 import os
+import time
 
 
 def delete_all_objects():
@@ -56,17 +57,43 @@ def delete_all_objects():
 
 def populate_view(request):
 
+    # # SPOTIFY
+    # start_time = time.time()
     # spotify_api()
+    # print(f"spotify_api took {time.time() - start_time} seconds")
+
+    # # APPLE MUSIC
+    # start_time = time.time()
     # apple_music()
+    # print(f"apple_music took {time.time() - start_time} seconds")
+
+    # # KWORB
+    # start_time = time.time()
     # kworb_all_time()
+    # print(f"kworb_all_time took {time.time() - start_time} seconds")
+
+    # # DEEZER
+    # start_time = time.time()
     # deezer()
+    # print(f"deezer took {time.time() - start_time} seconds")
+
+    # # YOUTUBE
+    # start_time = time.time()
     # youtube_api()
+    # print(f"youtube_api took {time.time() - start_time} seconds")
+
+    # # BILLBOARD
+    # start_time = time.time()
     # billboard()
+    # print(f"billboard took {time.time() - start_time} seconds")
 
-    # AMAZON MUSIC API NOT WORKING AT THE MOMENT
-    # amazon_music_api()
+    # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
+    # # amazon_music_api()
 
+    # # GENIUS LYRICS
+    # start_time = time.time()
     # genius_lyrics()
+    # print(f"genius_lyrics took {time.time() - start_time} seconds")
 
     # Query all objects from each model
     songs = Song.objects.all()
@@ -151,15 +178,11 @@ def login(request):
                 user_data["avatar"] = request.build_absolute_uri(
                     profile_data["avatar"].url
                 )
-                # user_data["liked_songs"] = list(
-                #     profile.liked_songs.values_list("id", flat=True)
-                # )
-                # user_data["liked_albums"] = list(
-                #     profile.liked_albums.values_list("id", flat=True)
-                # )
-                # user_data["liked_artists"] = list(
-                #     profile.liked_artists.values_list("id", flat=True)
-                # )
+
+                # Get liked songs, albums, and artists
+                user_data["liked_songs"] = list(profile.liked_songs.values())
+                user_data["liked_albums"] = list(profile.liked_albums.values())
+                user_data["liked_artists"] = list(profile.liked_artists.values())
 
             return JsonResponse(user_data, status=200)
         else:

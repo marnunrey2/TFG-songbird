@@ -1,6 +1,6 @@
 import CustomNavbarUsers from './NavbarUsers';
 import SideMenu from './SideMenu';
-import '../styles/App.css';
+import '../styles/UserStyles.css';
 
 function UsersTemplate({ children }) {
   return (

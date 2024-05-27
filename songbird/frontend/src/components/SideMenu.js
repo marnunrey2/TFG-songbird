@@ -7,7 +7,7 @@ const SideMenu = () => {
 
     return (
         <Navbar expand="lg" className="custom-menu" >
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Toggle aria-controls="basic-navbar-nav"/>
             <Navbar.Collapse id="side-navbar-nav" className="justify-content-start">
                 <Nav className="flex-column custom-menu-nav" >
                     <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>

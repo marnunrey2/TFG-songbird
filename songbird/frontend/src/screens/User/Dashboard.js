@@ -1,4 +1,7 @@
 import UsersTemplate from '../../components/UsersTemplate';
+import '../../styles/Colors.css'
+import '../../styles/App.css'
+
 
 function Dashboard() {
   return (
