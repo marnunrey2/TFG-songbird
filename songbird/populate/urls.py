@@ -10,6 +10,8 @@ from .views import (
     PlaylistViewSet,
     PositionViewSet,
     PlaylistSongViewSet,
+    signup,
+    login,
 )
 
 router = DefaultRouter()
@@ -25,4 +27,6 @@ router.register(r"playlistsongs", PlaylistSongViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("populate/", populate_view, name="populate"),
+    path("signup/", signup, name="signup"),
+    path("login/", login, name="login"),
 ]

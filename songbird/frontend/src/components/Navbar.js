@@ -47,9 +47,9 @@ const CustomNavbar = () => {
           >
             Recommendations
           </Nav.Link>
-          <Button variant="outline-light" className="mr-2 d-lg-none">Sign up</Button>
+          <Button as={Link} to="/signup" variant="outline-light" className="mr-2 d-lg-none">Sign up</Button>
           <Nav.Link
-            href="#login"
+            href="/login"
             className="text-white d-lg-none login-link"
           >
             Log in
@@ -57,9 +57,9 @@ const CustomNavbar = () => {
         </Nav>
     </Navbar.Collapse>
       <Nav className="ml-auto d-none d-lg-flex" style={{marginRight: '30px'}}>
-        <Button variant="outline-light" className="mr-2">Sign up</Button>
+        <Button as={Link} to="/signup" variant="outline-light" className="mr-2">Sign up</Button>
         <Nav.Link
-          href="#login"
+          href="/login"
           className="text-white"
         >
           Log in

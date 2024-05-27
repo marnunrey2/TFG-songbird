@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import IntegrityError
+from django.db import transaction
 
 
 class Genre(models.Model):
@@ -173,3 +176,37 @@ class PlaylistSong(models.Model):
         on_delete=models.CASCADE,
         related_name="playlist_position",
     )
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
+    liked_songs = models.ManyToManyField(
+        Song, blank=True, related_name="liked_by_users"
+    )
+    liked_albums = models.ManyToManyField(
+        Album, blank=True, related_name="liked_by_users"
+    )
+    liked_artists = models.ManyToManyField(
+        Artist, blank=True, related_name="liked_by_users"
+    )
+
+    def save(self, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                if (
+                    self.user.email
+                    and UserProfile.objects.filter(user__email=self.user.email)
+                    .exclude(user__username=self.user.username)
+                    .exists()
+                ):
+                    raise IntegrityError("Email addresses must be unique")
+                self.user.save()
+                super(UserProfile, self).save(*args, **kwargs)
+        except IntegrityError as e:
+            if "username" in str(e):
+                raise IntegrityError("Username must be unique")
+            raise e
+
+    def __str__(self):
+        return self.user.username

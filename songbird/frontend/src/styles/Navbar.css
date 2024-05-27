@@ -1,10 +1,17 @@
 .custom-navbar {
     background-color: #e600e6;
+    z-index: 900;
 }
 .navbar-brand {
+    font-size: 20px;
+    font-weight: bold;
     margin-left: 20px;
 }
-  
+.navbar-brand-users {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .custom-navbar .navbar-brand,
 .custom-navbar .nav-link {
     color: white !important;
@@ -29,6 +36,26 @@
     bottom: -10px;
 }
 
+.dropdown {
+    position: absolute;
+    top: 5px; 
+    right: 20px; 
+    z-index: 1100;
+}
+
+.custom-dropdown:focus {
+    color: white;
+    background-color: #e600e6;
+}
+
+.custom-dropdown:focus:hover {
+    color: white;
+}
+
+.dropdown-button {
+    width: 90%;
+}
+
 @media (max-width: 991px) {
     .custom-navbar {
         text-align: center;
@@ -36,5 +63,8 @@
     .custom-navbar .active-link {
         border-radius: 0; 
         bottom: 0;
+    }
+    .navbar-brand-users {
+        margin-left: 100px;
     }
 }

@@ -1,0 +1,36 @@
+.custom-menu {
+    background-color: transparent !important;
+    z-index: 900; 
+}
+
+.custom-menu-nav {
+    padding-top: 52px;
+    width: 200px;
+    height: 100vh;
+    background-color: #e600e6;
+}
+
+.custom-menu-nav .nav-link {
+    font-size: large;
+    width: 100%;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 30px !important;
+    color: white !important;
+    background-color: #e600e6 !important;
+}
+
+.custom-menu .nav-link:hover,
+.custom-menu-nav .nav-link:hover {
+    color: #e600e6 !important;
+    background-color: white !important;
+}
+
+@media (max-width: 991px) {
+    .custom-menu-nav {
+        padding-top: 0;
+        margin-top: 8px;
+        width: 200px;
+        background-color: #e600e6;
+    }
+}
