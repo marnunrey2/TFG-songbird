@@ -2,6 +2,7 @@
     align-items: flex-start;
     background-color: transparent !important;
     z-index: 900; 
+    height: 100vh;
 }
 
 .custom-menu-nav {
@@ -11,7 +12,12 @@
     background-color: var(--primary-color);
 }
 
-.custom-menu-nav .nav-link {
+.custom-menu-nav .dropdown {
+    position: relative !important; /* Ensure relative positioning */
+}
+
+.custom-menu-nav .nav-link,
+.custom-menu-nav .dropdown-item {
     font-size: large;
     width: 100%;
     padding-top: 15px;
@@ -22,10 +28,40 @@
 }
 
 .custom-menu .nav-link:hover,
-.custom-menu-nav .nav-link:hover {
+.custom-menu-nav .nav-link:hover,
+.custom-menu-nav .dropdown-item:hover {
     color: var(--primary-color) !important;
     background-color: white !important;
 }
+
+.menu-dropdown-title {
+    padding-left: 20px !important;
+}
+
+.menu-dropdown-title:hover {
+    color: var(--primary-color) !important;
+    background-color: white !important;
+}
+
+.menu-dropdown .dropdown-menu {
+    background-color: var(--primary-color) !important;
+    border: none !important;
+    position: absolute !important;
+    top: 100%; /* Position it directly below the dropdown toggle */
+    left: 0;
+    right: 0;
+}
+
+.menu-dropdown.show .dropdown-menu {
+    margin: 0 !important;
+    width: 110% !important;
+    display: block;
+}
+
+.menu-dropdown .dropdown-menu .dropdown-item {
+    padding-left: 60px !important;
+}
+
 
 @media (max-width: 991px) {
     .custom-menu-nav {

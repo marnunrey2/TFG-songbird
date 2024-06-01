@@ -4,3 +4,6 @@ migrations/
 __pycache__/
 *.pyc
 .env
+.env.development
+.env.production
+indexwhoosh/

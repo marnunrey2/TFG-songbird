@@ -15,11 +15,15 @@ import Login from './Homepage/Login';
 
 // USER SCREENS
 import Dashboard from './User/Dashboard';
+import UserSongs from './User/UserSongs';
+import UserArtists from './User/UserArtists';
+import UserAlbums from './User/UserAlbums';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* HOMEPAGE */}
         <Route path="/" element={<Homepage />} />
         <Route path="/songs" element={<Songs />} />
         <Route path="/artists" element={<Artists />} />
@@ -28,8 +32,11 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
-        
+        {/* USER ROUTES */}
         <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+        <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
+        <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
+        <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />
       </Routes>
     </Router>
   );

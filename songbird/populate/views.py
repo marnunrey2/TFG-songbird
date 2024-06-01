@@ -18,6 +18,7 @@ from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
 from .billboard import billboard
 from .lyrics import genius_lyrics
+from .whoosh import create_whoosh_index
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
@@ -31,6 +32,9 @@ from .serializers import (
     PositionSerializer,
     PlaylistSongSerializer,
 )
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -42,6 +46,10 @@ from django.forms.models import model_to_dict
 
 import os
 import time
+
+from whoosh.index import create_in, open_dir
+from whoosh.fields import *
+from whoosh.qparser import QueryParser
 
 
 def delete_all_objects():
@@ -94,6 +102,9 @@ def populate_view(request):
     # start_time = time.time()
     # genius_lyrics()
     # print(f"genius_lyrics took {time.time() - start_time} seconds")
+
+    # WHOOSH
+    create_whoosh_index()
 
     # Query all objects from each model
     songs = Song.objects.all()
@@ -189,6 +200,59 @@ def login(request):
             return JsonResponse({"error": "Invalid username or password"}, status=400)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def search_songs(request):
+    # Get the search term from the request
+    search_term = request.GET.get("search", "")
+
+    # Open the index
+    index = open_dir("indexwhoosh/song")
+
+    # Search the index
+    with index.searcher() as searcher:
+        query = QueryParser("name", index.schema).parse(search_term)
+        results = searcher.search(query)
+        songs = [hit.fields() for hit in results]
+
+    # Return the search results as JSON
+    return JsonResponse(songs, safe=False)
+
+
+class SongSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "")
+        if query:
+            songs = Song.objects.filter(name__icontains=query)
+            serializer = SongSerializer(songs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {"error": "No query provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ArtistSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "")
+        if query:
+            artists = Artist.objects.filter(name__icontains=query)
+            serializer = SongSerializer(artists, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {"error": "No query provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class AlbumSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "")
+        if query:
+            albums = Album.objects.filter(name__icontains=query)
+            serializer = SongSerializer(albums, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {"error": "No query provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class SmallSetPagination(PageNumberPagination):

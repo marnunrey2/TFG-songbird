@@ -12,6 +12,10 @@ from .views import (
     PlaylistSongViewSet,
     signup,
     login,
+    search_songs,
+    SongSearchView,
+    ArtistSearchView,
+    AlbumSearchView,
 )
 
 router = DefaultRouter()
@@ -27,6 +31,10 @@ router.register(r"playlistsongs", PlaylistSongViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("populate/", populate_view, name="populate"),
+    # path("song/search/", search_songs, name="search_songs"),
+    path("songs-search/", SongSearchView.as_view(), name="song-search"),
+    path("artists-search/", ArtistSearchView.as_view(), name="artist-search"),
+    path("albums-search/", AlbumSearchView.as_view(), name="album-search"),
     path("signup/", signup, name="signup"),
     path("login/", login, name="login"),
 ]

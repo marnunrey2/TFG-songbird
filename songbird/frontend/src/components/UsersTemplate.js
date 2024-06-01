@@ -2,7 +2,7 @@ import CustomNavbarUsers from './NavbarUsers';
 import SideMenu from './SideMenu';
 import '../styles/UserStyles.css';
 
-function UsersTemplate({ children }) {
+function UsersTemplate({ children, background=false }) {
   return (
     <div className='user-page'>
       <CustomNavbarUsers />

@@ -1,18 +1,163 @@
+body {
+    background: linear-gradient(to right, var(--tertiary-color), var(--secondary-color), var(--primary-color));
+    min-height: 100vh;
+    height: 100%;
+}
+
+
 /* USER PAGES */
 
 .user-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-  }
-  
-  .user-page-without-header {
+    min-height: 100vh;
+}
+
+.user-page-without-header {
     display: flex;
     flex-grow: 1;
-  }
-  
-  .user-content {
+}
+
+.user-content {
     padding-top: 50px;
     flex-grow: 1;
-    overflow: auto;
-  }
+}
+
+
+/* DASHBOARD */
+
+
+.statistics {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+  
+.statistic-card {
+    background-color: var(--container-homepage);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-top: 20px;
+    width: 30%;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.statistic-card-4 {
+    background-color: var(--container-homepage);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 35%;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.statistic-card-4 h2,
+.statistic-card h2 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+
+/* INFO CARDS: USER SONGS, ARTISTS, ALBUMS */
+
+.info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+  
+.info-card {
+    background-color: var(--container-homepage);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 80%;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.card-content {
+    display: flex;
+    align-items: center;
+}
+
+.song-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+}
+
+.song-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+}
+
+.song-info {
+    font-weight: bold;
+}
+
+.artist-name {
+    font-size: smaller;
+    font-weight: normal;
+}
+
+.album-name {
+    font-size: x-small;
+    font-weight: normal;
+}
+
+.heart-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+/* SEARCH BAR */
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.search-input {
+    width: 70%; 
+    padding: 10px;
+    font-size: 16px;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 4px;
+    color: white;
+}
+
+.search-input::placeholder {
+    color: white !important;
+}
