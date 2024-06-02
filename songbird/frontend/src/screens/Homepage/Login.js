@@ -21,8 +21,6 @@ function Login() {
 
         axios.post('http://localhost:8000/api/login/', formData)
             .then(response => {
-                console.log(response);
-                console.log(JSON.stringify(response.data));
                 localStorage.setItem('user', JSON.stringify(response.data)); 
                 navigate('/dashboard');
             })

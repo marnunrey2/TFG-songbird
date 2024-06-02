@@ -44,9 +44,6 @@ function SignUp() {
         } else {
             formData.append('avatar', null);
         }
-        for (let pair of formData.entries()) {
-            console.log(pair[0]+ ', '+ pair[1]); 
-        }
         axios.post('http://localhost:8000/api/signup/', formData)
             .then(response => {
                 console.log(response);

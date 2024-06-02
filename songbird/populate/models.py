@@ -104,6 +104,7 @@ class Song(models.Model):
         ),
         default=list,
     )
+    date_added = models.DateTimeField(auto_now_add=True)
     reproductions = models.JSONField(default=dict)
 
     album = models.ForeignKey(

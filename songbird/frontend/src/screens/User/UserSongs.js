@@ -5,13 +5,13 @@ import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
 import { useFetchSongs } from '../../components/useFetchData'; 
 import { HeartFill, Heart } from 'react-bootstrap-icons';
+import { Container, Row, Col, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function UserSongs() {
     const [searchTerm, setSearchTerm] = useState('');
     const songs = useFetchSongs(searchTerm);
     const [favorite, setFavorite] = useState({});
-
-    console.log(songs);
 
     const handleFavoriteClick = (index) => {
         setFavorite(prevState => ({...prevState, [index]: !prevState[index]}));
@@ -32,35 +32,37 @@ function UserSongs() {
                 placeholder="Search for songs..." 
             />
         </div>
-        <div className="info">
+        <Container className="info">
         {songs.map((song, index) => (
-            <div key={index}  className="info-card">
-                <div className="card-content">
-                    <div className="song-image">
+            <Link to={`/song/${song.id}`} key={index} className="info-card">
+                <Row className="card-content">
+                    <Col md={4} className="song-image">
                         {song && song.images ? (
-                            <img src={song.images} alt={song.name} className="song-img" />
+                            <Image src={song.images} alt={song.name} className="song-img" rounded />
                         ) : song && song.album && song.album.images ? (
-                            <img src={song.album.images} alt={song.name} className="song-img" />
+                            <Image src={song.album.images} alt={song.name} className="song-img" rounded />
                         ) : song && song.album_images ? (
-                            <img src={song.album_images} alt={song.name} className="song-img" />
+                            <Image src={song.album_images} alt={song.name} className="song-img" rounded />
                         ) : (
                             <div className="placeholder">
-                                <img src={cd} alt={song ? song.name : ''} className="song-img" />
+                                <Image src={cd} alt={song.name} className="song-img" rounded />
                             </div>
                         )}
-                    </div>
-                    <div className="song-info">
+                    </Col>
+                    <Col md={4} className="song-info">
                         <div className="song-name">{song ? song.name : ''}</div>
                         <div className="artist-name">{song && song.main_artist ? song.main_artist.name ? song.main_artist.name : song.main_artist : ''}</div>
-                        <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div>
-                    </div>
+                        {/* <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div> */}
+                    </Col>
+                    <Col md={4} className="song-info">
                     <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
                         {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
                     </div>
-                </div>
-            </div>
+                    </Col>
+                </Row>
+            </Link>
         ))}
-        </div>
+        </Container>
         </UsersTemplate>
     );
 }

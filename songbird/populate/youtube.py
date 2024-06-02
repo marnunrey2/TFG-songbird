@@ -6,18 +6,18 @@ from googleapiclient.discovery import build
 from .models import Artist, Playlist, PlaylistSong, Position, Song, Website, Album
 
 top_playlists = {
-    # "All Time Top": "PL8A83124F1D79BD4F",
-    # "Weekly Top Global": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM",
-    # "Weekly Top Spain": "PL4fGSI1pDJn4jhQB4kb9M36dvVmJQPt4T",
-    # "Weekly Top USA": "PL4fGSI1pDJn69On1f-8NAvX_CYlx7QyZc",
-    # "Weekly Top UK": "PL4fGSI1pDJn688ebB8czINn0_nov50e3A",
-    # "Weekly Top Canada": "PL4fGSI1pDJn4IeWA7bBJYh__qgOCRMkIh",
-    # "Weekly Top France": "PL4fGSI1pDJn50iCQRUVmgUjOrCggCQ9nR",
-    # "Weekly Top Germany": "PL4fGSI1pDJn4X-OicSCOy-dChXWdTgziQ",
-    # "Weekly Top Australia": "PL4fGSI1pDJn44PMHPLYatj8rta8WYtZ8_",
-    "Weekly Top Colombia": "PL4fGSI1pDJn4ObZYxzctc1AM45GSWm2DC",
-    "Weekly Top Argentina": "PL4fGSI1pDJn403fWAsjzCMsLEgBTOa25K",
-    "Weekly Top Italy": "PL4fGSI1pDJn5BPviUFX4a3IMnAgyknC68",
+    "All Time Top": "PL8A83124F1D79BD4F",
+    "Top Global": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM",
+    "Top Spain": "PL4fGSI1pDJn4jhQB4kb9M36dvVmJQPt4T",
+    "Top USA": "PL4fGSI1pDJn69On1f-8NAvX_CYlx7QyZc",
+    "Top UK": "PL4fGSI1pDJn688ebB8czINn0_nov50e3A",
+    "Top Canada": "PL4fGSI1pDJn4IeWA7bBJYh__qgOCRMkIh",
+    "Top France": "PL4fGSI1pDJn50iCQRUVmgUjOrCggCQ9nR",
+    "Top Germany": "PL4fGSI1pDJn4X-OicSCOy-dChXWdTgziQ",
+    "Top Australia": "PL4fGSI1pDJn44PMHPLYatj8rta8WYtZ8_",
+    "Top Colombia": "PL4fGSI1pDJn4ObZYxzctc1AM45GSWm2DC",
+    "Top Argentina": "PL4fGSI1pDJn403fWAsjzCMsLEgBTOa25K",
+    "Top Italy": "PL4fGSI1pDJn5BPviUFX4a3IMnAgyknC68",
 }
 
 SONG_INFO = {
@@ -104,6 +104,22 @@ SONG_INFO = {
         "Le-one",
         ["VTR"],
     ),
+    "Dekhha Tenu | Mr. & Mrs. Mahi": (
+        "Dekhha Tenu",
+        "Mohammad Faiz",
+        ["Ali Brothers"],
+    ),
+    "Sajni (Song):": ("Sajni", "Arijit Singh", []),
+    "Mittapalli Surender": ("Ammapata", "Janhavi Yerram", []),
+    "Je Jatt Vigarh Gya": ("Je Jatt Vigarh Gya", "Lehmber Hussainpuri", ["Dr Zeus"]),
+    "Tu Juliet Jatt Di": ("Tu Juliet Jatt Di", "Diljit Dosanjh", ["Bunny", "Sagar"]),
+    "COLISÉE": ("COLISÉE", "Lacrim", ["SDM"]),
+    "A Pesar De Todo": (
+        "A Pesar De Todo",
+        "La Combinación Vallenata",
+        ["Alex Manga", "Morre Romero"],
+    ),
+    "LO QUE VIVIÓ MAMÁ": ("LO QUE VIVIÓ MAMÁ", "OMAR GELES", []),
 }
 
 
@@ -139,91 +155,43 @@ def get_playlist(playlist_id, playlist_name):
         name=playlist_name, website=Website.objects.get(name="YouTube")
     )
 
-    get_songs(response, playlist)
+    youtube_data = get_songs(response, playlist)
 
-
-def get_songs(response, playlist):
-    for song_info in response["items"]:
-
-        if song_info["snippet"]["title"] == "Private video":
-            continue
-
-        content_details = song_info["contentDetails"]
-        video_id = content_details["videoId"]
-
-        # Get release date, name, position and image
-        release_date = content_details["videoPublishedAt"]
-        release_date = datetime.datetime.strptime(release_date, "%Y-%m-%dT%H:%M:%SZ")
-
-        snippet = song_info["snippet"]
-        youtube_name = snippet["title"]
-        pos = snippet["position"] + 1
-        image = snippet["thumbnails"]["default"]["url"]
-
-        # Get token
-        youtube = youtube_token()
-
-        # contentDetails, liveStreamingDetails, localizations, statistics",
-        # CANNOT ACCES: ageGating, fileDetails
-        request_video = youtube.videos().list(
-            part="contentDetails, statistics",
-            id=video_id,
+    # Check if the data is correct
+    for data in youtube_data:
+        print(
+            data["pos"],
+            ".",
+            data["song_name"],
+            "-",
+            data["artist"],
+            data["collaborators"],
         )
 
-        response_video = request_video.execute()
+    confirmation = input("Do you want to save the songs? (yes/no): ")
 
-        # Get duration and views
-        duration = response_video["items"][0]["contentDetails"]["duration"]
-        match = re.match("PT(\d+)M(\d+)?S?", duration)
-        if match:
-            minutes = int(match.group(1))
-            seconds = int(match.group(2)) if match.group(2) else 0
-            duration = minutes * 60 + seconds
+    if confirmation == "yes":
+        # If the user confirmed, create the model instances
+        save_songs(youtube_data, playlist)
+    else:
+        # If the user didn't confirm, handle the error
+        print("The data was not confirmed. No model instances were created.")
 
-        views = response_video["items"][0]["statistics"]["viewCount"]
 
-        # Clean song name
-        song_name = remove_emojis(youtube_name)
-        song_name = remove_phrases(song_name)
+def save_songs(youtube_data, playlist):
 
-        # Extracting song information handleling weird cases
-        if not song_name.strip():
-            name = "Unknown"
-            artist = "Unknown"
-            collaborators = []
-        elif "Peso Pluma" in song_name:
-            name = song_name.split(" - ")[0]
-            artist = "Peso Pluma"
-            collaborators = song_name.split(",")[1:] if "," in song_name else []
-        elif "RAP LA RUE" in song_name:
-            name = song_name.split(" - ")[1].replace("[RAP LA RUE] ROUND 4", "")
-            artist = "RAP LA RUE"
-            collaborators = song_name.split(" - ")[0].split(" x ")
-        elif "Luis Alfonso" in song_name:
-            name = song_name.split(" - ")[0]
-            if name == "Regalada Sales Cara":
-                name = "Regalada Sales Cara (Remix)"
-            artists = song_name.split(" - ")[1].replace(" x ", ", ").split(", ")
-            artist = artists[0]
-            collaborators = [art.replace("(Remix)", "") for art in artists[1:]]
-        elif "Elder Dayán" in song_name:
-            name = song_name.split(" - ")[0]
-            artists = song_name.split(" - ")[1].replace(" y ", ", ").split(", ")
-            artist = artists[0]
-            collaborators = artists[1:]
-        else:
-            for key, value in SONG_INFO.items():
-                if key in song_name:
-                    name, artist, collaborators = value
-                    break
-            else:
-                name, artist, collaborators = extract_info(song_name)
+    # {"pos": pos, "song_name": name, "artist": artist, "collaborators": collaborators, "duration": duration, "release_date": release_date, "views": views, "youtube_name": youtube_name, "image": image}
 
-        print({"song_name": name, "artist": artist, "collaborators": collaborators})
-        # print(name)
-
-        name = name.strip()
-        artist = artist.strip() if artist else None
+    for data in youtube_data:
+        pos = data["pos"]
+        name = data["song_name"]
+        artist = data["artist"] if data["artist"] else None
+        collaborators = data["collaborators"]
+        image = data["image"]
+        duration = data["duration"]
+        release_date = data["release_date"]
+        views = data["views"]
+        youtube_name = data["youtube_name"]
 
         # Creating artists and songs
         if artist is None:
@@ -283,6 +251,119 @@ def get_songs(response, playlist):
         )
 
 
+def get_songs(response, playlist):
+
+    YOUTUBE_DATA = []
+
+    for song_info in response["items"]:
+
+        if song_info["snippet"]["title"] == "Private video":
+            continue
+
+        content_details = song_info["contentDetails"]
+        video_id = content_details["videoId"]
+
+        # Get release date, name, position and image
+        release_date = content_details["videoPublishedAt"]
+        release_date = datetime.datetime.strptime(release_date, "%Y-%m-%dT%H:%M:%SZ")
+
+        snippet = song_info["snippet"]
+        youtube_name = snippet["title"]
+        pos = snippet["position"] + 1
+        image = snippet["thumbnails"]["default"]["url"]
+
+        # Get token
+        youtube = youtube_token()
+
+        # contentDetails, liveStreamingDetails, localizations, statistics",
+        # CANNOT ACCES: ageGating, fileDetails
+        request_video = youtube.videos().list(
+            part="contentDetails, statistics",
+            id=video_id,
+        )
+
+        response_video = request_video.execute()
+
+        # Get duration and views
+        duration = response_video["items"][0]["contentDetails"]["duration"]
+        match = re.match("PT(\d+)M(\d+)?S?", duration)
+        if match:
+            minutes = int(match.group(1))
+            seconds = int(match.group(2)) if match.group(2) else 0
+            duration = minutes * 60 + seconds
+
+        views = response_video["items"][0]["statistics"]["viewCount"]
+
+        # Clean song name
+        song_name = remove_emojis(youtube_name)
+        song_name = remove_phrases(song_name)
+
+        # print(pos, song_name)
+
+        # Extracting song information handleling weird cases
+        if not song_name.strip():
+            name = "Unknown"
+            artist = "Unknown"
+            collaborators = []
+        elif "Peso Pluma" in song_name:
+            name = song_name.split(" - ")[0]
+            artist = "Peso Pluma"
+            collaborators = song_name.split(",")[1:] if "," in song_name else []
+        elif "RAP LA RUE" in song_name:
+            name = (
+                song_name.split(" - ")[1]
+                .replace("[RAP LA RUE] ROUND 4", "")
+                .replace("[RAP LA RUE]", "")
+            )
+            artist = "RAP LA RUE"
+            collaborators = song_name.split(" - ")[0].split(" x ")
+        elif "Luis Alfonso" in song_name:
+            name = song_name.split(" - ")[0]
+            if name == "Regalada Sales Cara":
+                name = "Regalada Sales Cara (Remix)"
+            artists = song_name.split(" - ")[1].replace(" x ", ", ").split(", ")
+            artist = artists[0]
+            collaborators = [art.replace("(Remix)", "") for art in artists[1:]]
+        elif "Elder Dayán" in song_name:
+            name = song_name.split(" - ")[0]
+            artists = song_name.split(" - ")[1].replace(" y ", ", ").split(", ")
+            artist = artists[0]
+            collaborators = artists[1:]
+        elif "BZRP" in song_name:
+            name = song_name.split("BZRP")[1]
+            artist = "Bizarrap"
+            collaborators = [song_name.split("||")[0]]
+        elif "Los Diablitos" in song_name or "Patricia Teherán" in song_name:
+            name = song_name.split(",")[0]
+            artist = song_name.split(",")[1].replace(" - ", "")
+            collaborators = []
+        else:
+            for key, value in SONG_INFO.items():
+                if key in song_name:
+                    name, artist, collaborators = value
+                    break
+            else:
+                name, artist, collaborators = extract_info(song_name)
+
+        # print(name, artist, collaborators)
+
+        YOUTUBE_DATA.append(
+            {
+                "pos": pos,
+                "song_name": name,
+                "artist": artist,
+                "collaborators": collaborators,
+                "duration": duration,
+                "release_date": release_date,
+                "views": views,
+                "youtube_name": youtube_name,
+                "image": image,
+            }
+        )
+
+    return YOUTUBE_DATA
+
+
 def extract_info(song_name):
     separators = [" - ", " -", "- ", ": ", "  ", "|", " – "]
     for sep in separators:
@@ -300,6 +381,7 @@ def extract_info(song_name):
         "ft. ",
         " ft ",
         "Ft. ",
+        " FT. ",
         "feat. ",
         " feat ",
         "Feat. ",
@@ -405,8 +487,10 @@ def remove_phrases(song_name):
     song_name = re.sub(r"\(.*Prod\..*\)", "", song_name)
     song_name = re.sub(r"\[.*prod\..*\]", "", song_name)
     song_name = re.sub(r"\[.*Prod\..*\]", "", song_name)
+    song_name = re.sub(r"prod\..*", "", song_name)
 
     replacements = [
+        "\u200b\u2060#Gt5",
         "#30GRADOS",
         "#FLOWBR",
         "#OFB",
@@ -417,6 +501,7 @@ def remove_phrases(song_name):
         " Exclusive music video 4K ",
         "OFFICIAL MUSIC VIDEO ||",
         "| Official Music Video |",
+        "Official Music Video 4K",
         "OFFICIAL MUSIC VIDEO",
         "Official Music Video",
         "official music video",
@@ -431,6 +516,7 @@ def remove_phrases(song_name):
         "Official Lyrics Video",
         "Official Lyric Video",
         "official lyric video",
+        "(Official Video - No Skits)",
         " - Official Video",
         "| (Official Video)",
         "OFFICIAL VIDEO",
@@ -464,9 +550,12 @@ def remove_phrases(song_name):
         " l Video Oficial",
         "| Video Oficial",
         " Video Oficial ",
+        "video oficial ",
         "Video Official",
         "Video Oficial",
         "video oficial",
+        "Vídeo Oficial",
+        "vídeo oficial",
         "VIDEO UFFICIALE",
         "Video Ufficiale",
         "video ufficiale",
@@ -528,13 +617,16 @@ def remove_phrases(song_name):
         "(Live)",
         "(En Vivo en Estadio Uno)",
         "(En Vivo En El Luna Park)",
+        " (RIDE IT NAPOLETAN REMIX) re-",
         "(Estadio Geba)",
         " (En Vivo)",
+        " (Live 1977)",
         "| ENFASIS",
         "| CROSSOVER 3",
         "| Música Popular Con Letra",
         "|  Latest New Punjabi Song 2024",
         "| Latest Punjabi Songs 2024",
+        "| Latest Punjabi Songs 2023",
         "| Latest Punjabi Song 2024",
         "| LATEST PUNJABI SONGS 2023",
         "| Latest Punjabi song 2023",
@@ -545,6 +637,7 @@ def remove_phrases(song_name):
         "| New Punjabi Song 2024",
         "New Punjabi Songs 2024 -",
         "New Punjabi Song 2024",
+        "| ZDF Fernsehgarten 2024",
         "| GHOST | Intense, Raj Ranjodh",
         "| New Punjabi Song",
         "| Punjabi Song 2023",
@@ -586,18 +679,21 @@ def remove_phrases(song_name):
         "/ ناصيف زيتون ورحمة رياض - ما في ليل",
         "/ الشامي - صبراً",
         "/ الشامي - يا ليل ويالعين",
+        "/ الشامي",
         '/ OST "IL SEGRETO DI LIBERATO" DAL 9 MAGGIO AL CINEMA',
         " / SV",
         "(VIAJE 3)",
         " (2023)",
         " (2024)",
         "(67)",
+        " [Techno]",
         "Full HD",
         "HD",
         "M/V",
         "(  )",
         "()",
         "[]",
+        "  @sergioramos",
         "@",
     ]
 

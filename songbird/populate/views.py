@@ -34,7 +34,7 @@ from .serializers import (
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, filters
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -65,6 +65,9 @@ def delete_all_objects():
 
 def populate_view(request):
 
+    # # DELETE ALL OBJECTS
+    # delete_all_objects()
+
     # # SPOTIFY
     # start_time = time.time()
     # spotify_api()
@@ -85,15 +88,15 @@ def populate_view(request):
     # deezer()
     # print(f"deezer took {time.time() - start_time} seconds")
 
-    # # YOUTUBE
-    # start_time = time.time()
-    # youtube_api()
-    # print(f"youtube_api took {time.time() - start_time} seconds")
-
     # # BILLBOARD
     # start_time = time.time()
     # billboard()
     # print(f"billboard took {time.time() - start_time} seconds")
+
+    # # YOUTUBE
+    # start_time = time.time()
+    # youtube_api()
+    # print(f"youtube_api took {time.time() - start_time} seconds")
 
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # # amazon_music_api()
@@ -104,9 +107,21 @@ def populate_view(request):
     # print(f"genius_lyrics took {time.time() - start_time} seconds")
 
     # WHOOSH
-    create_whoosh_index()
+    # create_whoosh_index()
 
     # Query all objects from each model
+    # songs = Song.objects.filter(available_at__contains=["Deezer"])
+    # artists_songs = (
+    #     Song.objects.select_related("main_artist")
+    #     .prefetch_related("collaborators")
+    #     .filter(available_at__contains=["Deezer"])
+    # )
+    # artists = set(song.main_artist for song in artists_songs)
+    # artists.add(
+    #     collaborator
+    #     for song in artists_songs
+    #     for collaborator in song.collaborators.all()
+    # )
     songs = Song.objects.all()
     artists = Artist.objects.all()
     albums = Album.objects.all()
@@ -270,18 +285,24 @@ class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
     pagination_class = SmallSetPagination
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ["followers"]
 
 
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
     pagination_class = SmallSetPagination
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ["release_date"]
 
 
 class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
     pagination_class = SmallSetPagination
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ["release_date", "date_added"]
 
 
 class WebsiteViewSet(viewsets.ModelViewSet):

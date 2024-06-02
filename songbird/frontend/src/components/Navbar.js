@@ -14,7 +14,7 @@ const CustomNavbar = () => {
             to="/"
             className="text-white navbar-brand"
         >
-            Songbird
+          <img src={`${process.env.PUBLIC_URL}/logo-bg.png`} height={40} alt="Songbird" />
         </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">

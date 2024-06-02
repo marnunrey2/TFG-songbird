@@ -12,6 +12,7 @@ from .models import (
     Position,
 )
 from itertools import islice
+from datetime import datetime
 
 song_ids = set()
 album_ids = set()
@@ -19,19 +20,19 @@ artist_ids = set()
 playlist_ids = {}
 
 top_playlists = {
-    "Weekly Top Global": "37i9dQZEVXbNG2KDcFcKOF",
-    "Weekly Top Spain": "37i9dQZEVXbJwoKy8qKpHG",
-    "Weekly Top USA": "37i9dQZEVXbLp5XoPON0wI",
-    "Weekly Top UK": "37i9dQZEVXbMwmF30ppw50",
-    "Weekly Top Canada": "37i9dQZEVXbMda2apknTqH",
-    "Weekly Top South Korea": "37i9dQZEVXbJZGli0rRP3r",
-    "Weekly Top France": "37i9dQZEVXbKQ1ogMOyW9N",
-    "Weekly Top Germany": "37i9dQZEVXbK8BKKMArIyl",
-    "Weekly Top Australia": "37i9dQZEVXbK4fwx2r07XW",
-    "Weekly Top Colombia": "37i9dQZEVXbL1Fl8vdBUba",
-    "Weekly Top Argentina": "37i9dQZEVXbKPTKrnFPD0G",
-    "Weekly Top Italy": "37i9dQZEVXbJUPkgaWZcWG",
-    "Weekly Top Japan": "37i9dQZEVXbKqiTGXuCOsB",
+    "Top Global": "37i9dQZEVXbNG2KDcFcKOF",
+    "Top Spain": "37i9dQZEVXbJwoKy8qKpHG",
+    "Top USA": "37i9dQZEVXbLp5XoPON0wI",
+    "Top UK": "37i9dQZEVXbMwmF30ppw50",
+    "Top Canada": "37i9dQZEVXbMda2apknTqH",
+    "Top South Korea": "37i9dQZEVXbJZGli0rRP3r",
+    "Top France": "37i9dQZEVXbKQ1ogMOyW9N",
+    "Top Germany": "37i9dQZEVXbK8BKKMArIyl",
+    "Top Australia": "37i9dQZEVXbK4fwx2r07XW",
+    "Top Colombia": "37i9dQZEVXbL1Fl8vdBUba",
+    "Top Argentina": "37i9dQZEVXbKPTKrnFPD0G",
+    "Top Italy": "37i9dQZEVXbJUPkgaWZcWG",
+    "Top Japan": "37i9dQZEVXbKqiTGXuCOsB",
 }
 
 genre_playlists = {
@@ -59,7 +60,7 @@ genre_playlists = {
     "Instrumental": ["37i9dQZF1DXaImRpG7HXqp"],
     "Punk": ["37i9dQZF1DX0KpeLFwA3tO"],
     "Blues": ["37i9dQZF1DX0QNpebF7rcL"],
-    "Alternativa": ["37i9dQZF1DX2G2VrXHSPQG"],
+    "Alternativa": ["37i9dQZF1DX9GRpeH4CL0S"],
     "Afro": ["37i9dQZF1DWT6SJaitNDax"],
     "Funk": ["37i9dQZF1DX70TzPK5buVf"],
     "Cumbia": ["37i9dQZF1DWT1viuVscXm2"],
@@ -164,6 +165,7 @@ def get_playlist_spotify(playlist_name, playlist_id, top_playlist, headers):
     try:
         items = response.json()["items"]
     except:
+        print(playlist_name, playlist_id)
         print(response.json())
         return
 
@@ -308,6 +310,20 @@ def get_multiple_songs_spotify(song_ids, headers):
             song_name = song_info["name"]
             song_duration = song_info["duration_ms"] // 1000  # Convert to seconds
             song_explicit = song_info["explicit"]
+            song_release_date_str = song_info["album"]["release_date"]
+            if len(song_release_date_str) == 4:  # 'YYYY' format
+                song_release_date = datetime.strptime(
+                    song_release_date_str, "%Y"
+                ).date()
+            elif len(song_release_date_str) == 7:  # 'YYYY-MM' format
+                song_release_date = datetime.strptime(
+                    song_release_date_str, "%Y-%m"
+                ).date()
+            else:  # 'YYYY-MM-DD' format
+                song_release_date = datetime.strptime(
+                    song_release_date_str, "%Y-%m-%d"
+                ).date()
+
             # song_popularity = song_info["popularity"]
             # song_href = song_info["href"]
 
@@ -323,8 +339,10 @@ def get_multiple_songs_spotify(song_ids, headers):
                 defaults={
                     "duration": song_duration,
                     "explicit": song_explicit,
+                    "release_date": song_release_date,
                 },
             )
+            song.available_at.append("Spotify")
 
             # Add the album and collaborators to the song
             if len(song_info["artists"]) > 1:
@@ -340,12 +358,11 @@ def get_multiple_songs_spotify(song_ids, headers):
             album, created = Album.objects.get_or_create(
                 name=album_name, artist__name=album_artist
             )
-            song.available_at.append("YouTube")
             song.album = album
             song.save()
 
-            # if created:
-            #     album_ids.add(song_info["album"]["id"])
+            if created:
+                album_ids.add(song_info["album"]["id"])
 
             new_artist_ids = {
                 art["id"]

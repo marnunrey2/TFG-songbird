@@ -6,10 +6,6 @@ import ProtectedRoute from '../components/ProtectedRoute';
 
 // HOMEPAGE
 import Homepage from './Homepage/Homepage';
-import Songs from '../components/Songs';
-import Artists from '../components/Artists';
-import Albums from '../components/Albums';
-import Recommendations from '../components/Recommendations';
 import SignUp from './Homepage/SignUp';
 import Login from './Homepage/Login';
 
@@ -18,6 +14,13 @@ import Dashboard from './User/Dashboard';
 import UserSongs from './User/UserSongs';
 import UserArtists from './User/UserArtists';
 import UserAlbums from './User/UserAlbums';
+
+// COMPONENTS
+import Songs from '../components/Songs';
+import Artists from '../components/Artists';
+import Albums from '../components/Albums';
+import Recommendations from '../components/Recommendations';
+import SongDetails from '../components/SongDetails';
 
 function App() {
   return (
@@ -37,6 +40,10 @@ function App() {
         <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
         <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
         <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />
+
+        {/* COMPONENTS */}
+        <Route path="/song/:id" element={<SongDetails />} />
+
       </Routes>
     </Router>
   );

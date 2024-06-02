@@ -5,20 +5,20 @@ export function useFetchSongs(searchTerm) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-      let url = `http://localhost:8000/api/songs?limit=50&ordering=-release_date`;
+      // let url = `http://localhost:8000/api/songs?limit=50&ordering=-date_added`;
+        let url = `http://localhost:8000/api/songs?limit=50`;
       if (searchTerm) {
         url = `http://localhost:8000/api/songs-search/?q=${encodeURIComponent(searchTerm)}`;
         // Whoosh
         // url = `http://localhost:8000/api/song/search?search=${encodeURIComponent(searchTerm)}`;
       }
-      console.log(url);
 
       axios.get(url)
         .then(response => {
             if (searchTerm) {
-                setData(response.data);
+              setData(response.data);
             } else {
-                setData(response.data.results);
+              setData(response.data.results);
             }
         })
         .catch(error => {
@@ -33,11 +33,10 @@ export function useFetchArtists(searchTerm) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-      let url = `http://localhost:8000/api/artists?limit=50&ordering=-release_date`;
+      let url = `http://localhost:8000/api/artists?limit=50&ordering=-followers`;
       if (searchTerm) {
         url = `http://localhost:8000/api/artists-search/?q=${encodeURIComponent(searchTerm)}`;
       }
-      console.log(url);
 
       axios.get(url)
         .then(response => {
@@ -63,7 +62,6 @@ export function useFetchAlbums(searchTerm) {
         if (searchTerm) {
           url = `http://localhost:8000/api/albums-search/?q=${encodeURIComponent(searchTerm)}`;
         }
-        console.log(url);
   
         axios.get(url)
           .then(response => {

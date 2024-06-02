@@ -20,9 +20,9 @@ const CustomNavbarUsers = () => {
         <Navbar.Brand
             as={Link}
             to="/dashboard"
-            className="text-white navbar-brand-users"
+            className="navbar-brand-users"
         >
-            Songbird
+          <img src={`${process.env.PUBLIC_URL}/logo-bg.png`} height={40} alt="Songbird" />
         </Navbar.Brand>
       </Navbar>
       <Dropdown>
