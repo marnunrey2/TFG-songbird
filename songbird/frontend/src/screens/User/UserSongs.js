@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import UsersTemplate from '../../components/UsersTemplate';
 import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
@@ -11,10 +12,40 @@ import { Link } from 'react-router-dom';
 function UserSongs() {
     const [searchTerm, setSearchTerm] = useState('');
     const songs = useFetchSongs(searchTerm);
-    const [favorite, setFavorite] = useState({});
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
-    const handleFavoriteClick = (index) => {
-        setFavorite(prevState => ({...prevState, [index]: !prevState[index]}));
+    const handleFavoriteClick = (event, index) => {
+        event.preventDefault(); 
+        event.stopPropagation();
+
+        const songId = songs[index].id;
+        const userId = user.id;
+
+        let updatedUser = { ...user };
+        let isSongLiked = updatedUser.liked_songs.map(song => song.id).includes(songId);
+    
+        let requestUrl = isSongLiked ? 'http://localhost:8000/api/user/unlike_song/' : 'http://localhost:8000/api/user/like_song/';
+        axios.post(requestUrl, { user_id: userId, song_id: songId }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                console.log(response);
+
+            // Update the liked_songs in the user object
+            if (isSongLiked) {
+                updatedUser.liked_songs = updatedUser.liked_songs.filter(song => song.id !== songId);
+            } else {
+                updatedUser.liked_songs.push(songs[index]);
+            }
+            // Update the user object in the localStorage
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            })
+            .catch(error => {
+                console.log(error);
+            });
     };
 
     const handleSearchChange = (event) => {
@@ -55,8 +86,8 @@ function UserSongs() {
                         {/* <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div> */}
                     </Col>
                     <Col md={4} className="song-info">
-                    <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
-                        {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
+                    <div onClick={(event) => handleFavoriteClick(event, index)} className="heart-icon">
+                        {user.liked_songs.map(song => song.id).includes(song.id) ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
                     </div>
                     </Col>
                 </Row>

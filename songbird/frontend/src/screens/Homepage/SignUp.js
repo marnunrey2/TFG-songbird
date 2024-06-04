@@ -47,6 +47,7 @@ function SignUp() {
         axios.post('http://localhost:8000/api/signup/', formData)
             .then(response => {
                 console.log(response);
+                setErrorMessage('');
                 setSuccessMessage('User created successfully');
                 setFirstName('');
                 setLastName('');
@@ -57,15 +58,21 @@ function SignUp() {
                 setAvatar(null);
                 window.scrollTo(0, 0);
             })
-            .catch(error => {
-                if (error.response && error.response.data && error.response.data.email) {
-                    setErrorMessage('This email is already in use');
+            .catch(error => { 
+                setSuccessMessage('');
+                if (error.response && error.response.data && error.response.data.password) {
+                    setErrorMessage(error.response.data.password.join(' '));
+                    window.scrollTo(0, 0);  
+                } else if (error.response && error.response.data && error.response.data.email) {
+                    setErrorMessage(error.response.data.email);
                     window.scrollTo(0, 0);  
                 } else if (error.response && error.response.data && error.response.data.username) {
-                    setErrorMessage('This username is already in use');
+                    setErrorMessage(error.response.data.username);
                     window.scrollTo(0, 0);  
                 } else {
-                    console.log(error);
+                    console.error(error);
+                    setErrorMessage(error.message);
+                    window.scrollTo(0, 0);  
                 }
             });
     };

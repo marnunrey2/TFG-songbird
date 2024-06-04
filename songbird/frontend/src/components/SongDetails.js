@@ -9,7 +9,7 @@ import { FaSpotify, FaYoutube, FaApple, FaDeezer } from 'react-icons/fa';
 
 function SongDetails() {
     const [song, setSong] = useState(null);
-    const [favorite, setFavorite] = useState({});
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
     const { id } = useParams(); 
 
@@ -19,11 +19,36 @@ function SongDetails() {
                 console.log(response.data);
                 setSong(response.data);
             });
-    }, [id]);
+    }, [id, user]);
 
     const handleFavoriteClick = () => {
-        setFavorite(prevState => ({...prevState, [id]: !prevState[id]}));
+        let updatedUser = { ...user };
+        let isSongLiked = updatedUser.liked_songs.map(song => song.id).includes(Number(id));
+
+        let requestUrl = isSongLiked ? 'http://localhost:8000/api/user/unlike_song/' : 'http://localhost:8000/api/user/like_song/';
+        axios.post(requestUrl, { user_id: user.id, song_id: id }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                console.log(response);
+
+                // Update the liked_songs in the user object
+                if (isSongLiked) {
+                    updatedUser.liked_songs = updatedUser.liked_songs.filter(song => song.id !== Number(id));
+                } else {
+                    updatedUser.liked_songs.push(song);
+                }
+                // Update the user object in the localStorage
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            })
+            .catch(error => {
+                console.log(error);
+            });
     };
+
 
     const formatDuration = (duration) => {
         const minutes = Math.floor(duration / 60);
@@ -85,7 +110,7 @@ function SongDetails() {
                     </Col>
                     <Col md={4} className="song-details">
                         <div onClick={handleFavoriteClick} className="heart-icon">
-                            {favorite[id] ? <HeartFill color="red" size={30} /> : <Heart color="black" size={30} />}
+                            {user.liked_songs.map(song => song.id).includes(Number(id)) ? <HeartFill color="red" size={30} /> : <Heart color="black" size={30} />}
                         </div>
                     </Col>
                 </Row>

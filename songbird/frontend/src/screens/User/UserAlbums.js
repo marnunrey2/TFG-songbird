@@ -4,20 +4,14 @@ import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
 import { useFetchAlbums } from '../../components/useFetchData'; 
-import { HeartFill, Heart } from 'react-bootstrap-icons';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 
 
 function UserAlbums() {
     const [searchTerm, setSearchTerm] = useState('');
     const albums = useFetchAlbums(searchTerm);
-    const [favorite, setFavorite] = useState({});
 
     console.log(albums);
-
-    const handleFavoriteClick = (index) => {
-        setFavorite(prevState => ({...prevState, [index]: !prevState[index]}));
-    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -50,11 +44,6 @@ function UserAlbums() {
                     <Col md={4} className="song-info">
                         <div className="song-name">{album ? album.name : ''}</div>
                         <div className="artist-name">{album && album.release_date ? album.release_date : 'None'}</div>                    
-                    </Col>
-                    <Col md={4} className="song-info">
-                    <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
-                        {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
-                    </div>
                     </Col>
                 </Row>
             </div>

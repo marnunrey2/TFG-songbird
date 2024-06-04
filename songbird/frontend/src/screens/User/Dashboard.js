@@ -16,13 +16,21 @@ function Dashboard() {
           <MusicNoteBeamed color="black" size={50} />
           <h2>{user.liked_songs.length} Liked Songs</h2>
         </div>
-        <div className="statistic-card">
+        {/* <div className="statistic-card">
           <VinylFill color="black" size={50} />
           <h2>{user.liked_albums.length} Liked Albums</h2>
         </div>
         <div className="statistic-card">
           <PersonHeart color="black" size={50} />
           <h2>{user.liked_artists.length} Liked Artists</h2>
+        </div> */}
+        <div className="statistic-card">
+          <VinylFill color="black" size={50} />
+          <h2>0 Liked Albums</h2>
+        </div>
+        <div className="statistic-card">
+          <PersonHeart color="black" size={50} />
+          <h2>0 Liked Artists</h2>
         </div>
       </div>
       <div className="statistics" style={{marginTop: '70px'}}>
@@ -30,7 +38,7 @@ function Dashboard() {
           <h2>Favourite Song:</h2>
           {user.liked_songs.length > 0 ? <h3>{user.liked_songs[0].name}</h3> : <h3>No favourite song yet</h3>}
         </div>
-        <div className="statistic-card-4">
+        {/* <div className="statistic-card-4">
           <h2>Favourite Album:</h2>
           {user.liked_albums.length > 0 ? <h3>{user.liked_albums[0].name}</h3> : <h3>No favourite album yet</h3>}
         </div>
@@ -41,6 +49,18 @@ function Dashboard() {
         <div className="statistic-card-4">
           <h2>Favourite Genre:</h2>
           {user.liked_artists.length > 0 ? <h3>{user.liked_artists[0].name}</h3> : <h3>No favourite genre yet</h3>}
+        </div> */}
+        <div className="statistic-card-4">
+          <h2>Favourite Album:</h2>
+          <h3>No favourite album yet</h3>
+        </div>
+        <div className="statistic-card-4">
+          <h2>Favourite Artist:</h2>
+          <h3>No favourite artist yet</h3>
+        </div>
+        <div className="statistic-card-4">
+          <h2>Favourite Genre:</h2>
+          <h3>No favourite genre yet</h3>
         </div>
       </div>
     </UsersTemplate>

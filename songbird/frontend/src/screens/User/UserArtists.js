@@ -4,19 +4,13 @@ import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import avatar from '../../media/avatar.png';
 import { useFetchArtists } from '../../components/useFetchData'; 
-import { HeartFill, Heart } from 'react-bootstrap-icons';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 
 function UserArtists() {
     const [searchTerm, setSearchTerm] = useState('');
     const artists = useFetchArtists(searchTerm);
-    const [favorite, setFavorite] = useState({});
 
     console.log(artists);
-
-    const handleFavoriteClick = (index) => {
-        setFavorite(prevState => ({...prevState, [index]: !prevState[index]}));
-    };
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -49,11 +43,6 @@ function UserArtists() {
                     <Col md={4} className="song-info">
                         <div className="song-name">{artist ? artist.name : ''}</div>
                         <div className="artist-name">{artist && artist.followers ? JSON.stringify(artist.followers) : ''}</div>                    
-                    </Col>
-                    <Col md={4} className="song-info">
-                    <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
-                        {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
-                    </div>
                     </Col>
                 </Row>
             </div>

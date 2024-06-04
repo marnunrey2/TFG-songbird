@@ -9,6 +9,7 @@ from .models import (
     Website,
     Position,
     UserProfile,
+    UserSong,
 )
 from .spotify import spotify_api
 from .deezer import deezer
@@ -21,7 +22,7 @@ from .lyrics import genius_lyrics, genius_lyrics_of_a_song
 from .whoosh import create_whoosh_index
 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import viewsets
+from rest_framework import viewsets, status, filters
 from .serializers import (
     GenreSerializer,
     ArtistSerializer,
@@ -34,8 +35,9 @@ from .serializers import (
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, filters
+from rest_framework.decorators import api_view
 
+from django.contrib.auth.password_validation import validate_password, ValidationError
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -83,10 +85,10 @@ def populate_view(request):
     # kworb_all_time()
     # print(f"kworb_all_time took {time.time() - start_time} seconds")
 
-    # DEEZER
-    start_time = time.time()
-    deezer()
-    print(f"deezer took {time.time() - start_time} seconds")
+    # # DEEZER
+    # start_time = time.time()
+    # deezer()
+    # print(f"deezer took {time.time() - start_time} seconds")
 
     # # BILLBOARD
     # start_time = time.time()
@@ -174,6 +176,11 @@ def signup(request):
         last_name = request.POST.get("last_name")
         avatar = request.FILES.get("avatar")
 
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            return JsonResponse({"password": e.messages}, status=400)
+
         if User.objects.filter(username=username).exists():
             return JsonResponse(
                 {"username": "This username is already in use"}, status=400
@@ -182,11 +189,11 @@ def signup(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({"email": "This email is already in use"}, status=400)
 
-        if avatar is None:
-            default_avatar_path = os.path.join(
-                settings.MEDIA_ROOT, "avatars\default.png"
-            )
-            avatar = File(open(default_avatar_path, "rb"))
+        # if avatar is None:
+        #     default_avatar_path = os.path.join(
+        #         settings.MEDIA_ROOT, "avatars\default.png"
+        #     )
+        #     avatar = File(open(default_avatar_path, "rb"))
 
         user = User.objects.create_user(username, email, password)
         user.first_name = first_name
@@ -210,27 +217,64 @@ def login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # profile = UserProfile.objects.filter(user=user).first()
+            # if profile is not None:
+            #     UserSong.objects.filter(user=profile).delete()
+            #     profile.liked_songs.clear()
+
             user_data = model_to_dict(user)
 
             profile = UserProfile.objects.filter(user=user).first()
 
             if profile is not None:
 
-                profile_data = model_to_dict(profile)
-                user_data["avatar"] = request.build_absolute_uri(
-                    profile_data["avatar"].url
-                )
+                # profile_data = model_to_dict(profile)
+                # user_data["avatar"] = request.build_absolute_uri(
+                #     profile_data["avatar"].url
+                # )
 
                 # Get liked songs, albums, and artists
                 user_data["liked_songs"] = list(profile.liked_songs.values())
-                user_data["liked_albums"] = list(profile.liked_albums.values())
-                user_data["liked_artists"] = list(profile.liked_artists.values())
 
             return JsonResponse(user_data, status=200)
         else:
             return JsonResponse({"error": "Invalid username or password"}, status=400)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@api_view(["POST"])
+def like_song(request):
+    user_id = request.data.get("user_id")
+    song_id = request.data.get("song_id")
+
+    user = UserProfile.objects.get(user__id=user_id)
+    song = Song.objects.get(id=song_id)
+
+    UserSong.objects.create(user=user, song=song)
+
+    # Print the user's liked songs
+    for song in user.liked_songs.all():
+        print(song)
+
+    return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+def unlike_song(request):
+    user_id = request.data.get("user_id")
+    song_id = request.data.get("song_id")
+
+    user = UserProfile.objects.get(user__id=user_id)
+    song = Song.objects.get(id=song_id)
+
+    user_song = UserSong.objects.get(user=user, song=song)
+    user_song.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# SEARCH SONGS
 
 
 def search_songs(request):

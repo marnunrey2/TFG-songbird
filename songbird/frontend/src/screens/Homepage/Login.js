@@ -25,11 +25,9 @@ function Login() {
                 navigate('/dashboard');
             })
             .catch(error => {
-                if (error.response && error.response.status === 400) {
-                    setErrorMessage('Invalid username or password');
-                } else {
-                    console.log(error);
-                }
+                console.log(error);
+                setErrorMessage('Invalid username or password');
+                
             });
     };
 

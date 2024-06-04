@@ -184,9 +184,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
     liked_songs = models.ManyToManyField(
-        Song, blank=True, related_name="liked_by_users"
+        Song, through="UserSong", blank=True, related_name="liked_by_user"
     )
-    liked_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         try:
@@ -207,3 +206,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class UserSong(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    liked_at = models.DateTimeField(auto_now_add=True)

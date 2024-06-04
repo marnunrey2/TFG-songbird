@@ -12,6 +12,8 @@ from .views import (
     PlaylistSongViewSet,
     signup,
     login,
+    like_song,
+    unlike_song,
     search_songs,
     SongSearchView,
     ArtistSearchView,
@@ -37,4 +39,6 @@ urlpatterns = [
     path("albums-search/", AlbumSearchView.as_view(), name="album-search"),
     path("signup/", signup, name="signup"),
     path("login/", login, name="login"),
+    path("user/like_song/", like_song, name="like_song"),
+    path("user/unlike_song/", unlike_song, name="unlike_song"),
 ]
