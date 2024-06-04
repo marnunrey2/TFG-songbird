@@ -175,10 +175,15 @@ body {
     font-weight: normal;
 }
 
-.song-details p {
-    margin-top: 0;
+.song-details div {
+    margin: 0;
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 2rem;
+}
+
+.line-with-brackets {
+    padding-top: 30px !important;
+    font-weight: bold;
 }
 
 .song-img-details {

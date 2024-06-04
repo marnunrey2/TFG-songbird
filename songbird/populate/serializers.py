@@ -14,7 +14,7 @@ from .models import (
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = "__all__"
+        fields = ["name"]
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -26,7 +26,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 
 class AlbumSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True, read_only=True)
+    genres = GenreSerializer(many=True, read_only=True)
     artist = ArtistSerializer(read_only=True)
 
     class Meta:

@@ -1,4 +1,5 @@
 import json
+import requests
 import urllib.request
 from bs4 import BeautifulSoup
 from .models import (
@@ -9,6 +10,7 @@ from .models import (
     Playlist,
     PlaylistSong,
     Position,
+    Genre,
 )
 
 song_ids = set()
@@ -85,7 +87,6 @@ def get_playlist_deezer(playlist_name, playlist_id):
 
         # Create or update the album
         album_name = song_info["ALB_TITLE"]
-        album_picture = song_info["ALB_PICTURE"]
         album = Album.objects.filter(
             name__icontains=album_name, artist=main_artist
         ).first()
@@ -96,10 +97,31 @@ def get_playlist_deezer(playlist_name, playlist_id):
         else:
             created = False
 
+        # Get the album genres
+        album_id = song_info["ALB_ID"]
+        response = requests.get(f"https://api.deezer.com/album/{album_id}")
+        album_info = response.json()
+        genres = album_info["genres"]["data"]
+        for genre in genres:
+            genre_name = genre["name"]
+            for g in Genre.BASE_GENRES:
+                if g in genre_name.upper():
+                    genre_obj, _ = Genre.objects.get_or_create(name=g)
+                    album.genres.add(genre_obj)
+
         # If the album was created or if it exists and images is None, update the images field
-        if created or (album.images is None and album_picture is not None):
+        album_picture = album_info["cover_medium"]
+        if (
+            created
+            or (album.images is None and album_picture is not None)
+            or not (
+                album.images.startswith("http://")
+                or album.images.startswith("https://")
+            )
+        ):
             album.images = album_picture
-            album.save()
+
+        album.save()
 
         # Create or update the song
         song = Song.objects.filter(

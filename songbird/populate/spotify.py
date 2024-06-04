@@ -223,7 +223,7 @@ def get_multiple_artists_spotify(artist_ids, headers):
                     if g in genre_name.upper():
                         genre, created = Genre.objects.get_or_create(name=g)
                         artist.genres.add(genre)
-                        break
+                        artist.save()
 
             artist.save()
 
@@ -244,15 +244,19 @@ def get_multiple_albums_spotify(album_ids, headers):
             album_name = album_info["name"]
             album_images = album_info["images"][0]["url"]
             # album_popularity = album_info["popularity"]
-            album_release_date = album_info["release_date"]
-
-            # Check if the release date is just a year
-            if len(album_release_date) == 4:
-                # Append "-01-01" to make it a valid date
-                album_release_date = album_release_date + "-01-01"
-            elif len(album_release_date) == 7:
-                # Append "-01" to make it a valid date
-                album_release_date = album_release_date + "-01"
+            album_release_date_str = album_info["release_date"]
+            if len(album_release_date_str) == 4:  # 'YYYY' format
+                album_release_date = datetime.strptime(
+                    album_release_date_str, "%Y"
+                ).date()
+            elif len(album_release_date_str) == 7:  # 'YYYY-MM' format
+                album_release_date = datetime.strptime(
+                    album_release_date_str, "%Y-%m"
+                ).date()
+            else:  # 'YYYY-MM-DD' format
+                album_release_date = datetime.strptime(
+                    album_release_date_str, "%Y-%m-%d"
+                ).date()
 
             album_total_tracks = album_info["total_tracks"]
             # album_href = album_info["href"]
@@ -281,7 +285,8 @@ def get_multiple_albums_spotify(album_ids, headers):
                     if g in genre_name.upper():
                         genre, created = Genre.objects.get_or_create(name=g)
                         album.genres.add(genre)
-                        break
+
+            album.save()
 
             # Get the songs and artists for the album
             new_song_ids = {
@@ -290,8 +295,6 @@ def get_multiple_albums_spotify(album_ids, headers):
                 if not Song.objects.filter(name=song["name"]).exists()
             }
             song_ids.update(new_song_ids)
-
-            album.save()
 
 
 def get_multiple_songs_spotify(song_ids, headers):
@@ -351,6 +354,7 @@ def get_multiple_songs_spotify(song_ids, headers):
                         name=artist_info["name"]
                     )
                     song.collaborators.add(artist)
+                    song.save()
 
             # Get/create the album
             album_name = song_info["album"]["name"]

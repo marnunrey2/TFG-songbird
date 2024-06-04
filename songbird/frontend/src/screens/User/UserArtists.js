@@ -5,7 +5,7 @@ import '../../styles/UserStyles.css';
 import avatar from '../../media/avatar.png';
 import { useFetchArtists } from '../../components/useFetchData'; 
 import { HeartFill, Heart } from 'react-bootstrap-icons';
-
+import { Container, Row, Col, Image } from 'react-bootstrap';
 
 function UserArtists() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,30 +33,32 @@ function UserArtists() {
                 placeholder="Search for artists..." 
             />
         </div>
-        <div className="info">
+        <Container className="info">
         {artists.map((artist, index) => (
             <div key={index}  className="info-card">
-                <div className="card-content">
-                    <div className="song-image">
+                <Row className="card-content">
+                    <Col md={4} className="song-image">
                         {artist && artist.images ? (
-                            <img src={artist.images} alt={artist.name} className="song-img" />
+                            <Image src={artist.images} onError={(e)=>{e.target.onerror = null; e.target.src=avatar}} className="song-img" rounded />
                         ) : (
                             <div className="placeholder">
-                                <img src={avatar} alt={artist ? artist.name : ''} className="song-img" />
+                                <Image src={avatar} onError={(e)=>{e.target.onerror = null; e.target.src=avatar}} className="song-img" rounded />
                             </div>
                         )}
-                    </div>
-                    <div className="song-info">
+                    </Col>
+                    <Col md={4} className="song-info">
                         <div className="song-name">{artist ? artist.name : ''}</div>
                         <div className="artist-name">{artist && artist.followers ? JSON.stringify(artist.followers) : ''}</div>                    
-                    </div>
+                    </Col>
+                    <Col md={4} className="song-info">
                     <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
                         {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
                     </div>
-                </div>
+                    </Col>
+                </Row>
             </div>
         ))}
-        </div>
+        </Container>
         </UsersTemplate>
     );
 }

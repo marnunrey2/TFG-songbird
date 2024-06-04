@@ -17,7 +17,7 @@ from .appleMusic import apple_music
 from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
 from .billboard import billboard
-from .lyrics import genius_lyrics
+from .lyrics import genius_lyrics, genius_lyrics_of_a_song
 from .whoosh import create_whoosh_index
 
 from rest_framework.pagination import PageNumberPagination
@@ -83,10 +83,10 @@ def populate_view(request):
     # kworb_all_time()
     # print(f"kworb_all_time took {time.time() - start_time} seconds")
 
-    # # DEEZER
-    # start_time = time.time()
-    # deezer()
-    # print(f"deezer took {time.time() - start_time} seconds")
+    # DEEZER
+    start_time = time.time()
+    deezer()
+    print(f"deezer took {time.time() - start_time} seconds")
 
     # # BILLBOARD
     # start_time = time.time()
@@ -106,6 +106,9 @@ def populate_view(request):
     # genius_lyrics()
     # print(f"genius_lyrics took {time.time() - start_time} seconds")
 
+    # # GENIUS LYRICS OF A SONG
+    # genius_lyrics_of_a_song("Andrea")
+
     # WHOOSH
     # create_whoosh_index()
 
@@ -122,7 +125,20 @@ def populate_view(request):
     #     for song in artists_songs
     #     for collaborator in song.collaborators.all()
     # )
-    songs = Song.objects.all()
+
+    genres = Genre.objects.all()
+    songs = {}
+
+    # For each genre, get the songs
+    for genre in genres:
+        songs[genre.name] = []
+        # Get albums of the genre
+        albums = Album.objects.filter(genres__name=genre.name)
+        # Get songs of each album
+        for album in albums:
+            songs_album = album.album_songs.all()
+            songs[genre.name].append(songs_album)
+    # songs = Song.objects.all()
     artists = Artist.objects.all()
     albums = Album.objects.all()
     genres = Genre.objects.all()

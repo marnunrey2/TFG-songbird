@@ -41,7 +41,7 @@ function SongDetails() {
         };
 
         return song.available_at.map(service => (
-            <span key={service} className="mr-2">
+            <span key={service} style={{marginRight: '10px'}}>
                 {icons[service]}
             </span>
         ));
@@ -58,14 +58,14 @@ function SongDetails() {
                 <Row className="details-card-content">
                     <Col md={4} className="details-song-image">
                         {song && song.images ? (
-                            <Image src={song.images} alt={song.name} className="song-img-details" rounded />
+                            <Image src={song.images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img-details" rounded />
                         ) : song && song.album && song.album.images ? (
-                            <Image src={song.album.images} alt={song.name} className="song-img-details" rounded />
+                            <Image src={song.album.images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img-details" rounded />
                         ) : song && song.album_images ? (
-                            <Image src={song.album_images} alt={song.name} className="song-img-details" rounded />
+                            <Image src={song.album_images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img-details" rounded />
                         ) : (
                             <div className="placeholder">
-                                <Image src={cd} alt={song.name} className="song-img-details" rounded />
+                                <Image src={cd} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img-details" rounded />
                             </div>
                         )}
                     </Col>
@@ -79,8 +79,8 @@ function SongDetails() {
                     </Col>
                     <Col md={4} className="song-details" style={{marginTop: '70px', marginLeft: '70px'}}>
                         {song.release_date && <h6><strong>Release Date: </strong>{new Date(song.release_date).toLocaleDateString()}</h6>}
-                        <h6><strong>Duration: </strong>{formatDuration(song.duration)}</h6>
-                        <h6><strong>Genre: </strong>{song.album?.genre.join(', ')}</h6>
+                        <h6><strong>Duration: </strong>{formatDuration(song.duration)} min</h6>
+                        <h6><strong>Genre: </strong>{song.album.genres.length > 0 ? song.album.genres.map(genre => genre.name).join(', ') : 'No genre'}</h6>
                         <h6><strong>Explicit: </strong>{song.explicit ? 'Yes' : 'No'}</h6>
                     </Col>
                     <Col md={4} className="song-details">
@@ -89,10 +89,21 @@ function SongDetails() {
                         </div>
                     </Col>
                 </Row>
-                <Row className="details-card-content" style={{ marginTop: '40px' }}>
+                <Row className="details-card-content align-items-start" style={{ marginTop: '40px' }}>
                     <Col className='song-details'>
                         <h3>Lyrics</h3>
-                        <p>{song.lyrics? song.lyrics : 'No lyrics'}</p>
+                        {song.lyrics ? song.lyrics.split('\n').map((line, i) => {
+                            const parts = line.split('[');
+                            return (
+                                <React.Fragment key={i}>
+                                    {parts.map((part, j) => (
+                                        <div key={j} className={part.includes(']') ? 'line-with-brackets' : ''}>
+                                            {j > 0 && '['}{part}
+                                        </div>
+                                    ))}
+                                </React.Fragment>
+                            );
+                        }) : 'No lyrics'}                  
                     </Col>
                     <Col className='song-details'>
                         <h6><strong>Available at: </strong></h6>

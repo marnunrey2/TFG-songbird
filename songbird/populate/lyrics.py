@@ -54,6 +54,49 @@ def genius_lyrics():
     print(songs_names)
 
 
+def genius_lyrics_of_a_song(song_name):
+    # Load the .env file
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+    token = os.getenv("GENIUS_ACCESS_TOKEN")
+
+    genius = lyricsgenius.Genius(token)
+
+    # Get all songs from the database
+    song = Song.objects.filter(name=song_name).first()
+
+    if (
+        song is None
+        or song.name == ""
+        or song.name == "Unknown"
+        or song.main_artist is None
+    ):
+        print(f"Song '{song.name}'is None or empty. Skipping to next song.")
+        return
+
+    song_name = song.name
+    artist_name = song.main_artist.name
+    try:
+        genius_song = genius.search_song(song_name, artist_name)
+    except requests.exceptions.Timeout:
+        print(
+            f"Request timed out for song {song_name} by {artist_name}. Skipping to next song."
+        )
+        return
+
+    # Check if genius_song is None
+    if genius_song is None:
+        return
+
+    # Refactor lyrics
+    lyrics = genius_song.lyrics.split("Lyrics")[1:]
+    lyrics = "".join(lyrics)
+    lyrics = re.sub(r"\d*Embed$", "", lyrics)
+    lyrics = re.sub(r'\[Letra de ".*?"\]', "", lyrics)
+
+    song.lyrics = lyrics
+    song.save()
+
+
 """
 import requests
 from dotenv import load_dotenv

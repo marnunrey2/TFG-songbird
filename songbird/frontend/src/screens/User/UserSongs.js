@@ -38,14 +38,14 @@ function UserSongs() {
                 <Row className="card-content">
                     <Col md={4} className="song-image">
                         {song && song.images ? (
-                            <Image src={song.images} alt={song.name} className="song-img" rounded />
+                            <Image src={song.images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                         ) : song && song.album && song.album.images ? (
-                            <Image src={song.album.images} alt={song.name} className="song-img" rounded />
+                            <Image src={song.album.images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                         ) : song && song.album_images ? (
-                            <Image src={song.album_images} alt={song.name} className="song-img" rounded />
+                            <Image src={song.album_images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                         ) : (
                             <div className="placeholder">
-                                <Image src={cd} alt={song.name} className="song-img" rounded />
+                                <Image src={cd} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                             </div>
                         )}
                     </Col>

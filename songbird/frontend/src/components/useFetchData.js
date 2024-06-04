@@ -5,8 +5,8 @@ export function useFetchSongs(searchTerm) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-      // let url = `http://localhost:8000/api/songs?limit=50&ordering=-date_added`;
-        let url = `http://localhost:8000/api/songs?limit=50`;
+      // let url = `http://localhost:8000/api/songs?limit=50&ordering=release_date`;
+      let url = `http://localhost:8000/api/songs?limit=50`;
       if (searchTerm) {
         url = `http://localhost:8000/api/songs-search/?q=${encodeURIComponent(searchTerm)}`;
         // Whoosh

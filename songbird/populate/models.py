@@ -45,6 +45,7 @@ class Genre(models.Model):
         "CHOIR",
         "INSTRUMENTAL",
         "SONGWRITER",
+        "K-POP",
     ]
 
     name = models.CharField(max_length=255, unique=True)
@@ -62,7 +63,7 @@ class Artist(models.Model):
 
 class Album(models.Model):
     name = models.CharField(max_length=255)
-    genre = models.ManyToManyField(Genre, blank=True)
+    genres = models.ManyToManyField(Genre, blank=True)
     images = models.CharField(max_length=255, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
     total_tracks = models.IntegerField(null=True, blank=True)
@@ -185,12 +186,7 @@ class UserProfile(models.Model):
     liked_songs = models.ManyToManyField(
         Song, blank=True, related_name="liked_by_users"
     )
-    liked_albums = models.ManyToManyField(
-        Album, blank=True, related_name="liked_by_users"
-    )
-    liked_artists = models.ManyToManyField(
-        Artist, blank=True, related_name="liked_by_users"
-    )
+    liked_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         try:

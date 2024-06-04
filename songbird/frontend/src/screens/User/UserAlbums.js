@@ -5,6 +5,7 @@ import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
 import { useFetchAlbums } from '../../components/useFetchData'; 
 import { HeartFill, Heart } from 'react-bootstrap-icons';
+import { Container, Row, Col, Image } from 'react-bootstrap';
 
 
 function UserAlbums() {
@@ -33,30 +34,32 @@ function UserAlbums() {
                 placeholder="Search for albums..." 
             />
         </div>
-        <div className="info">
+        <Container className="info">
         {albums.map((album, index) => (
             <div key={index}  className="info-card">
-                <div className="card-content">
-                    <div className="song-image">
+                <Row className="card-content">
+                    <Col md={4} className="song-image">
                         {album && album.images ? (
-                            <img src={album.images} alt={album.name} className="song-img" />
+                            <Image src={album.images} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                         ) : (
                             <div className="placeholder">
-                                <img src={cd} alt={album ? album.name : ''} className="song-img" />
+                                <Image src={cd} onError={(e)=>{e.target.onerror = null; e.target.src=cd}} className="song-img" rounded />
                             </div>
                         )}
-                    </div>
-                    <div className="song-info">
+                    </Col>
+                    <Col md={4} className="song-info">
                         <div className="song-name">{album ? album.name : ''}</div>
                         <div className="artist-name">{album && album.release_date ? album.release_date : 'None'}</div>                    
-                    </div>
+                    </Col>
+                    <Col md={4} className="song-info">
                     <div onClick={() => handleFavoriteClick(index)} className="heart-icon">
                         {favorite[index] ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
                     </div>
-                </div>
+                    </Col>
+                </Row>
             </div>
         ))}
-        </div>
+        </Container>
         </UsersTemplate>
     );
 }
