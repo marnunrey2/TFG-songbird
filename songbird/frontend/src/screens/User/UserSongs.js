@@ -1,51 +1,42 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import UsersTemplate from '../../components/UsersTemplate';
 import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
-import { useFetchSongs } from '../../components/useFetchData'; 
+import { useFetchSongs, togglePostLikes } from '../../components/useFetchData'; 
 import { HeartFill, Heart } from 'react-bootstrap-icons';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+  
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+  
+    return debouncedValue;
+}
+
 function UserSongs() {
     const [searchTerm, setSearchTerm] = useState('');
-    const songs = useFetchSongs(searchTerm);
+    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+    const songs = useFetchSongs(debouncedSearchTerm);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
-    const handleFavoriteClick = (event, index) => {
+    const handleFavoriteClick = async (event, index) => {
         event.preventDefault(); 
         event.stopPropagation();
 
-        const songId = songs[index].id;
-        const userId = user.id;
+        const song = songs[index];
+        await togglePostLikes(user, setUser, song, song.id);
 
-        let updatedUser = { ...user };
-        let isSongLiked = updatedUser.liked_songs.map(song => song.id).includes(songId);
-    
-        let requestUrl = isSongLiked ? 'http://localhost:8000/api/user/unlike_song/' : 'http://localhost:8000/api/user/like_song/';
-        axios.post(requestUrl, { user_id: userId, song_id: songId }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                console.log(response);
-
-            // Update the liked_songs in the user object
-            if (isSongLiked) {
-                updatedUser.liked_songs = updatedUser.liked_songs.filter(song => song.id !== songId);
-            } else {
-                updatedUser.liked_songs.push(songs[index]);
-            }
-            // Update the user object in the localStorage
-            setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-            })
-            .catch(error => {
-                console.log(error);
-            });
     };
 
     const handleSearchChange = (event) => {

@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UsersTemplate from '../../components/UsersTemplate';
 import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import avatar from '../../media/avatar.png';
 import { useFetchArtists } from '../../components/useFetchData'; 
 import { Container, Row, Col, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+
+
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+  
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+  
+    return debouncedValue;
+  }
+  
 
 function UserArtists() {
     const [searchTerm, setSearchTerm] = useState('');
-    const artists = useFetchArtists(searchTerm);
+    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+    const artists = useFetchArtists(debouncedSearchTerm);
 
     console.log(artists);
 
@@ -29,7 +49,7 @@ function UserArtists() {
         </div>
         <Container className="info">
         {artists.map((artist, index) => (
-            <div key={index}  className="info-card">
+            <Link to={`/artist/${artist.name}`} key={index} className="info-card">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
                         {artist && artist.images ? (
@@ -45,7 +65,7 @@ function UserArtists() {
                         <div className="artist-name">{artist && artist.followers ? JSON.stringify(artist.followers) : ''}</div>                    
                     </Col>
                 </Row>
-            </div>
+            </Link>
         ))}
         </Container>
         </UsersTemplate>

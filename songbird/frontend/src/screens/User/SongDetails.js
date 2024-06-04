@@ -1,54 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import UsersTemplate from './UsersTemplate';
-import cd from '../media/cd.png';
+import React, { useState } from 'react';
+import UsersTemplate from '../../components/UsersTemplate';
+import cd from '../../media/cd.png';
 import { HeartFill, Heart } from 'react-bootstrap-icons';
 import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 import { FaSpotify, FaYoutube, FaApple, FaDeezer } from 'react-icons/fa';
+import { togglePostLikes, useFetchSongData } from '../../components/useFetchData';
 
 function SongDetails() {
-    const [song, setSong] = useState(null);
+    const { id } = useParams(); 
+    const song = useFetchSongData(id);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
-    const { id } = useParams(); 
-
-    useEffect(() => {
-        axios.get(`http://localhost:8000/api/songs/${id}`)
-            .then(response => {
-                console.log(response.data);
-                setSong(response.data);
-            });
-    }, [id, user]);
-
-    const handleFavoriteClick = () => {
-        let updatedUser = { ...user };
-        let isSongLiked = updatedUser.liked_songs.map(song => song.id).includes(Number(id));
-
-        let requestUrl = isSongLiked ? 'http://localhost:8000/api/user/unlike_song/' : 'http://localhost:8000/api/user/like_song/';
-        axios.post(requestUrl, { user_id: user.id, song_id: id }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                console.log(response);
-
-                // Update the liked_songs in the user object
-                if (isSongLiked) {
-                    updatedUser.liked_songs = updatedUser.liked_songs.filter(song => song.id !== Number(id));
-                } else {
-                    updatedUser.liked_songs.push(song);
-                }
-                // Update the user object in the localStorage
-                setUser(updatedUser);
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-            })
-            .catch(error => {
-                console.log(error);
-            });
+    const handleFavoriteClick = async () => {
+        await togglePostLikes(user, setUser, song, Number(id));
     };
-
 
     const formatDuration = (duration) => {
         const minutes = Math.floor(duration / 60);
@@ -62,7 +28,6 @@ function SongDetails() {
             'YouTube': <FaYoutube size={40} color="#FF0000" />,
             'Apple Music': <FaApple size={40} color="#000000" />,
             'Deezer': <FaDeezer size={40} color="#00A4DC" />,
-            // Add more services here if needed
         };
 
         return song.available_at.map(service => (

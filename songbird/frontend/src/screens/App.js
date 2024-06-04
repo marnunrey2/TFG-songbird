@@ -14,13 +14,8 @@ import Dashboard from './User/Dashboard';
 import UserSongs from './User/UserSongs';
 import UserArtists from './User/UserArtists';
 import UserAlbums from './User/UserAlbums';
-
-// COMPONENTS
-import Songs from '../components/Songs';
-import Artists from '../components/Artists';
-import Albums from '../components/Albums';
-import Recommendations from '../components/Recommendations';
-import SongDetails from '../components/SongDetails';
+import SongDetails from './User/SongDetails';
+import ArtistDetails from './User/ArtistDetails';
 
 function App() {
   return (
@@ -28,10 +23,6 @@ function App() {
       <Routes>
         {/* HOMEPAGE */}
         <Route path="/" element={<Homepage />} />
-        <Route path="/songs" element={<Songs />} />
-        <Route path="/artists" element={<Artists />} />
-        <Route path="/albums" element={<Albums />} />
-        <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
@@ -40,9 +31,8 @@ function App() {
         <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
         <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
         <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />
-
-        {/* COMPONENTS */}
         <Route path="/song/:id" element={<SongDetails />} />
+        <Route path='/artist/:name' element={<ArtistDetails />} />
 
       </Routes>
     </Router>

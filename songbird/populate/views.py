@@ -22,7 +22,7 @@ from .lyrics import genius_lyrics, genius_lyrics_of_a_song
 from .whoosh import create_whoosh_index
 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import viewsets, status, filters
+from rest_framework import status, filters, viewsets
 from .serializers import (
     GenreSerializer,
     ArtistSerializer,
@@ -45,6 +45,8 @@ from django.core.files import File
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.forms.models import model_to_dict
+from django.db.models.functions import Length
+from django.db.models import F
 
 import os
 import time
@@ -52,6 +54,9 @@ import time
 from whoosh.index import create_in, open_dir
 from whoosh.fields import *
 from whoosh.qparser import QueryParser
+
+
+############################# POPULATE #############################
 
 
 def delete_all_objects():
@@ -161,6 +166,9 @@ def populate_view(request):
     return render(request, "database.html", context)
 
 
+############################# AUTHENTICATION #############################
+
+
 @csrf_exempt
 def signup(request):
     if request.method == "POST":
@@ -243,6 +251,9 @@ def login(request):
         return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+############################# USER ACTIONS #############################
+
+
 @api_view(["POST"])
 def like_song(request):
     user_id = request.data.get("user_id")
@@ -252,10 +263,6 @@ def like_song(request):
     song = Song.objects.get(id=song_id)
 
     UserSong.objects.create(user=user, song=song)
-
-    # Print the user's liked songs
-    for song in user.liked_songs.all():
-        print(song)
 
     return Response(status=status.HTTP_201_CREATED)
 
@@ -274,7 +281,7 @@ def unlike_song(request):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# SEARCH SONGS
+############################# SEARCH #############################
 
 
 def search_songs(request):
@@ -294,11 +301,17 @@ def search_songs(request):
     return JsonResponse(songs, safe=False)
 
 
+### SONG ###
+
+
 class SongSearchView(APIView):
     def get(self, request, *args, **kwargs):
         query = request.GET.get("q", "")
         if query:
             songs = Song.objects.filter(name__icontains=query)
+            songs = songs.annotate(match_length=Length("name")).order_by(
+                "-match_length"
+            )
             serializer = SongSerializer(songs, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
@@ -306,11 +319,17 @@ class SongSearchView(APIView):
         )
 
 
+### ARTIST ###
+
+
 class ArtistSearchView(APIView):
     def get(self, request, *args, **kwargs):
         query = request.GET.get("q", "")
         if query:
             artists = Artist.objects.filter(name__icontains=query)
+            artists = artists.annotate(match_length=Length("name")).order_by(
+                "-match_length"
+            )
             serializer = SongSerializer(artists, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
@@ -318,11 +337,17 @@ class ArtistSearchView(APIView):
         )
 
 
+### ALBUM ###
+
+
 class AlbumSearchView(APIView):
     def get(self, request, *args, **kwargs):
         query = request.GET.get("q", "")
         if query:
             albums = Album.objects.filter(name__icontains=query)
+            albums = albums.annotate(match_length=Length("name")).order_by(
+                "-match_length"
+            )
             serializer = SongSerializer(albums, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
@@ -330,58 +355,255 @@ class AlbumSearchView(APIView):
         )
 
 
-class SmallSetPagination(PageNumberPagination):
-    page_size = 25
-    page_size_query_param = "limit"
-    max_page_size = 1000
+############################# GET CERTAIN DATA #############################
+
+### SONG ###
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+@api_view(["GET"])
+def song_detail(request, song_id):
+    try:
+        song = Song.objects.get(pk=song_id)
+        serializer = SongSerializer(song)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except Song.DoesNotExist:
+        return JsonResponse(
+            {"error": "Song with this ID does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid song ID. It must be an integer."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-class ArtistViewSet(viewsets.ModelViewSet):
-    queryset = Artist.objects.all()
-    serializer_class = ArtistSerializer
-    pagination_class = SmallSetPagination
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["followers"]
+### ARTIST ###
 
 
-class AlbumViewSet(viewsets.ModelViewSet):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-    pagination_class = SmallSetPagination
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["release_date"]
+@api_view(["GET"])
+def artist_detail(request, artist_name):
+    try:
+        artist = Artist.objects.get(name=artist_name)
+        serializer = ArtistSerializer(artist)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except Artist.DoesNotExist:
+        return JsonResponse(
+            {"error": "Artist with this name does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid artist name. It must be a str."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-class SongViewSet(viewsets.ModelViewSet):
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
-    pagination_class = SmallSetPagination
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["release_date", "date_added"]
+@api_view(["GET"])
+def artist_albums(request, artist_name):
+    try:
+        artist = Artist.objects.get(name=artist_name)
+        albums = Album.objects.filter(artist=artist)
+        serializer = AlbumSerializer(albums, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Artist.DoesNotExist:
+        return JsonResponse(
+            {"error": "Artist with this name does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid artist name. It must be a str."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-class WebsiteViewSet(viewsets.ModelViewSet):
-    queryset = Website.objects.all()
-    serializer_class = WebsiteSerializer
+@api_view(["GET"])
+def artist_songs(request, artist_name):
+    try:
+        artist = Artist.objects.get(name=artist_name)
+        songs = Song.objects.filter(main_artist=artist).order_by(
+            F("release_date").desc(nulls_last=True)
+        )
+        serializer = SongSerializer(songs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Artist.DoesNotExist:
+        return JsonResponse(
+            {"error": "Artist with this name does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid artist name. It must be a str."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-class PlaylistViewSet(viewsets.ModelViewSet):
-    queryset = Playlist.objects.all()
-    serializer_class = PlaylistSerializer
-    pagination_class = SmallSetPagination
+############################# GET DATA #############################
+
+### SONG ###
 
 
-class PositionViewSet(viewsets.ModelViewSet):
-    queryset = Position.objects.all()
-    serializer_class = PositionSerializer
-    pagination_class = SmallSetPagination
+@api_view(["GET"])
+def song_list(request):
+    try:
+        # Get songs in descending order of release date
+        songs = Song.objects.all().order_by(F("release_date").desc(nulls_last=True))
+
+        # Limit the number of songs returned
+        limit = request.GET.get("limit")
+        if limit is not None:
+            try:
+                limit = int(limit)
+            except ValueError:
+                return JsonResponse(
+                    {"error": "Invalid limit value. It must be an integer."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            songs = songs[: int(limit)]
+
+        # Serialize the data
+        serializer = SongSerializer(songs, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-class PlaylistSongViewSet(viewsets.ModelViewSet):
-    queryset = PlaylistSong.objects.all()
-    serializer_class = PlaylistSongSerializer
+### ARTIST ###
+
+
+@api_view(["GET"])
+def artist_list(request):
+    try:
+        # Get artists in descending order of release date
+        artists = Artist.objects.all().order_by(F("followers").desc(nulls_last=True))
+
+        # Limit the number of artists returned
+        limit = request.GET.get("limit")
+        if limit is not None:
+            try:
+                limit = int(limit)
+            except ValueError:
+                return JsonResponse(
+                    {"error": "Invalid limit value. It must be an integer."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            artists = artists[:limit]
+
+        # Serialize the data
+        serializer = ArtistSerializer(artists, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+### ALBUM ###
+
+
+@api_view(["GET"])
+def album_list(request):
+    try:
+        # Get albums in descending order of release date
+        albums = Album.objects.all().order_by(F("release_date").desc(nulls_last=True))
+
+        # Limit the number of albums returned
+        limit = request.GET.get("limit")
+        if limit is not None:
+            try:
+                limit = int(limit)
+            except ValueError:
+                return JsonResponse(
+                    {"error": "Invalid limit value. It must be an integer."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            albums = albums[:limit]
+
+        # Serialize the data
+        serializer = AlbumSerializer(albums, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+### GENRE ###
+
+
+@api_view(["GET"])
+def genre_list(request):
+    try:
+        # Get genres
+        genres = Genre.objects.all()
+
+        # Serialize the data
+        serializer = GenreSerializer(genres, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+# class SmallSetPagination(PageNumberPagination):
+#     page_size = 25
+#     page_size_query_param = "limit"
+#     max_page_size = 1000
+
+# class WebsiteViewSet(viewsets.ModelViewSet):
+#     queryset = Website.objects.all()
+#     serializer_class = WebsiteSerializer
+
+
+# class PlaylistViewSet(viewsets.ModelViewSet):
+#     queryset = Playlist.objects.all()
+#     serializer_class = PlaylistSerializer
+#     pagination_class = SmallSetPagination
+
+
+# class PositionViewSet(viewsets.ModelViewSet):
+#     queryset = Position.objects.all()
+#     serializer_class = PositionSerializer
+#     pagination_class = SmallSetPagination
+
+
+# class PlaylistSongViewSet(viewsets.ModelViewSet):
+#     queryset = PlaylistSong.objects.all()
+#     serializer_class = PlaylistSongSerializer
