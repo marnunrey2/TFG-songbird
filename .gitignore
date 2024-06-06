@@ -6,4 +6,3 @@ __pycache__/
 .env
 .env.development
 .env.production
-whoosh_index/
