@@ -34,6 +34,7 @@ import TopGermany from './User/tops/TopGermany';
 import TopItaly from './User/tops/TopItaly';
 import TopJapan from './User/tops/TopJapan';
 import TopSouthKorea from './User/tops/TopSouthKorea';
+import GeneralSearch from './User/GeneralSearch';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
         <Route path="/song/:id" element={<SongDetails />} />
         <Route path='/artist/:name' element={<ArtistDetails />} />
         <Route path='/album/:id' element={<AlbumDetails />} />
+        <Route path="/search/:searchTerm" element={<ProtectedRoute component={GeneralSearch} />} />
 
         {/* TOPS */}
         <Route path="/all-time-top" element={<ProtectedRoute component={AllTimeTop} />} />

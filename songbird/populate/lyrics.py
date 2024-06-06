@@ -16,6 +16,8 @@ def genius_lyrics():
     # Get all songs from the database
     songs = Song.objects.filter(lyrics__isnull=True)
 
+    print(f"Finding lyrics for: {songs.count()} songs")
+
     for song in songs:
         if (
             song is None

@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
+export function useFetchGeneralData(searchTerm, setLoading) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/search/?q=${encodeURIComponent(searchTerm)}`)
+      .then(response => {
+        setData(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching search:', error);
+      });
+  }, [searchTerm, setLoading]);
+
+  return data;
+};
+
+
 export function useFetchSongs(searchTerm) {
     const [data, setData] = useState([]);
   

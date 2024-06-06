@@ -4,6 +4,10 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import IntegrityError
 from django.db import transaction
 
+from whoosh.index import open_dir
+from django.conf import settings
+from rake_nltk import Rake
+
 
 class Genre(models.Model):
     BASE_GENRES = [
@@ -60,6 +64,23 @@ class Artist(models.Model):
     followers = models.JSONField(default=dict)
     images = models.CharField(max_length=255, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    #     self.update_index()
+
+    # def update_index(self):
+    #     ix = open_dir(settings.WHOOSH_INDEX)
+    #     writer = ix.writer()
+
+    #     writer.update_document(
+    #         id=f"artist_{self.name}",
+    #         type="artist",
+    #         content=self.name,
+    #     )
+
+    #     writer.commit()
+
 
 class Album(models.Model):
     name = models.CharField(max_length=255)
@@ -77,6 +98,23 @@ class Album(models.Model):
             "name",
             "artist",
         )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    #     self.update_index()
+
+    # def update_index(self):
+    #     ix = open_dir(settings.WHOOSH_INDEX)
+    #     writer = ix.writer()
+
+    #     writer.update_document(
+    #         id=f"album_{self.id}",
+    #         type="album",
+    #         content=self.name,
+    #     )
+
+    #     writer.commit()
 
 
 class Song(models.Model):
@@ -138,6 +176,33 @@ class Song(models.Model):
         self.youtube_name = list(set(self.youtube_name))
         self.available_at = list(set(self.available_at))
         super().save(*args, **kwargs)
+
+    #     self.update_index()
+
+    # def update_index(self):
+    #     ix = open_dir(settings.WHOOSH_INDEX)
+    #     writer = ix.writer()
+
+    # writer.update_document(
+    #     id=f"song_{self.id}",
+    #     type="song",
+    #     content=self.name,
+    # )
+
+    # # Initialize RAKE
+    # rake = Rake()
+
+    # # Extract keywords from lyrics
+    # rake.extract_keywords_from_text(self.lyrics)
+    # keywords = " ".join(rake.get_ranked_phrases())
+
+    # writer.update_document(
+    #     id=f"lyrics_{self.id}",
+    #     type="lyrics",
+    #     content=keywords,
+    # )
+
+    # writer.commit()
 
 
 class Website(models.Model):

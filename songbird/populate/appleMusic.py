@@ -86,10 +86,6 @@ def get_songs(href, playlist):
 
         pos = int(tds[0].text.strip())
 
-        # Get the top 100 songs
-        if pos > 100:
-            break
-
         if len(tds) < 3:
             song_info = tds[-1].text.strip()
         else:
@@ -137,8 +133,11 @@ def get_songs(href, playlist):
         song.available_at.append("Apple Music")
         song.save()
 
-        # Update "Top Country" playlist
-        position, _ = Position.objects.get_or_create(position=pos)
-        PlaylistSong.objects.update_or_create(
-            song=song, playlist=playlist, position=position
-        )
+        # Only get the top 100 songs
+        if pos <= 100:
+
+            # Update "Top Country" playlist
+            position, _ = Position.objects.get_or_create(position=pos)
+            PlaylistSong.objects.update_or_create(
+                song=song, playlist=playlist, position=position
+            )

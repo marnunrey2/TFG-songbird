@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/SideMenu.css';
 
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+  
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+  
+    return debouncedValue;
+}
+
 const SideMenu = () => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (debouncedSearchTerm.trim() !== '') {
+            navigate(`/search/${debouncedSearchTerm}`);
+        }
+    }, [debouncedSearchTerm, navigate]);
+
+    const handleSearchChange = (event) => {
+        event.preventDefault();
+        setSearchTerm(event.target.value);
+    };
+
     const handleClick = () => {
         window.scrollTo(0, 0);
     };
@@ -12,7 +43,16 @@ const SideMenu = () => {
         <Navbar expand="lg" className="custom-menu">
             <Navbar.Toggle aria-controls="basic-navbar-nav"/>
             <Navbar.Collapse id="side-navbar-nav" className="justify-content-start">
-                <Nav className="flex-column custom-menu-nav">
+                <Nav className="flex-column custom-menu-nav">       
+                    <div className="search-container" style={{marginTop: '20px'}}>
+                        <input 
+                            type="text" 
+                            value={searchTerm} 
+                            onChange={handleSearchChange} 
+                            className="search-input" 
+                            placeholder="Search anything..." 
+                        />
+                    </div>
                     <Nav.Link as={Link} to="/dashboard" onClick={handleClick}>Dashboard</Nav.Link>
                     <Nav.Link as={Link} to="/user/songs" onClick={handleClick}>Songs</Nav.Link>
                     <Nav.Link as={Link} to="/user/artists" onClick={handleClick}>Artists</Nav.Link>

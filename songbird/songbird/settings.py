@@ -136,6 +136,11 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Whooosh settings
+
+WHOOSH_INDEX = os.path.join(BASE_DIR, "whoosh_index")
+
+
 # Email settings
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

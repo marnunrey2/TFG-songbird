@@ -19,7 +19,6 @@ from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
 from .billboard import billboard
 from .lyrics import genius_lyrics, genius_lyrics_of_a_song
-from .whoosh import create_whoosh_index
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status, filters, viewsets
@@ -53,13 +52,10 @@ from django.db.models import F
 import os
 import time
 
-from whoosh.index import create_in, open_dir
-from whoosh.fields import *
-from whoosh.qparser import QueryParser
+from whoosh.index import open_dir
+from whoosh.qparser import MultifieldParser
+from django.conf import settings
 
-
-from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 ############################# POPULATE #############################
 
@@ -80,35 +76,43 @@ def populate_view(request):
     # # DELETE ALL OBJECTS
     # delete_all_objects()
 
+    print("Populating database...")
+
     # # SPOTIFY
     # start_time = time.time()
+    # print("\nSpotify API: starting...")
     # spotify_api()
-    # print(f"spotify_api took {time.time() - start_time} seconds")
+    # print(f"Spotify API: took {time.time() - start_time} seconds")
 
     # # APPLE MUSIC
     # start_time = time.time()
+    # print("\nApple Music: starting...")
     # apple_music()
-    # print(f"apple_music took {time.time() - start_time} seconds")
+    # print(f"Apple Music: took {time.time() - start_time} seconds")
 
     # # KWORB
     # start_time = time.time()
+    # print("\nKworb: starting...")
     # kworb_all_time()
-    # print(f"kworb_all_time took {time.time() - start_time} seconds")
+    # print(f"Kworb: took {time.time() - start_time} seconds")
 
     # # DEEZER
     # start_time = time.time()
+    # print("\nDeezer: starting...")
     # deezer()
-    # print(f"deezer took {time.time() - start_time} seconds")
+    # print(f"Deezer: took {time.time() - start_time} seconds")
 
     # # BILLBOARD
     # start_time = time.time()
+    # print("\nBillboard: starting...")
     # billboard()
-    # print(f"billboard took {time.time() - start_time} seconds")
+    # print(f"Billboard: took {time.time() - start_time} seconds")
 
     # # YOUTUBE
     # start_time = time.time()
+    # print("\nYoutube: starting...")
     # youtube_api()
-    # print(f"youtube_api took {time.time() - start_time} seconds")
+    # print(f"Youtube: took {time.time() - start_time} seconds")
 
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # # amazon_music_api()
@@ -278,22 +282,51 @@ def unlike_song(request):
 
 ############################# SEARCH #############################
 
+### GENERAL SEARCH ###
 
-def search_songs(request):
-    # Get the search term from the request
-    search_term = request.GET.get("search", "")
 
-    # Open the index
-    index = open_dir("indexwhoosh/song")
+class SearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "")
+        results = []
 
-    # Search the index
-    with index.searcher() as searcher:
-        query = QueryParser("name", index.schema).parse(search_term)
-        results = searcher.search(query)
-        songs = [hit.fields() for hit in results]
+        if query:
+            ix = open_dir(settings.WHOOSH_INDEX)
+            with ix.searcher() as searcher:
+                parser = MultifieldParser(["content"], schema=ix.schema)
+                q = parser.parse(query)
+                search_results = searcher.search(q, limit=None)
 
-    # Return the search results as JSON
-    return JsonResponse(songs, safe=False)
+                for result in search_results:
+                    if result["type"] == "song":
+                        instance = Song.objects.get(pk=int(result["id"].split("_")[1]))
+                        results.append(
+                            {"type": "song", "data": SongSerializer(instance).data}
+                        )
+                    elif result["type"] == "artist":
+                        instance = Artist.objects.get(pk=result["id"].split("_")[1])
+                        results.append(
+                            {"type": "artist", "data": ArtistSerializer(instance).data}
+                        )
+                    elif result["type"] == "album":
+                        instance = Album.objects.get(pk=int(result["id"].split("_")[1]))
+                        results.append(
+                            {"type": "album", "data": AlbumSerializer(instance).data}
+                        )
+                    elif result["type"] == "lyrics":
+                        instance = Song.objects.get(pk=int(result["id"].split("_")[1]))
+                        results.append(
+                            {"type": "lyrics", "data": SongSerializer(instance).data}
+                        )
+
+                # Custom sort order
+                sort_order = {"song": 1, "artist": 2, "album": 3, "lyrics": 4}
+                results.sort(key=lambda x: sort_order.get(x["type"], 5))
+
+            return Response(results, status=status.HTTP_200_OK)
+        return Response(
+            {"error": "No query provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 ### SONG ###

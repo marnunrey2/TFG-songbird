@@ -104,6 +104,8 @@ def get_token():
 def spotify_api():
     global song_ids, album_ids, artist_ids, playlist_ids, top_playlists, genre_playlists
 
+    print("Spotify API: getting IDs...")
+
     headers = get_token()
 
     # Fetch the songs, albums, and artists from all the playlists
@@ -119,6 +121,8 @@ def spotify_api():
                 playlist_name, playlist_id, top_playlist=False, headers=headers
             )
 
+    print("Spotify API: IDs done, getting data ...")
+
     headers = get_token()
 
     # Fetch the songs, albums, and artists
@@ -132,6 +136,8 @@ def spotify_api():
         if song_ids:
             get_multiple_songs_spotify(song_ids.copy(), headers)
             song_ids.clear()
+
+    print("Spotify API: data done, creating playlists ...")
 
     # Create a Website and Playlist instance
     website, _ = Website.objects.get_or_create(name="Spotify")
@@ -365,8 +371,8 @@ def get_multiple_songs_spotify(song_ids, headers):
             song.album = album
             song.save()
 
-            if created:
-                album_ids.add(song_info["album"]["id"])
+            # if created:
+            #     album_ids.add(song_info["album"]["id"])
 
             new_artist_ids = {
                 art["id"]

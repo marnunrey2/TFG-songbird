@@ -70,7 +70,7 @@ function SongDetails() {
                     <Col xs={12} md={4} className="song-details mt-3 mt-md-5 ml-md-5 order-1 order-md-0">                        {song.release_date && <h6><strong>Release Date: </strong>{new Date(song.release_date).toLocaleDateString()}</h6>}
                         <h6><strong>Duration: </strong>{formatDuration(song.duration)} min</h6>
                         <h6><strong>Genre: </strong>{song.main_artist.genres.length > 0 ? song.main_artist.genres.map(genre => genre.name).join(', ') : 'No genre'}</h6>
-                        <h6><strong>Explicit: </strong>{song.explicit ? 'Yes' : 'No'}</h6>
+                        <h6><strong>Explicit lyrics: </strong>{song.explicit ? 'Yes' : 'No'}</h6>
                     </Col>
                     <Col md={4} className="song-details">
                         <div onClick={handleFavoriteClick} className="heart-icon">

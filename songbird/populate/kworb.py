@@ -75,13 +75,14 @@ def kworb_all_time_website(website_name, url, streams_index):
         song.reproductions[website_name] = streams
         song.save()
 
-        # Update "All Time Top" playlist
-        position, _ = Position.objects.get_or_create(position=pos)
-        PlaylistSong.objects.update_or_create(
-            song=song, playlist=playlist, position=position
-        )
+        if pos <= 100:
+            # Update "All Time Top" playlist
+            position, _ = Position.objects.get_or_create(position=pos)
+            PlaylistSong.objects.update_or_create(
+                song=song, playlist=playlist, position=position
+            )
 
-        if pos == 100:
+        if pos == 300:
             break
 
         pos += 1

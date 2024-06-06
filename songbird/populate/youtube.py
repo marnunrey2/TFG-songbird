@@ -641,6 +641,7 @@ def remove_phrases(song_name):
         "| GHOST | Intense, Raj Ranjodh",
         "| New Punjabi Song",
         "| Punjabi Song 2023",
+        "| Pushpa 2 The Rule",
         "| SAKURA",
         "| Music Tym",
         "| Partyson",
