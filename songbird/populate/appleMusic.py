@@ -51,7 +51,7 @@ def apple_music():
                 country = "USA"
             elif country == "United Kingdom":
                 country = "UK"
-            elif country == "Wordwide":
+            elif country == "Worldwide":
                 country = "Global"
 
             # Apple Music

@@ -4,6 +4,11 @@ body {
     height: 100%;
 }
 
+h1 {
+    color: white;
+    margin-top: 30px;
+}
+
 
 /* USER PAGES */
 
@@ -141,6 +146,11 @@ body {
     z-index: 800;
 }
 
+.song-position {
+    margin-right: 0;
+    font-size: larger;
+}
+
 @media (max-width: 767px) {
     .info-card {
         width: fit-content;
@@ -229,4 +239,33 @@ body {
 
 .search-input::placeholder {
     color: white !important;
+}
+
+
+/* DROPDOWN WEBSITES */
+
+.website-dropdown {
+    color: white;
+    background-color: transparent;
+    border-color: white;
+    width: 80%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+.website-dropdown:hover {
+    color: white;
+    background-color: var(--container-homepage);
+    border-color: white;
+}
+
+.website-dropdown:focus {
+    color: white;
+    background-color: transparent;
+    border-color: white;
+}
+
+.website-dropdown:focus:hover {
+    color: white;
 }

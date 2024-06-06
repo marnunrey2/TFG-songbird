@@ -36,7 +36,7 @@
     bottom: -10px;
 }
 
-.dropdown {
+.custom-dropdown {
     position: fixed;
     top: 10px; 
     right: 20px; 

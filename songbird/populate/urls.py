@@ -6,6 +6,8 @@ from .views import (
     artist_list,
     album_list,
     genre_list,
+    website_names,
+    playlist_songs,
     song_detail,
     artist_detail,
     artist_albums,
@@ -34,6 +36,12 @@ urlpatterns = [
     path("artists/", artist_list, name="artist-list"),
     path("albums/", album_list, name="album-list"),
     path("genres/", genre_list, name="genre-list"),
+    path("website_names/<str:playlist_name>/", website_names, name="website_names"),
+    path(
+        "playlist_songs/<str:playlist_name>/<str:website_name>/",
+        playlist_songs,
+        name="playlist_songs",
+    ),
     # SEARCH
     # path("song/search/", search_songs, name="search_songs"),
     path("songs-search/", SongSearchView.as_view(), name="song-search"),

@@ -31,7 +31,6 @@ export function useFetchSongData(songId) {
   useEffect(() => {
     axios.get(`http://localhost:8000/api/songs/${songId}`)
       .then(response => {
-        console.log(response.data);
         setData(response.data);
       })
       .catch(error => {
@@ -126,7 +125,6 @@ export function useFetchAlbumData(albumId) {
   useEffect(() => {
     axios.get(`http://localhost:8000/api/albums/${albumId}`)
       .then(response => {
-        console.log(response.data);
         setData(response.data);
       })
       .catch(error => {
@@ -137,6 +135,38 @@ export function useFetchAlbumData(albumId) {
   return data;
 };
 
+export function useFetchWebsiteNames(playlistName) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/website_names/${playlistName}/`)
+      .then(response => {
+        setData(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching website names:', error);
+      });
+  }, [playlistName]);
+
+  return data;
+}
+
+export function useFetchTopPlaylists(playlistName, websiteName, setLoading) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/playlist_songs/${playlistName}/${websiteName}/`)
+      .then(response => {
+        setData(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching playlist data:', error);
+      });
+  }, [playlistName, websiteName, setLoading]);
+
+  return data;
+}
 
 export const togglePostLikes = async  (user, setUser, song, songId) => {
   const isSongLiked = user.liked_songs.map(s => s.id).includes(songId);

@@ -58,6 +58,9 @@ from whoosh.fields import *
 from whoosh.qparser import QueryParser
 
 
+from django.shortcuts import get_object_or_404
+from django.http import Http404
+
 ############################# POPULATE #############################
 
 
@@ -122,32 +125,21 @@ def populate_view(request):
     # create_whoosh_index()
 
     # Query all objects from each model
-    # songs = Song.objects.filter(available_at__contains=["Deezer"])
-    # artists_songs = (
-    #     Song.objects.select_related("main_artist")
-    #     .prefetch_related("collaborators")
-    #     .filter(available_at__contains=["Deezer"])
-    # )
-    # artists = set(song.main_artist for song in artists_songs)
-    # artists.add(
-    #     collaborator
-    #     for song in artists_songs
-    #     for collaborator in song.collaborators.all()
-    # )
 
-    genres = Genre.objects.all()
-    songs = {}
+    # genres = Genre.objects.all()
+    # songs = {}
 
-    # For each genre, get the songs
-    for genre in genres:
-        songs[genre.name] = []
-        # Get albums of the genre
-        albums = Album.objects.filter(genres__name=genre.name)
-        # Get songs of each album
-        for album in albums:
-            songs_album = album.album_songs.all()
-            songs[genre.name].append(songs_album)
-    # songs = Song.objects.all()
+    # # For each genre, get the songs
+    # for genre in genres:
+    #     songs[genre.name] = []
+    #     # Get albums of the genre
+    #     albums = Album.objects.filter(genres__name=genre.name)
+    #     # Get songs of each album
+    #     for album in albums:
+    #         songs_album = album.album_songs.all()
+    #         songs[genre.name].append(songs_album)
+
+    songs = Song.objects.all()
     artists = Artist.objects.all()
     albums = Album.objects.all()
     genres = Genre.objects.all()
@@ -615,28 +607,50 @@ def genre_list(request):
         )
 
 
-# class SmallSetPagination(PageNumberPagination):
-#     page_size = 25
-#     page_size_query_param = "limit"
-#     max_page_size = 1000
-
-# class WebsiteViewSet(viewsets.ModelViewSet):
-#     queryset = Website.objects.all()
-#     serializer_class = WebsiteSerializer
+### PLAYLIST ###
 
 
-# class PlaylistViewSet(viewsets.ModelViewSet):
-#     queryset = Playlist.objects.all()
-#     serializer_class = PlaylistSerializer
-#     pagination_class = SmallSetPagination
+@api_view(["GET"])
+def playlist_songs(request, playlist_name, website_name):
+    try:
+        playlist = Playlist.objects.get(name=playlist_name, website__name=website_name)
+        playlist_songs = PlaylistSong.objects.filter(playlist=playlist)
+        serializer = PlaylistSongSerializer(playlist_songs, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+    except Playlist.DoesNotExist:
+        return JsonResponse(
+            {"error": "Playlist not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid playlist name or website name."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-# class PositionViewSet(viewsets.ModelViewSet):
-#     queryset = Position.objects.all()
-#     serializer_class = PositionSerializer
-#     pagination_class = SmallSetPagination
+### WEBSITE ###
 
 
-# class PlaylistSongViewSet(viewsets.ModelViewSet):
-#     queryset = PlaylistSong.objects.all()
-#     serializer_class = PlaylistSongSerializer
+@api_view(["GET"])
+def website_names(request, playlist_name):
+    try:
+        playlists = Playlist.objects.filter(name=playlist_name)
+        website_names = [
+            playlist.website.name
+            for playlist in playlists
+            if playlist.website is not None
+        ]
+        return JsonResponse(website_names, safe=False, status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

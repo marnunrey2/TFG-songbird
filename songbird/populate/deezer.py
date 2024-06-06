@@ -162,14 +162,14 @@ def get_playlist_deezer(playlist_name, playlist_id):
         song.save()
 
         # Update "All Time Top" playlist
-        ranking = song_info["RANK_SNG"]
-        position, _ = Position.objects.get_or_create(position=ranking)
-        playlist, _ = Playlist.objects.get_or_create(
-            name="All Time Top", website=Website.objects.get(name="Deezer")
-        )
-        PlaylistSong.objects.update_or_create(
-            song=song, playlist=playlist, position=position
-        )
+        # ranking = song_info["RANK_SNG"]
+        # position, _ = Position.objects.get_or_create(position=ranking)
+        # playlist, _ = Playlist.objects.get_or_create(
+        #     name="All Time Top", website=Website.objects.get(name="Deezer")
+        # )
+        # PlaylistSong.objects.update_or_create(
+        #     song=song, playlist=playlist, position=position
+        # )
 
         # Update "Top Country" playlist
         position, _ = Position.objects.get_or_create(position=index + 1)

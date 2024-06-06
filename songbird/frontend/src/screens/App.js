@@ -19,6 +19,23 @@ import SongDetails from './User/SongDetails';
 import ArtistDetails from './User/ArtistDetails';
 import AlbumDetails from './User/AlbumDetails';
 
+// TOPS
+import AllTimeTop from './User/tops/AllTimeTop';
+import TopGlobal from './User/tops/TopGlobal';
+import TopUSA from './User/tops/TopUSA';
+import TopUK from './User/tops/TopUK';
+import TopSpain from './User/tops/TopSpain';
+import TopArgentina from './User/tops/TopArgentina';
+import TopAustralia from './User/tops/TopAustralia';
+import TopCanada from './User/tops/TopCanada';
+import TopColombia from './User/tops/TopColombia';
+import TopFrance from './User/tops/TopFrance';
+import TopGermany from './User/tops/TopGermany';
+import TopItaly from './User/tops/TopItaly';
+import TopJapan from './User/tops/TopJapan';
+import TopSouthKorea from './User/tops/TopSouthKorea';
+
+
 function App() {
   return (
     <Router>
@@ -37,6 +54,23 @@ function App() {
         <Route path="/song/:id" element={<SongDetails />} />
         <Route path='/artist/:name' element={<ArtistDetails />} />
         <Route path='/album/:id' element={<AlbumDetails />} />
+
+        {/* TOPS */}
+        <Route path="/all-time-top" element={<ProtectedRoute component={AllTimeTop} />} />
+        <Route path='/top-global' element={<TopGlobal />} />
+        <Route path="/top-usa" element={<ProtectedRoute component={TopUSA} />} />
+        <Route path="/top-uk" element={<ProtectedRoute component={TopUK} />} />
+        <Route path="/top-spain" element={<ProtectedRoute component={TopSpain} />} />
+        <Route path="/top-argentina" element={<ProtectedRoute component={TopArgentina} />} />
+        <Route path="/top-australia" element={<ProtectedRoute component={TopAustralia} />} />
+        <Route path="/top-canada" element={<ProtectedRoute component={TopCanada} />} />
+        <Route path="/top-colombia" element={<ProtectedRoute component={TopColombia} />} />
+        <Route path="/top-france" element={<ProtectedRoute component={TopFrance} />} />
+        <Route path="/top-germany" element={<ProtectedRoute component={TopGermany} />} />
+        <Route path="/top-italy" element={<ProtectedRoute component={TopItaly} />} />
+        <Route path="/top-japan" element={<ProtectedRoute component={TopJapan} />} />
+        <Route path="/top-south-korea" element={<ProtectedRoute component={TopSouthKorea} />} />
+
 
       </Routes>
     </Router>

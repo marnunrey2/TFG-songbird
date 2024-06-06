@@ -34,9 +34,6 @@
     background-color: white !important;
 }
 
-.menu-dropdown-title {
-    padding-left: 20px !important;
-}
 
 .menu-dropdown-title:hover {
     color: var(--primary-color) !important;
@@ -47,19 +44,16 @@
     background-color: var(--primary-color) !important;
     border: none !important;
     position: absolute !important;
-    top: 100%; /* Position it directly below the dropdown toggle */
     left: 0;
     right: 0;
 }
 
 .menu-dropdown.show .dropdown-menu {
-    margin: 0 !important;
-    width: 110% !important;
     display: block;
 }
 
 .menu-dropdown .dropdown-menu .dropdown-item {
-    padding-left: 60px !important;
+    padding-left: 50px !important;
 }
 
 

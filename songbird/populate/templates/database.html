@@ -5,6 +5,7 @@
 <p>Number of genres: {{ genres|length }}</p>
 <p>Number of websites: {{ websites|length }}</p>
 
+{% comment %} 
 {% for genre, genre_songs in songs.items %}
     <h2>{{ genre }}</h2>
     {% for album_songs in genre_songs %}
@@ -12,6 +13,16 @@
             <p>{{ song.name }}</p>
         {% endfor %}
     {% endfor %}
+{% endfor %} 
+{% endcomment %}
+
+<h1>websites</h1>
+{% for web in websites %}
+    <p>{{ web.name }}</p>
 {% endfor %}
 
+<h1>Playlists</h1>
+{% for playlist in playlists %}
+    <p>{{ playlist.name }}</p>
+{% endfor %}
 
