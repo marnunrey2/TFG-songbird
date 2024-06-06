@@ -10,6 +10,7 @@ from .views import (
     artist_detail,
     artist_albums,
     artist_songs,
+    album_detail,
     signup,
     login,
     like_song,
@@ -49,4 +50,5 @@ urlpatterns = [
     path("artists/<str:artist_name>/", artist_detail, name="song-detail"),
     path("artists/<str:artist_name>/albums", artist_albums, name="artist-albums"),
     path("artists/<str:artist_name>/songs", artist_songs, name="artist-songs"),
+    path("albums/<int:album_id>/", album_detail, name="album-detail"),
 ]

@@ -11,7 +11,6 @@ function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [avatar, setAvatar] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -38,12 +37,7 @@ function SignUp() {
         formData.append('password', password);
         formData.append('first_name', firstName);
         formData.append('last_name', lastName);
-        if (avatar) {
-            const newFile = new File([avatar], `${username}_avatar.png}`, { type: avatar.type });
-            formData.append('avatar', newFile);
-        } else {
-            formData.append('avatar', null);
-        }
+
         axios.post('http://localhost:8000/api/signup/', formData)
             .then(response => {
                 console.log(response);
@@ -55,7 +49,6 @@ function SignUp() {
                 setEmail('');
                 setPassword('');
                 setConfirmPassword('');
-                setAvatar(null);
                 window.scrollTo(0, 0);
             })
             .catch(error => { 
@@ -80,7 +73,7 @@ function SignUp() {
     return (
         <div className='App'>
             <CustomNavbar />
-            <Container>
+            <Container className='white-text'>
             <Row className="justify-content-md-center">
             <Col md={4}>
             <h1>Sign Up</h1>
@@ -106,7 +99,7 @@ function SignUp() {
                 <Form.Group controlId="formBasicEmail" style={formGroupStyle}>
                     <Form.Label>Email address*</Form.Label>
                     <Form.Control type="email" placeholder="Enter email" value={email} onChange={e => setEmail(e.target.value)} />
-                    <Form.Text className="text-muted">
+                    <Form.Text className="text-muted white-text">
                         We'll never share your email with anyone else.
                     </Form.Text>
                 </Form.Group>
@@ -121,11 +114,6 @@ function SignUp() {
                     <Form.Control type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
                 </Form.Group>
                 
-                <Form.Group controlId="formBasicAvatar" style={formGroupStyle}>
-                    <Form.Label>Avatar</Form.Label>
-                    <Form.Control type="file" placeholder="Enter avatar" value={avatar} onChange={e => setAvatar(e.target.value)} />
-                </Form.Group>
-
                 <Button variant="primary" type="submit">
                     Register
                 </Button>

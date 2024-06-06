@@ -51,7 +51,7 @@ function UserArtists() {
         {artists.map((artist, index) => (
             <Link to={`/artist/${artist.name}`} key={index} className="info-card">
                 <Row className="card-content">
-                    <Col md={4} className="song-image">
+                    <Col xs={12} md={4} className="song-image text-center-md-down">
                         {artist && artist.images ? (
                             <Image src={artist.images} onError={(e)=>{e.target.onerror = null; e.target.src=avatar}} className="song-img" rounded />
                         ) : (
@@ -60,9 +60,8 @@ function UserArtists() {
                             </div>
                         )}
                     </Col>
-                    <Col md={4} className="song-info">
+                    <Col xs={12} md={4} className="song-info text-center-md-down">
                         <div className="song-name">{artist ? artist.name : ''}</div>
-                        <div className="artist-name">{artist && artist.followers ? JSON.stringify(artist.followers) : ''}</div>                    
                     </Col>
                 </Row>
             </Link>

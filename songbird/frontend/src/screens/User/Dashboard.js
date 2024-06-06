@@ -6,52 +6,52 @@ import { MusicNoteBeamed, VinylFill, PersonHeart } from 'react-bootstrap-icons';
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem('user'));
-  console.log(user.liked_songs);
 
-  // Liked albums
-  const albumIds = user.liked_songs.map(song => song.album.id);
-  const uniqueAlbumIds = [...new Set(albumIds)];
+  let uniqueAlbumIds = [];
+  let uniqueArtistIds = [];
+  let favouriteAlbum, favouriteArtist, favouriteGenreName;
 
-  // Liked artists
-  const artistIds = user.liked_songs.flatMap(song => [song.main_artist.name, ...song.collaborators.map(artist => artist.name)]);
-  const uniqueArtistIds = [...new Set(artistIds)];
+  if (user.liked_songs.length > 0) {
 
-  // Favourite album
-  const albumCounts = albumIds.reduce((counts, id) => {
-    counts[id] = (counts[id] || 0) + 1;
-    return counts;
-  }, {});
-  const favouriteAlbumId = Object.keys(albumCounts).reduce((a, b) => albumCounts[a] > albumCounts[b] ? a : b);
-  const favouriteAlbum = user.liked_songs.find(song => song.album.id === Number(favouriteAlbumId)).album;
+    // Liked albums
+    const albumIds = user.liked_songs.map(song => song.album.id);
+    uniqueAlbumIds = [...new Set(albumIds)];
 
-  // Favourite artist
-  const artistCounts = artistIds.reduce((counts, id) => {
-    counts[id] = (counts[id] || 0) + 1;
-    return counts;
-  }, {});
-  const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b);
-  const favouriteArtist = user.liked_songs.find(song => song.main_artist.name === favouriteArtistId).main_artist;
-  if (!favouriteArtist) {
-    for (let song of user.liked_songs) {
-      const favouriteArtist = song.collaborators.find(artist => artist.id === Number(favouriteArtistId));
-      if (favouriteArtist) break;
+    // Liked artists
+    const artistIds = user.liked_songs.flatMap(song => [song.main_artist.name, ...song.collaborators.map(artist => artist.name)]);
+    uniqueArtistIds = [...new Set(artistIds)];
+
+    // Favourite album
+    const albumCounts = albumIds.reduce((counts, id) => {
+      counts[id] = (counts[id] || 0) + 1;
+      return counts;
+    }, {});
+    const favouriteAlbumId = Object.keys(albumCounts).reduce((a, b) => albumCounts[a] > albumCounts[b] ? a : b);
+    favouriteAlbum = user.liked_songs.find(song => song.album.id === Number(favouriteAlbumId)).album;
+
+    // Favourite artist
+    const artistCounts = artistIds.reduce((counts, id) => {
+      counts[id] = (counts[id] || 0) + 1;
+      return counts;
+    }, {});
+    const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b);
+    favouriteArtist = user.liked_songs.find(song => song.main_artist.name === favouriteArtistId).main_artist;
+    if (!favouriteArtist) {
+      for (let song of user.liked_songs) {
+        favouriteArtist = song.collaborators.find(artist => artist.id === Number(favouriteArtistId));
+        if (favouriteArtist) break;
+      }
     }
-  }
 
-  // Favourite genre
-  let genreNames = user.liked_songs.flatMap(song => song.album.genres.map(genre => genre.name));
-  if (genreNames.length === 0){
-    genreNames = user.liked_songs.flatMap(song => [song.main_artist.genres.map(genre => genre.name), ...song.collaborators.flatMap(artist => artist.genres.map(genre => genre.name))]).flat();
-  }
-  const genreCounts = genreNames.reduce((counts, name) => {
-    counts[name] = (counts[name] || 0) + 1;
-    return counts;
-  }, {});
-  const favouriteGenreName = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b);
+    // Favourite genre
+    let genreNames = user.liked_songs.flatMap(song => [song.main_artist.genres.map(genre => genre.name), ...song.collaborators.flatMap(artist => artist.genres.map(genre => genre.name))]).flat();
 
-  console.log(genreNames);
-  console.log(genreCounts);
-  console.log(favouriteGenreName);
+    const genreCounts = genreNames.reduce((counts, name) => {
+      counts[name] = (counts[name] || 0) + 1;
+      return counts;
+    }, {});
+    favouriteGenreName = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b);
+  }
 
   return (
     <UsersTemplate>

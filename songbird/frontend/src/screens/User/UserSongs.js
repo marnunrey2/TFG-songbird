@@ -56,7 +56,7 @@ function UserSongs() {
         </div>
         <Container className="info">
         {songs.map((song, index) => (
-            <Link to={`/song/${song.id}`} key={index} className="info-card">
+            <Link to={`/song/${song.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
                         {song && song.images ? (
@@ -71,7 +71,7 @@ function UserSongs() {
                             </div>
                         )}
                     </Col>
-                    <Col md={4} className="song-info">
+                    <Col md={4} className="song-info text-center-md-down">
                         <div className="song-name">{song ? song.name : ''}</div>
                         <div className="artist-name">{song && song.main_artist ? song.main_artist.name ? song.main_artist.name : song.main_artist : ''}</div>
                         {/* <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div> */}

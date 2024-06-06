@@ -8,6 +8,8 @@ from .models import (
     Playlist,
     Position,
     PlaylistSong,
+    UserSong,
+    UserProfile,
 )
 
 
@@ -72,3 +74,19 @@ class PlaylistSongSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaylistSong
         fields = "__all__"
+
+
+class UserSongSerializer(serializers.ModelSerializer):
+    song = SongSerializer()
+
+    class Meta:
+        model = UserSong
+        fields = ["song"]
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    liked_songs = UserSongSerializer(source="usersong_set", many=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ["liked_songs"]

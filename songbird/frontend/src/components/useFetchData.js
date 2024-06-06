@@ -120,6 +120,24 @@ export function useFetchAlbums(searchTerm) {
 }
 
 
+export function useFetchAlbumData(albumId) {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/albums/${albumId}`)
+      .then(response => {
+        console.log(response.data);
+        setData(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching album details:', error);
+      });
+  }, [albumId]);
+
+  return data;
+};
+
+
 export const togglePostLikes = async  (user, setUser, song, songId) => {
   const isSongLiked = user.liked_songs.map(s => s.id).includes(songId);
 

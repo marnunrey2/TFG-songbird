@@ -67,10 +67,9 @@ function SongDetails() {
                         )}
                         <h6><strong>Album: </strong>{song && song.album ? song.album.name ? song.album.name : song.album : ''}</h6>
                     </Col>
-                    <Col md={4} className="song-details" style={{marginTop: '70px', marginLeft: '70px'}}>
-                        {song.release_date && <h6><strong>Release Date: </strong>{new Date(song.release_date).toLocaleDateString()}</h6>}
+                    <Col xs={12} md={4} className="song-details mt-3 mt-md-5 ml-md-5 order-1 order-md-0">                        {song.release_date && <h6><strong>Release Date: </strong>{new Date(song.release_date).toLocaleDateString()}</h6>}
                         <h6><strong>Duration: </strong>{formatDuration(song.duration)} min</h6>
-                        <h6><strong>Genre: </strong>{song.album.genres.length > 0 ? song.album.genres.map(genre => genre.name).join(', ') : 'No genre'}</h6>
+                        <h6><strong>Genre: </strong>{song.main_artist.genres.length > 0 ? song.main_artist.genres.map(genre => genre.name).join(', ') : 'No genre'}</h6>
                         <h6><strong>Explicit: </strong>{song.explicit ? 'Yes' : 'No'}</h6>
                     </Col>
                     <Col md={4} className="song-details">
@@ -80,7 +79,7 @@ function SongDetails() {
                     </Col>
                 </Row>
                 <Row className="details-card-content align-items-start" style={{ marginTop: '40px' }}>
-                    <Col className='song-details'>
+                    <Col className='song-details order-1 order-md-0'>
                         <h3>Lyrics</h3>
                         {song.lyrics ? song.lyrics.split('\n').map((line, i) => {
                             const parts = line.split('[');
@@ -95,7 +94,7 @@ function SongDetails() {
                             );
                         }) : 'No lyrics'}                  
                     </Col>
-                    <Col className='song-details'>
+                    <Col xs={12} md={6} className='song-details order-0 order-md-1' style={{ marginBottom: '40px' }}>
                         <h6><strong>Available at: </strong></h6>
                         <h6>{renderAvailabilityIcons()}</h6>
                     </Col>

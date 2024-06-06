@@ -80,7 +80,8 @@ body {
     margin-top: 20px;
 }
   
-.info-card {
+.info-card,
+.info-card-album {
     background-color: var(--container-homepage);
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
@@ -137,9 +138,23 @@ body {
     top: 15px;
     right: 15px;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 800;
 }
 
+@media (max-width: 767px) {
+    .info-card {
+        width: fit-content;
+    }
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .text-center-md-down {
+        text-align: center;
+    }
+}
 
 /* SONG DETAILS */
 
@@ -168,7 +183,7 @@ body {
 }
 
 .song-details h2 {
-    padding-bottom: 20px;
+    padding-bottom: 40px;
 }
 
 .song-details h6 {

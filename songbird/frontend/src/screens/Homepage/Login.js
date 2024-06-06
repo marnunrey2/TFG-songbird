@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button, Form, Container, Row, Col } from 'react-bootstrap';
 import CustomNavbar from '../../components/Navbar';
+import '../../styles/Colors.css';
+import '../../styles/App.css';
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -21,6 +23,7 @@ function Login() {
 
         axios.post('http://localhost:8000/api/login/', formData)
             .then(response => {
+                console.log(response.data);
                 localStorage.setItem('user', JSON.stringify(response.data)); 
                 navigate('/dashboard');
             })
@@ -32,9 +35,9 @@ function Login() {
     };
 
     return (
-        <div className='App'>
+        <div className='App bg-homepage'>
             <CustomNavbar />
-            <Container>
+            <Container className='white-text'>
                 <Row className="justify-content-md-center">
                     <Col md={4}>
                         <h1>Login</h1>

@@ -12,6 +12,10 @@
   align-items: center;
 }
 
+.white-text {
+  color: white !important;
+}
+
 .card {
   background-color: var(--container-homepage);
   border-radius: 10px;

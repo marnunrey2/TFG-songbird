@@ -32,6 +32,8 @@ from .serializers import (
     PlaylistSerializer,
     PositionSerializer,
     PlaylistSongSerializer,
+    UserSongSerializer,
+    UserProfileSerializer,
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -182,7 +184,6 @@ def signup(request):
         password = request.POST.get("password")
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
-        avatar = request.FILES.get("avatar")
 
         try:
             validate_password(password)
@@ -208,7 +209,7 @@ def signup(request):
         user.last_name = last_name
         user.save()
 
-        user_profile = UserProfile.objects.create(user=user, avatar=avatar)
+        user_profile = UserProfile.objects.create(user=user)
         user_profile.save()
 
         return JsonResponse({"message": "User created successfully"}, status=201)
@@ -225,24 +226,26 @@ def login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # profile = UserProfile.objects.filter(user=user).first()
-            # if profile is not None:
-            #     UserSong.objects.filter(user=profile).delete()
-            #     profile.liked_songs.clear()
-
             user_data = model_to_dict(user)
 
             profile = UserProfile.objects.filter(user=user).first()
 
             if profile is not None:
 
+                user_data["liked_songs"] = []
+
                 # profile_data = model_to_dict(profile)
                 # user_data["avatar"] = request.build_absolute_uri(
                 #     profile_data["avatar"].url
                 # )
 
+                # Serialize the profile data
+                serializer = UserProfileSerializer(profile)
+
                 # Get liked songs, albums, and artists
-                user_data["liked_songs"] = list(profile.liked_songs.values())
+                songs = serializer.data["liked_songs"]
+                for song in songs:
+                    user_data["liked_songs"].append(song["song"])
 
             return JsonResponse(user_data, status=200)
         else:
@@ -450,6 +453,36 @@ def artist_songs(request, artist_name):
     except ValueError:
         return JsonResponse(
             {"error": "Invalid artist name. It must be a str."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+### ALBUM ###
+
+
+@api_view(["GET"])
+def album_detail(request, album_id):
+    try:
+        album = Album.objects.get(pk=album_id)
+        songs = Song.objects.filter(album=album)
+        song_serializer = SongSerializer(songs, many=True)
+        album_serializer = AlbumSerializer(album)
+        album_data = album_serializer.data
+        album_data["songs"] = song_serializer.data
+        return JsonResponse(album_data, safe=False, status=status.HTTP_200_OK)
+    except Album.DoesNotExist:
+        return JsonResponse(
+            {"error": "Album with this ID does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid album ID. It must be an integer."},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
