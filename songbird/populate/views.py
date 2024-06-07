@@ -55,6 +55,7 @@ import time
 from whoosh.index import open_dir
 from whoosh.qparser import MultifieldParser
 from django.conf import settings
+from .recommendations import recommend_songs
 
 
 ############################# POPULATE #############################
@@ -117,13 +118,14 @@ def populate_view(request):
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # # amazon_music_api()
 
-    # # GENIUS LYRICS
+    # # # GENIUS LYRICS
     # start_time = time.time()
+    # print("\nGenius: starting...")
     # genius_lyrics()
-    # print(f"genius_lyrics took {time.time() - start_time} seconds")
+    # print(f"Genius: took {time.time() - start_time} seconds")
 
     # # GENIUS LYRICS OF A SONG
-    # genius_lyrics_of_a_song("Andrea")
+    # genius_lyrics_of_a_song("Forget About You")
 
     # WHOOSH
     # create_whoosh_index()
@@ -278,6 +280,32 @@ def unlike_song(request):
     user_song.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+############################# RECOMMENDATIONS #############################
+
+
+@api_view(["GET"])
+def recommend_songs_view(request, user_id):
+    try:
+        user = UserProfile.objects.get(user__id=user_id)
+        recommendations = recommend_songs(user)
+        return JsonResponse(recommendations, safe=False, status=status.HTTP_200_OK)
+    except UserProfile.DoesNotExist:
+        return JsonResponse(
+            {"error": "User profile does not exist."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid user ID. It must be an integer."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 ############################# SEARCH #############################

@@ -17,6 +17,7 @@ from .views import (
     login,
     like_song,
     unlike_song,
+    recommend_songs_view,
     SearchView,
     SongSearchView,
     ArtistSearchView,
@@ -53,6 +54,11 @@ urlpatterns = [
     # USER ACTIONS
     path("user/like_song/", like_song, name="like_song"),
     path("user/unlike_song/", unlike_song, name="unlike_song"),
+    path(
+        "recommendations/<int:user_id>/",
+        recommend_songs_view,
+        name="recommendations",
+    ),
     # DETAILS
     path("songs/<int:song_id>/", song_detail, name="song-detail"),
     path("artists/<str:artist_name>/", artist_detail, name="song-detail"),

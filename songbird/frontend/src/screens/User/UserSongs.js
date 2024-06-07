@@ -27,7 +27,8 @@ function useDebounce(value, delay) {
 function UserSongs() {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 1000);
-    const songs = useFetchSongs(debouncedSearchTerm);
+    const [loading, setLoading] = useState(true);
+    const songs = useFetchSongs(debouncedSearchTerm, setLoading);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
     const handleFavoriteClick = async (event, index) => {
@@ -40,6 +41,7 @@ function UserSongs() {
     };
 
     const handleSearchChange = (event) => {
+        setLoading(true);
         setSearchTerm(event.target.value);
     };
 
@@ -55,7 +57,7 @@ function UserSongs() {
             />
         </div>
         <Container className="info">
-        {songs.map((song, index) => (
+        {loading ? 'Loading...' : songs.length > 0 ? songs.map((song, index) => (
             <Link to={`/song/${song.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
@@ -83,7 +85,7 @@ function UserSongs() {
                     </Col>
                 </Row>
             </Link>
-        ))}
+        )) : <h2 style={{color: 'white'}}>No songs found</h2>}
         </Container>
         </UsersTemplate>
     );

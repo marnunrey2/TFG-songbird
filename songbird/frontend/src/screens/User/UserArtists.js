@@ -28,11 +28,11 @@ function useDebounce(value, delay) {
 function UserArtists() {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 1000);
-    const artists = useFetchArtists(debouncedSearchTerm);
-
-    console.log(artists);
+    const [loading, setLoading] = useState(true);
+    const artists = useFetchArtists(debouncedSearchTerm, setLoading);
 
     const handleSearchChange = (event) => {
+        setLoading(true);
         setSearchTerm(event.target.value);
     };
 
@@ -48,7 +48,7 @@ function UserArtists() {
             />
         </div>
         <Container className="info">
-        {artists.map((artist, index) => (
+        {loading ? 'Loading...' : artists.length > 0 ?artists.map((artist, index) => (
             <Link to={`/artist/${artist.name}`} key={index} className="info-card">
                 <Row className="card-content">
                     <Col xs={12} md={4} className="song-image text-center-md-down">
@@ -65,7 +65,7 @@ function UserArtists() {
                     </Col>
                 </Row>
             </Link>
-        ))}
+        )) : <h2 style={{color: 'white'}}>No artists found</h2>}
         </Container>
         </UsersTemplate>
     );

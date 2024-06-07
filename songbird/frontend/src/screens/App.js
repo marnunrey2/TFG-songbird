@@ -12,6 +12,7 @@ import Login from './Homepage/Login';
 // USER SCREENS
 import Profile from './User/Profile';
 import Dashboard from './User/Dashboard';
+import Recommendations from './User/Recommendations';
 import UserSongs from './User/UserSongs';
 import UserArtists from './User/UserArtists';
 import UserAlbums from './User/UserAlbums';
@@ -49,6 +50,7 @@ function App() {
         {/* USER ROUTES */}
         <Route path='/profile' element={<ProtectedRoute component={Profile} />} />
         <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+        <Route path='/recommendations' element={<ProtectedRoute component={Recommendations} />} />
         <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
         <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
         <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />

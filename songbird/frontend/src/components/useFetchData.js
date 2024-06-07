@@ -20,7 +20,7 @@ export function useFetchGeneralData(searchTerm, setLoading) {
 };
 
 
-export function useFetchSongs(searchTerm) {
+export function useFetchSongs(searchTerm, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
@@ -35,11 +35,12 @@ export function useFetchSongs(searchTerm) {
       axios.get(url)
         .then(response => {
             setData(response.data);
+            setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching songs:',error);
         });
-    }, [searchTerm]);
+    }, [searchTerm, setLoading]);
   
     return data;
 }
@@ -60,7 +61,7 @@ export function useFetchSongData(songId) {
   return data;
 };
 
-export function useFetchArtists(searchTerm) {
+export function useFetchArtists(searchTerm, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
@@ -72,11 +73,12 @@ export function useFetchArtists(searchTerm) {
       axios.get(url)
         .then(response => {
           setData(response.data);
+          setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching artists:',error);
         });
-    }, [searchTerm]);
+    }, [searchTerm, setLoading]);
   
     return data;
 }
@@ -116,7 +118,7 @@ export function useFetchArtistData(name) {
   return { artist, albums, songs };
 }
 
-export function useFetchAlbums(searchTerm) {
+export function useFetchAlbums(searchTerm, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
@@ -128,11 +130,12 @@ export function useFetchAlbums(searchTerm) {
         axios.get(url)
           .then(response => {
             setData(response.data);
+            setLoading(false);
           })
           .catch(error => {
             console.error('Error fetching albums:',error);
           });
-      }, [searchTerm]);
+      }, [searchTerm, setLoading]);
   
     return data;
 }
@@ -214,4 +217,21 @@ export const togglePostLikes = async  (user, setUser, song, songId) => {
   } catch (error) {
     console.error('Error toggling favorite song:', error);
   }
+};
+
+export function useFetchRecommendations(user_id) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/recommendations/${user_id}/`)
+        .then(response => {
+            console.log(response.data);
+            setData(response.data);
+        })
+        .catch(error => {
+            console.error("There was an error fetching the recommendations!", error);
+        });
+}, [user_id]);
+
+  return data;
 };

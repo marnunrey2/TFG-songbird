@@ -54,6 +54,7 @@ const SideMenu = () => {
                         />
                     </div>
                     <Nav.Link as={Link} to="/dashboard" onClick={handleClick}>Dashboard</Nav.Link>
+                    <Nav.Link as={Link} to="/recommendations" onClick={handleClick}>Recommendations</Nav.Link>
                     <Nav.Link as={Link} to="/user/songs" onClick={handleClick}>Songs</Nav.Link>
                     <Nav.Link as={Link} to="/user/artists" onClick={handleClick}>Artists</Nav.Link>
                     <Nav.Link as={Link} to="/user/albums" onClick={handleClick}>Albums</Nav.Link>

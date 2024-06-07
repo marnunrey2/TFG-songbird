@@ -36,6 +36,24 @@ function SongDetails() {
             </span>
         ));
     };
+    
+    const renderLyrics = () => {
+        const lyricsArray = song.lyrics.split('\n');
+        const formattedLyrics = lyricsArray.reduce((acc, line) => {
+            const parts = line.split('[');
+            parts.forEach((part, index) => {
+                if (index !== 0 && part.includes(']')) {
+                    acc.push(<br />); 
+                    acc.push(<strong>{'[' + part.split(']')[0] + ']'}</strong>);
+                    acc.push(part.split(']')[1]);
+                } else {
+                    acc.push(part);
+                }
+            });
+            return acc;
+        }, []);
+        return formattedLyrics.map((line, i) => <div key={i}>{line}</div>);
+    };
 
     if (!song) {
         return <div>Loading...</div>;
@@ -81,18 +99,7 @@ function SongDetails() {
                 <Row className="details-card-content align-items-start" style={{ marginTop: '40px' }}>
                     <Col className='song-details order-1 order-md-0'>
                         <h3>Lyrics</h3>
-                        {song.lyrics ? song.lyrics.split('\n').map((line, i) => {
-                            const parts = line.split('[');
-                            return (
-                                <React.Fragment key={i}>
-                                    {parts.map((part, j) => (
-                                        <div key={j} className={part.includes(']') ? 'line-with-brackets' : ''}>
-                                            {j > 0 && '['}{part}
-                                        </div>
-                                    ))}
-                                </React.Fragment>
-                            );
-                        }) : 'No lyrics'}                  
+                        {song.lyrics ? renderLyrics() : 'No lyrics'}                  
                     </Col>
                     <Col xs={12} md={6} className='song-details order-0 order-md-1' style={{ marginBottom: '40px' }}>
                         <h6><strong>Available at: </strong></h6>

@@ -4,6 +4,7 @@ import os
 import re
 import requests
 from .models import Song
+from fuzzywuzzy import fuzz
 
 
 def genius_lyrics():
@@ -32,22 +33,33 @@ def genius_lyrics():
         artist_name = song.main_artist.name
         try:
             genius_song = genius.search_song(song_name, artist_name)
+
+            # Check if genius_song is None
+            if genius_song is None:
+                continue
+
+            # Check if the song name and the genius title are similar
+            similarity = fuzz.ratio(song_name.lower(), genius_song.title.lower())
+            if similarity < 70:
+                print(
+                    f"Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
+                )
+                return
+
+            # Refactor lyrics
+            lyrics = genius_song.lyrics.split("Lyrics")[1:]
+            lyrics = "".join(lyrics)
+            lyrics = re.sub(r"\d*Embed$", "", lyrics)
+            lyrics = re.sub(r'\[Letra de ".*?"\]', "", lyrics)
+
+            song.lyrics = lyrics
+            song.save()
+
         except requests.exceptions.Timeout:
             print(
                 f"Request timed out for song {song_name} by {artist_name}. Skipping to next song."
             )
             continue
-
-        # Check if genius_song is None
-        if genius_song is None:
-            continue
-
-        # Refactor lyrics
-        lyrics = genius_song.lyrics.split("Lyrics")[1:]
-        lyrics = "".join(lyrics)
-        lyrics = re.sub(r"\d*Embed$", "", lyrics)
-        song.lyrics = lyrics
-        song.save()
 
     # Songs without lyrics
     songs = Song.objects.filter(lyrics__isnull=True)
@@ -79,24 +91,36 @@ def genius_lyrics_of_a_song(song_name):
     artist_name = song.main_artist.name
     try:
         genius_song = genius.search_song(song_name, artist_name)
+        print(genius_song)
+        print(genius_song.title)
+        print(genius_song.artist)
+
+        # Check if genius_song is None
+        if genius_song is None:
+            return
+
+        # Check if the song name and the genius title are similar
+        similarity = fuzz.ratio(song_name.lower(), genius_song.title.lower())
+        if similarity < 70:
+            print(
+                f"Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
+            )
+            return
+
+        # Refactor lyrics
+        lyrics = genius_song.lyrics.split("Lyrics")[1:]
+        lyrics = "".join(lyrics)
+        lyrics = re.sub(r"\d*Embed$", "", lyrics)
+        lyrics = re.sub(r'\[Letra de ".*?"\]', "", lyrics)
+
+        song.lyrics = lyrics
+        song.save()
+
     except requests.exceptions.Timeout:
         print(
             f"Request timed out for song {song_name} by {artist_name}. Skipping to next song."
         )
         return
-
-    # Check if genius_song is None
-    if genius_song is None:
-        return
-
-    # Refactor lyrics
-    lyrics = genius_song.lyrics.split("Lyrics")[1:]
-    lyrics = "".join(lyrics)
-    lyrics = re.sub(r"\d*Embed$", "", lyrics)
-    lyrics = re.sub(r'\[Letra de ".*?"\]', "", lyrics)
-
-    song.lyrics = lyrics
-    song.save()
 
 
 """

@@ -27,11 +27,11 @@ function useDebounce(value, delay) {
 function UserAlbums() {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 1000);
-    const albums = useFetchAlbums(debouncedSearchTerm);
-
-    console.log(albums);
+    const [loading, setLoading] = useState(true);
+    const albums = useFetchAlbums(debouncedSearchTerm, setLoading);
 
     const handleSearchChange = (event) => {
+        setLoading(true);
         setSearchTerm(event.target.value);
     };
 
@@ -47,7 +47,7 @@ function UserAlbums() {
             />
         </div>
         <Container className="info">
-        {albums.map((album, index) => (
+        {loading ? 'Loading...' : albums.length > 0 ?albums.map((album, index) => (
             <Link to={`/album/${album.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
@@ -65,7 +65,7 @@ function UserAlbums() {
                     </Col>
                 </Row>
             </Link>
-        ))}
+        )) : <h2 style={{color: 'white'}}>No songs found</h2>}
         </Container>
         </UsersTemplate>
     );
