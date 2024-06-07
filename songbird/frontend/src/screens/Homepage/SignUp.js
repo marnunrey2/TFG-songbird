@@ -40,7 +40,6 @@ function SignUp() {
 
         axios.post('http://localhost:8000/api/signup/', formData)
             .then(response => {
-                console.log(response);
                 setErrorMessage('');
                 setSuccessMessage('User created successfully');
                 setFirstName('');

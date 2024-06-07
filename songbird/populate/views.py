@@ -557,6 +557,12 @@ def song_list(request):
         # Get songs in descending order of release date
         songs = Song.objects.all().order_by(F("release_date").desc(nulls_last=True))
 
+        # Filter by genre
+        genre = request.GET.get("genre")
+        if genre is not None:
+            artists = Artist.objects.filter(genres__name=genre)
+            songs = songs.filter(main_artist__in=artists)
+
         # Limit the number of songs returned
         limit = request.GET.get("limit")
         if limit is not None:
@@ -591,6 +597,11 @@ def artist_list(request):
         # Get artists in descending order of release date
         artists = Artist.objects.all().order_by(F("followers").desc(nulls_last=True))
 
+        # Filter by genre
+        genre = request.GET.get("genre")
+        if genre is not None:
+            artists = artists.filter(genres__name=genre)
+
         # Limit the number of artists returned
         limit = request.GET.get("limit")
         if limit is not None:
@@ -624,6 +635,12 @@ def album_list(request):
         # Get albums in descending order of release date
         albums = Album.objects.all().order_by(F("release_date").desc(nulls_last=True))
 
+        # Filter by genre
+        genre = request.GET.get("genre")
+        if genre is not None:
+            artists = Artist.objects.filter(genres__name=genre)
+            albums = albums.filter(artist__in=artists)
+
         # Limit the number of albums returned
         limit = request.GET.get("limit")
         if limit is not None:
@@ -655,11 +672,9 @@ def album_list(request):
 def genre_list(request):
     try:
         # Get genres
-        genres = Genre.objects.all()
+        genres = [genre.name for genre in Genre.objects.all()]
 
-        # Serialize the data
-        serializer = GenreSerializer(genres, many=True)
-        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse(genres, safe=False, status=status.HTTP_200_OK)
     except ValidationError as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:

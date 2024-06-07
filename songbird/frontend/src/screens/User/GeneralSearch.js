@@ -19,8 +19,6 @@ function GeneralSearch() {
         setLoading(true);
     }, [searchTerm]);
 
-    console.log(results);
-
     return (
         <UsersTemplate>
             <h1>Search results for... {searchTerm}</h1>

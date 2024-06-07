@@ -15,8 +15,9 @@ function Homepage() {
           <p className="card-text">Find your favourite songs, artist and albums here!</p>
           <p className="card-text">
             Sign up and have unlimited access to the latest tracks from all around 
-            the globe. You can access song lyrics, artist information, have a 
-            wrapped-up list of your favourite songs, and so much more!
+            the globe. Give likes to songs and get recommendations. You can access 
+            song lyrics, artist information, have a wrapped-up list of your favourite 
+            songs, and so much more!
           </p>
           <a href='/signup' className="btn btn-primary btn-lg">Sign Up Now</a>
         </div>

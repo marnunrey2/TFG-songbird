@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import UsersTemplate from '../../components/UsersTemplate';
+import '../../styles/UserStyles.css';
 
 function Profile() {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -13,12 +14,31 @@ function Profile() {
                     <Card>
                         <Card.Body>
                             <Card.Title>Profile</Card.Title>
-                            <Card.Text>
-                                <strong>First Name:</strong> {user.first_name} <br />
-                                <strong>Last Name:</strong> {user.last_name} <br />
-                                <strong>Username:</strong> {user.username} <br />
-                                <strong>Email:</strong> {user.email} <br />
-                                <strong>Password:</strong> {'*'.repeat(8)}
+                            <Card.Text style={{display: 'flex', justifyContent: 'center'}}>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td className='table-td-1'><strong>First Name:</strong></td>
+                                            <td className='table-td-2'>{user.first_name}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className='table-td-1'><strong>Last Name:</strong></td>
+                                            <td className='table-td-2'>{user.last_name}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className='table-td-1'><strong>Username:</strong></td>
+                                            <td className='table-td-2'>{user.username}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className='table-td-1'><strong>Email:</strong></td>
+                                            <td className='table-td-2'>{user.email}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className='table-td-1'><strong>Password:</strong></td>
+                                            <td className='table-td-2'>{'*'.repeat(8)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </Card.Text>
                         </Card.Body>
                     </Card>

@@ -165,10 +165,6 @@ h1 {
         text-align: center;
     }
 
-    .heart-icon {
-        top: 5px;
-        right: 5px;
-    }
 }
 
 /* SONG DETAILS */
@@ -274,4 +270,38 @@ h1 {
 
 .website-dropdown:focus:hover {
     color: white;
+}
+
+
+/* FILTERS */
+
+.filter-title {
+    color: white;
+    font-size: 16px;
+}
+
+.filter {
+    width: 120px;
+}
+
+@media (max-width: 767px) {
+    .filter-title {
+        margin-left: 50px;
+    }
+    .filter {
+        margin: 0;
+        width: 100px;
+    }
+    
+}
+
+/* PROFILE */
+
+.table-td-1 {
+    text-align: left !important;
+    padding-right: 50px !important;
+}
+
+.table-td-2 {
+    text-align: left !important;
 }

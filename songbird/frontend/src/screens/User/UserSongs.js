@@ -3,9 +3,9 @@ import UsersTemplate from '../../components/UsersTemplate';
 import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
-import { useFetchSongs, togglePostLikes } from '../../components/useFetchData'; 
+import { useFetchSongs, togglePostLikes, useFetchGenres } from '../../components/useFetchData'; 
 import { HeartFill, Heart } from 'react-bootstrap-icons';
-import { Container, Row, Col, Image } from 'react-bootstrap';
+import { Container, Row, Col, Image, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 function useDebounce(value, delay) {
@@ -26,38 +26,94 @@ function useDebounce(value, delay) {
 
 function UserSongs() {
     const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
     const [loading, setLoading] = useState(true);
-    const songs = useFetchSongs(debouncedSearchTerm, setLoading);
+    const [filter, setFilter] = useState('All');
+    const [genre, setGenre] = useState('No genre');
+
+    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+    const genres = useFetchGenres();
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
-    const handleFavoriteClick = async (event, index) => {
+    const songs = useFetchSongs(debouncedSearchTerm, genre, setLoading);
+
+    const handleFavoriteClick = async (event, songId) => {
         event.preventDefault(); 
         event.stopPropagation();
 
-        const song = songs[index];
+        const song = songs.find(song => song.id === songId);
         await togglePostLikes(user, setUser, song, song.id);
-
+        setUser(JSON.parse(localStorage.getItem('user')));
     };
 
     const handleSearchChange = (event) => {
         setLoading(true);
+        setFilter('All');
+        setGenre('No genre');
         setSearchTerm(event.target.value);
     };
 
+    const handleSelectFilter = (selectedFilter) => {
+        setFilter(selectedFilter);
+    };
+
+    const handleSelectGenre = (selectedGenre) => {
+        setLoading(true);
+        setGenre(selectedGenre);
+    };
+
+    let filteredSongs;
+
+    if (filter === 'Liked' && genre === 'No genre') {
+        filteredSongs = user.liked_songs;
+    } else if (filter === 'Liked' && genre !== 'No genre') {
+        filteredSongs = user.liked_songs.filter(song => song.main_artist.genres.some(g => g.name === genre));
+    } else {
+        filteredSongs = songs;
+    }
+
     return (
         <UsersTemplate>
-        <div className="search-container">
-            <input 
-                type="text" 
-                value={searchTerm} 
-                onChange={handleSearchChange} 
-                className="search-input" 
-                placeholder="Search for songs..." 
-            />
-        </div>
+        <Row >
+            <Col xs lg="12" className="search-container">
+                <input 
+                    type="text" 
+                    value={searchTerm} 
+                    onChange={handleSearchChange} 
+                    className="search-input" 
+                    placeholder="Search for songs..." 
+                />
+            </Col>
+        </Row>
+        <Row className="search-container" style={{marginTop: 0, width: '95%'}}>
+            <Col xs lg="1" className='filter-title'>Filter by:</Col>
+            <Col xs lg="2">
+                <Dropdown onSelect={handleSelectFilter}>
+                    <Dropdown.Toggle variant="success" id="dropdown-basic"  className='website-dropdown filter'>
+                        {filter}
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey='All'>All songs</Dropdown.Item>
+                        <Dropdown.Item eventKey='Liked'>Liked songs</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            </Col>
+            <Col xs lg="2">
+                <Dropdown onSelect={handleSelectGenre}>
+                    <Dropdown.Toggle variant="success" id="dropdown-basic"  className='website-dropdown filter'>
+                        {genre}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey={'No genre'}>No genre</Dropdown.Item>
+                        {genres.map((genre, index) => (
+                            <Dropdown.Item key={index} eventKey={genre}>{genre}</Dropdown.Item>
+                        ))}
+                    </Dropdown.Menu>
+                </Dropdown>
+            </Col>
+        </Row>
         <Container className="info">
-        {loading ? 'Loading...' : songs.length > 0 ? songs.map((song, index) => (
+        {loading ? 'Loading...' : filteredSongs.length > 0 ? filteredSongs.map((song, index) => (
             <Link to={`/song/${song.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
@@ -79,7 +135,7 @@ function UserSongs() {
                         {/* <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div> */}
                     </Col>
                     <Col md={4} className="song-info">
-                    <div onClick={(event) => handleFavoriteClick(event, index)} className="heart-icon">
+                    <div onClick={(event) => handleFavoriteClick(event, song.id)} className="heart-icon">
                         {user.liked_songs.map(song => song.id).includes(song.id) ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
                     </div>
                     </Col>

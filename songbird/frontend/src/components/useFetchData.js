@@ -20,16 +20,19 @@ export function useFetchGeneralData(searchTerm, setLoading) {
 };
 
 
-export function useFetchSongs(searchTerm, setLoading) {
+export function useFetchSongs(searchTerm, genre, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-      // let url = `http://localhost:8000/api/songs?limit=50&ordering=release_date`;
-      let url = `http://localhost:8000/api/songs?limit=50`;
+      let url;
       if (searchTerm) {
         url = `http://localhost:8000/api/songs-search/?q=${encodeURIComponent(searchTerm)}`;
         // Whoosh
         // url = `http://localhost:8000/api/song/search?search=${encodeURIComponent(searchTerm)}`;
+      } else if (genre !== 'No genre') {
+        url = `http://localhost:8000/api/songs?genre=${genre}&limit=150`;
+      } else {
+        url = `http://localhost:8000/api/songs?limit=100`;
       }
 
       axios.get(url)
@@ -40,10 +43,11 @@ export function useFetchSongs(searchTerm, setLoading) {
         .catch(error => {
           console.error('Error fetching songs:',error);
         });
-    }, [searchTerm, setLoading]);
+    }, [searchTerm, genre, setLoading]);
   
     return data;
 }
+
 
 export function useFetchSongData(songId) {
   const [data, setData] = useState(null);
@@ -61,13 +65,17 @@ export function useFetchSongData(songId) {
   return data;
 };
 
-export function useFetchArtists(searchTerm, setLoading) {
+export function useFetchArtists(searchTerm, genre, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-      let url = `http://localhost:8000/api/artists?limit=50`;
+      let url;
       if (searchTerm) {
         url = `http://localhost:8000/api/artists-search/?q=${encodeURIComponent(searchTerm)}`;
+      } else if (genre !== 'No genre') {
+        url = `http://localhost:8000/api/artists?genre=${genre}&limit=150`;
+      } else {
+        url = `http://localhost:8000/api/artists?limit=100`;
       }
 
       axios.get(url)
@@ -78,7 +86,7 @@ export function useFetchArtists(searchTerm, setLoading) {
         .catch(error => {
           console.error('Error fetching artists:',error);
         });
-    }, [searchTerm, setLoading]);
+    }, [searchTerm, genre, setLoading]);
   
     return data;
 }
@@ -118,13 +126,17 @@ export function useFetchArtistData(name) {
   return { artist, albums, songs };
 }
 
-export function useFetchAlbums(searchTerm, setLoading) {
+export function useFetchAlbums(searchTerm, genre, setLoading) {
     const [data, setData] = useState([]);
   
     useEffect(() => {
-        let url = `http://localhost:8000/api/albums?limit=50`;
+        let url;
         if (searchTerm) {
           url = `http://localhost:8000/api/albums-search/?q=${encodeURIComponent(searchTerm)}`;
+        } else if (genre !== 'No genre') {
+          url = `http://localhost:8000/api/albums?genre=${genre}&limit=150`;
+        } else {
+          url = `http://localhost:8000/api/albums?limit=100`;
         }
   
         axios.get(url)
@@ -135,7 +147,7 @@ export function useFetchAlbums(searchTerm, setLoading) {
           .catch(error => {
             console.error('Error fetching albums:',error);
           });
-      }, [searchTerm, setLoading]);
+      }, [searchTerm, genre, setLoading]);
   
     return data;
 }
@@ -169,6 +181,22 @@ export function useFetchWebsiteNames(playlistName) {
         console.error('Error fetching website names:', error);
       });
   }, [playlistName]);
+
+  return data;
+}
+
+export function useFetchGenres() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/genres/`)
+      .then(response => {
+        setData(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching genres:', error);
+      });
+  }, []);
 
   return data;
 }
@@ -211,7 +239,6 @@ export const togglePostLikes = async  (user, setUser, song, songId) => {
     }
 
     setUser(updatedUser);
-    console.log(updatedUser.liked_songs);
     localStorage.setItem('user', JSON.stringify(updatedUser));
 
   } catch (error) {
@@ -225,7 +252,6 @@ export function useFetchRecommendations(user_id, setLoading) {
   useEffect(() => {
     axios.get(`http://localhost:8000/api/recommendations/${user_id}/`)
         .then(response => {
-            console.log(response.data);
             setData(response.data);
             setLoading(false);
         })

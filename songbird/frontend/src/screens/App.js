@@ -6,6 +6,11 @@ import ProtectedRoute from '../components/ProtectedRoute';
 
 // HOMEPAGE
 import Homepage from './Homepage/Homepage';
+import TopSpotify from './Homepage/TopSpotify';
+import TopAppleMusic from './Homepage/TopAppleMusic';
+import TopShazam from './Homepage/TopShazam';
+import TopDeezer from './Homepage/TopDeezer';
+import TopYouTube from './Homepage/TopYoutube';
 import SignUp from './Homepage/SignUp';
 import Login from './Homepage/Login';
 
@@ -21,6 +26,7 @@ import ArtistDetails from './User/ArtistDetails';
 import AlbumDetails from './User/AlbumDetails';
 
 // TOPS
+import HotBillboard from './User/tops/HotBillboard';
 import AllTimeTop from './User/tops/AllTimeTop';
 import TopGlobal from './User/tops/TopGlobal';
 import TopUSA from './User/tops/TopUSA';
@@ -44,6 +50,11 @@ function App() {
       <Routes>
         {/* HOMEPAGE */}
         <Route path="/" element={<Homepage />} />
+        <Route path="/top-spotify" element={<TopSpotify />} />
+        <Route path="/top-apple-music" element={<TopAppleMusic />} />
+        <Route path="/top-shazam" element={<TopShazam />} />
+        <Route path="/top-deezer" element={<TopDeezer />} />
+        <Route path="/top-youtube" element={<TopYouTube />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
@@ -54,14 +65,15 @@ function App() {
         <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
         <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
         <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />
-        <Route path="/song/:id" element={<SongDetails />} />
-        <Route path='/artist/:name' element={<ArtistDetails />} />
-        <Route path='/album/:id' element={<AlbumDetails />} />
+        <Route path="/song/:id" element={<ProtectedRoute component={SongDetails} />} />
+        <Route path='/artist/:name' element={<ProtectedRoute component={ArtistDetails} />} />
+        <Route path='/album/:id' element={<ProtectedRoute component={AlbumDetails} />} />
         <Route path="/search/:searchTerm" element={<ProtectedRoute component={GeneralSearch} />} />
 
         {/* TOPS */}
+        <Route path='/hot-100-Billboard' element={<ProtectedRoute component={HotBillboard} />} />
         <Route path="/all-time-top" element={<ProtectedRoute component={AllTimeTop} />} />
-        <Route path='/top-global' element={<TopGlobal />} />
+        <Route path='/top-global' element={<ProtectedRoute component={TopGlobal} />} />
         <Route path="/top-usa" element={<ProtectedRoute component={TopUSA} />} />
         <Route path="/top-uk" element={<ProtectedRoute component={TopUK} />} />
         <Route path="/top-spain" element={<ProtectedRoute component={TopSpain} />} />

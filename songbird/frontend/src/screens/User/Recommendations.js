@@ -25,7 +25,7 @@ const Recommendations = () => {
         <UsersTemplate>
         <h1>Recommended Songs Just For You</h1>
         <Container className="info">
-        {loading ? 'Loading...' : songs.map(({song, score}, index) => (
+        {loading ? 'Loading...' : user.liked_songs.length > 0 ? songs.map(({song, score}, index) => (
             <Link to={`/song/${song.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">
@@ -53,7 +53,7 @@ const Recommendations = () => {
                     </Col>
                 </Row>
             </Link>
-        ))}
+        )) : <h5 style={{color: 'white', marginTop: '60px'}}>Give some love to some songs first :)</h5>}
         </Container>
         </UsersTemplate>
     );

@@ -12,6 +12,7 @@ function Dashboard() {
   let favouriteAlbum, favouriteArtist, favouriteGenreName;
 
   if (user.liked_songs.length > 0) {
+    console.log(user.liked_songs);
 
     // Liked albums
     const albumIds = user.liked_songs.map(song => song.album.id);
@@ -20,13 +21,13 @@ function Dashboard() {
     // Liked artists
     const artistIds = user.liked_songs.flatMap(song => [song.main_artist.name, ...song.collaborators.map(artist => artist.name)]);
     uniqueArtistIds = [...new Set(artistIds)];
-
+        
     // Favourite album
     const albumCounts = albumIds.reduce((counts, id) => {
       counts[id] = (counts[id] || 0) + 1;
       return counts;
     }, {});
-    const favouriteAlbumId = Object.keys(albumCounts).reduce((a, b) => albumCounts[a] > albumCounts[b] ? a : b);
+    const favouriteAlbumId = Object.keys(albumCounts).reduce((a, b) => albumCounts[a] > albumCounts[b] ? a : b, albumIds[0]);
     favouriteAlbum = user.liked_songs.find(song => song.album.id === Number(favouriteAlbumId)).album;
 
     // Favourite artist
@@ -34,7 +35,7 @@ function Dashboard() {
       counts[id] = (counts[id] || 0) + 1;
       return counts;
     }, {});
-    const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b);
+    const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b, artistIds[0]);
     favouriteArtist = user.liked_songs.find(song => song.main_artist.name === favouriteArtistId).main_artist;
     if (!favouriteArtist) {
       for (let song of user.liked_songs) {
@@ -50,7 +51,7 @@ function Dashboard() {
       counts[name] = (counts[name] || 0) + 1;
       return counts;
     }, {});
-    favouriteGenreName = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b);
+    favouriteGenreName = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b, genreNames[0]);
   }
 
   return (

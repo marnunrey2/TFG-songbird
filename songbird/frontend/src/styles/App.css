@@ -1,8 +1,15 @@
-/* HOMEPAGE */
-
 .App {
   padding-top: 80px;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
 }
+
+.white-text {
+  color: white !important;
+}
+
+/* HOMEPAGE */
 
 .bg-homepage {
   background: linear-gradient(to right, var(--tertiary-color), var(--secondary-color), var(--primary-color));
@@ -12,16 +19,12 @@
   align-items: center;
 }
 
-.white-text {
-  color: white !important;
-}
-
 .card {
   background-color: var(--container-homepage);
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   padding: 20px;
-  max-width: 650px;
+  max-width: 700px;
   width: 90%;
 }
 
@@ -42,7 +45,7 @@
 
 .card-text {
   font-family: 'Arial', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #333;
   text-align: center;
   margin-bottom: 20px;
@@ -69,4 +72,69 @@
   .card-title-small {
     display: none;
   }
+}
+
+/* TOPS */
+
+
+.top-info {
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.top-content {
+  background-color: var(--container-homepage);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.top-position {
+  font-weight: bold;
+  margin-right: 0;
+  font-size: larger;
+}
+
+.top-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 20px;
+}
+
+.top-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: grey;
+}
+
+.top-artist-name {
+  font-size: smaller;
+  font-weight: normal;
+}
+
+
+@media (max-width: 767px) {
+  .top-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
 }

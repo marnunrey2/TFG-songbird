@@ -3,8 +3,8 @@ import UsersTemplate from '../../components/UsersTemplate';
 import '../../styles/Colors.css';
 import '../../styles/UserStyles.css';
 import cd from '../../media/cd.png';
-import { useFetchAlbums } from '../../components/useFetchData'; 
-import { Container, Row, Col, Image } from 'react-bootstrap';
+import { useFetchAlbums, useFetchGenres } from '../../components/useFetchData'; 
+import { Container, Row, Col, Image, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 
@@ -26,28 +26,86 @@ function useDebounce(value, delay) {
 
 function UserAlbums() {
     const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
     const [loading, setLoading] = useState(true);
-    const albums = useFetchAlbums(debouncedSearchTerm, setLoading);
+    const [filter, setFilter] = useState('All');
+    const [genre, setGenre] = useState('No genre');
+
+    const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+    const genres = useFetchGenres();
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    const albums = useFetchAlbums(debouncedSearchTerm, genre, setLoading);
 
     const handleSearchChange = (event) => {
         setLoading(true);
+        setFilter('All');
+        setGenre('No genre');
         setSearchTerm(event.target.value);
     };
+    
+    const handleSelectFilter = (selectedFilter) => {
+        setFilter(selectedFilter);
+    };
+
+    const handleSelectGenre = (selectedGenre) => {
+        setLoading(true);
+        setGenre(selectedGenre);
+    };
+
+    let filteredAlbums;
+
+    if (filter === 'Liked' && genre === 'No genre') {
+        filteredAlbums = user.liked_songs.map(song => song.album);
+    } else if (filter === 'Liked' && genre !== 'No genre') {
+        filteredAlbums = user.liked_songs.map(song => song.album).filter(album => album.artist.genres.some(g => g.name === genre));
+    } else {
+        filteredAlbums = albums;
+    }
+
 
     return (
         <UsersTemplate>
-        <div className="search-container">
-            <input 
-                type="text" 
-                value={searchTerm} 
-                onChange={handleSearchChange} 
-                className="search-input" 
-                placeholder="Search for albums..." 
-            />
-        </div>
+        <Row >
+            <Col xs lg="12" className="search-container">
+                <input 
+                    type="text" 
+                    value={searchTerm} 
+                    onChange={handleSearchChange} 
+                    className="search-input" 
+                    placeholder="Search for albums..." 
+                />
+            </Col>
+        </Row>
+        <Row className="search-container" style={{marginTop: 0, width: '95%'}}>
+            <Col xs lg="1" className='filter-title'>Filter by:</Col>
+            <Col xs lg="2">
+                <Dropdown onSelect={handleSelectFilter}>
+                    <Dropdown.Toggle variant="success" id="dropdown-basic"  className='website-dropdown filter'>
+                        {filter}
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey='All'>All albums</Dropdown.Item>
+                        <Dropdown.Item eventKey='Liked'>Liked albums</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            </Col>
+            <Col xs lg="2">
+                <Dropdown onSelect={handleSelectGenre}>
+                    <Dropdown.Toggle variant="success" id="dropdown-basic"  className='website-dropdown filter'>
+                        {genre}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey={'No genre'}>No genre</Dropdown.Item>
+                        {genres.map((genre, index) => (
+                            <Dropdown.Item key={index} eventKey={genre}>{genre}</Dropdown.Item>
+                        ))}
+                    </Dropdown.Menu>
+                </Dropdown>
+            </Col>
+        </Row>
         <Container className="info">
-        {loading ? 'Loading...' : albums.length > 0 ?albums.map((album, index) => (
+        {loading ? 'Loading...' : filteredAlbums.length > 0 ? filteredAlbums.map((album, index) => (
             <Link to={`/album/${album.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">

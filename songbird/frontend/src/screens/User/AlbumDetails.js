@@ -9,8 +9,6 @@ function AlbumDetails() {
     const { id } = useParams(); 
     const album = useFetchAlbumData(id);
 
-    console.log(album);
-
     if (!album) {
         return <div>Loading...</div>;
     }

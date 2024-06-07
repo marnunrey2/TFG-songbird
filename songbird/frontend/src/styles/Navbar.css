@@ -15,6 +15,7 @@
 .custom-navbar .navbar-brand,
 .custom-navbar .nav-link {
     color: white !important;
+    z-index: 700;
 }
 
 .custom-navbar .btn-outline-light {
@@ -27,14 +28,15 @@
 }
 
 .custom-navbar .active-link {
-    background-color: white;
-    color: var(--primary-color) !important;
+    background-color: #a8004c95;
+    color: white !important;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     padding: 5px 20px !important;
     position: relative;
-    bottom: -10px;
+    bottom: -9px;
 }
+
 
 .custom-dropdown {
     position: fixed;
@@ -60,7 +62,10 @@
     .custom-navbar {
         text-align: center;
     }
+    
     .custom-navbar .active-link {
+        background-color: white;
+        color: var(--primary-color) !important;
         border-radius: 0; 
         bottom: 0;
     }

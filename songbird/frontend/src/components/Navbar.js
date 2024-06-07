@@ -21,31 +21,38 @@ const CustomNavbar = () => {
         <Nav className="ml-auto" style={{paddingTop: '20px'}}>
           <Nav.Link
             as={Link}
-            to="/songs"
-            className={`nav-link text-white ${location.pathname === '/songs' ? 'active-link' : ''}`}
+            to="/top-spotify"
+            className={`nav-link text-white ${location.pathname === '/top-spotify' ? 'active-link' : ''}`}
           >
-            Songs
+            Top Spotify
           </Nav.Link>
           <Nav.Link
             as={Link}
-            to="/artists"
-            className={`nav-link text-white ${location.pathname === '/artists' ? 'active-link' : ''}`}
+            to="/top-apple-music"
+            className={`nav-link text-white ${location.pathname === '/top-apple-music' ? 'active-link' : ''}`}
           >
-            Artists
+            Top Apple Music
           </Nav.Link>
           <Nav.Link
             as={Link}
-            to="/albums"
-            className={`nav-link text-white ${location.pathname === '/albums' ? 'active-link' : ''}`}
+            to="/top-shazam"
+            className={`nav-link text-white ${location.pathname === '/top-shazam' ? 'active-link' : ''}`}
           >
-            Albums
+            Top Shazam
           </Nav.Link>
           <Nav.Link
             as={Link}
-            to="/recommendations"
-            className={`nav-link text-white ${location.pathname === '/recommendations' ? 'active-link' : ''}`}
+            to="/top-deezer"
+            className={`nav-link text-white ${location.pathname === '/top-deezer' ? 'active-link' : ''}`}
           >
-            Recommendations
+            Top Deezer
+          </Nav.Link>
+          <Nav.Link
+            as={Link}
+            to="/top-youtube"
+            className={`nav-link text-white ${location.pathname === '/top-youtube' ? 'active-link' : ''}`}
+          >
+            Top YouTube
           </Nav.Link>
           <Button as={Link} to="/signup" variant="outline-light" className="mr-2 d-lg-none">Sign up</Button>
           <Nav.Link

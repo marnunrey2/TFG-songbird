@@ -9,7 +9,6 @@ import { FaSpotify, FaYoutube, FaApple, FaDeezer } from 'react-icons/fa';
 function ArtistDetails() {
     const { name } = useParams(); 
     const { artist, albums, songs } = useFetchArtistData(name);
-    console.log(songs);
 
     const renderAvailabilityIcons = () => {
         const icons = {
