@@ -8,8 +8,9 @@ import { HeartFill, Heart } from 'react-bootstrap-icons';
 
 const Recommendations = () => {
 
+    const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
-    const songs = useFetchRecommendations(user.id);
+    const songs = useFetchRecommendations(user.id, setLoading);
 
     const handleFavoriteClick = async (event, index) => {
         event.preventDefault(); 
@@ -24,7 +25,7 @@ const Recommendations = () => {
         <UsersTemplate>
         <h1>Recommended Songs Just For You</h1>
         <Container className="info">
-        {songs.map(({song, score}, index) => (
+        {loading ? 'Loading...' : songs.map(({song, score}, index) => (
             <Link to={`/song/${song.id}`} key={index} className="info-card-album">
                 <Row className="card-content">
                     <Col md={4} className="song-image">

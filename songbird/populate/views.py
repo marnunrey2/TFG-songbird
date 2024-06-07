@@ -288,7 +288,8 @@ def unlike_song(request):
 @api_view(["GET"])
 def recommend_songs_view(request, user_id):
     try:
-        user = UserProfile.objects.get(user__id=user_id)
+        user = UserProfile.objects.get(user__id=int(user_id))
+        print(user)
         recommendations = recommend_songs(user)
         return JsonResponse(recommendations, safe=False, status=status.HTTP_200_OK)
     except UserProfile.DoesNotExist:
@@ -296,14 +297,14 @@ def recommend_songs_view(request, user_id):
             {"error": "User profile does not exist."},
             status=status.HTTP_404_NOT_FOUND,
         )
-    except ValueError:
+    except ValueError as e:
         return JsonResponse(
             {"error": "Invalid user ID. It must be an integer."},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
         return JsonResponse(
-            {"error": "An unexpected error occurred."},
+            {"error": e},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

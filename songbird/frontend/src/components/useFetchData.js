@@ -219,7 +219,7 @@ export const togglePostLikes = async  (user, setUser, song, songId) => {
   }
 };
 
-export function useFetchRecommendations(user_id) {
+export function useFetchRecommendations(user_id, setLoading) {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -227,11 +227,12 @@ export function useFetchRecommendations(user_id) {
         .then(response => {
             console.log(response.data);
             setData(response.data);
+            setLoading(false);
         })
         .catch(error => {
             console.error("There was an error fetching the recommendations!", error);
         });
-}, [user_id]);
+}, [user_id, setLoading]);
 
   return data;
 };
