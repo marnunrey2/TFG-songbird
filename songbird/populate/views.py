@@ -118,14 +118,14 @@ def populate_view(request):
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # # amazon_music_api()
 
-    # # # GENIUS LYRICS
+    # # GENIUS LYRICS
     # start_time = time.time()
     # print("\nGenius: starting...")
     # genius_lyrics()
     # print(f"Genius: took {time.time() - start_time} seconds")
 
-    # # GENIUS LYRICS OF A SONG
-    # genius_lyrics_of_a_song("Forget About You")
+    # GENIUS LYRICS OF A SONG
+    genius_lyrics_of_a_song("ME! (feat. Brendon Urie of Panic! At The Disco)")
 
     # WHOOSH
     # create_whoosh_index()
@@ -225,27 +225,29 @@ def login(request):
 
         if user is not None:
             user_data = model_to_dict(user)
+            if user.is_superuser:
+                return JsonResponse(user_data, status=200)
+            else:
+                profile = UserProfile.objects.filter(user=user).first()
 
-            profile = UserProfile.objects.filter(user=user).first()
+                if profile is not None:
 
-            if profile is not None:
+                    user_data["liked_songs"] = []
 
-                user_data["liked_songs"] = []
+                    # profile_data = model_to_dict(profile)
+                    # user_data["avatar"] = request.build_absolute_uri(
+                    #     profile_data["avatar"].url
+                    # )
 
-                # profile_data = model_to_dict(profile)
-                # user_data["avatar"] = request.build_absolute_uri(
-                #     profile_data["avatar"].url
-                # )
+                    # Serialize the profile data
+                    serializer = UserProfileSerializer(profile)
 
-                # Serialize the profile data
-                serializer = UserProfileSerializer(profile)
+                    # Get liked songs, albums, and artists
+                    songs = serializer.data["liked_songs"]
+                    for song in songs:
+                        user_data["liked_songs"].append(song["song"])
 
-                # Get liked songs, albums, and artists
-                songs = serializer.data["liked_songs"]
-                for song in songs:
-                    user_data["liked_songs"].append(song["song"])
-
-            return JsonResponse(user_data, status=200)
+                return JsonResponse(user_data, status=200)
         else:
             return JsonResponse({"error": "Invalid username or password"}, status=400)
     else:
@@ -731,3 +733,74 @@ def website_names(request, playlist_name):
             {"error": "An unexpected error occurred."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+############################# ADMIN #############################
+
+
+@api_view(["GET"])
+def admin_dashboard(request):
+    try:
+        num_users = User.objects.count()
+        num_songs = Song.objects.count()
+        num_artists = Artist.objects.count()
+        num_albums = Album.objects.count()
+        num_playlists = Playlist.objects.count()
+
+        return JsonResponse(
+            {
+                "num_users": num_users,
+                "num_songs": num_songs,
+                "num_artists": num_artists,
+                "num_albums": num_albums,
+                "num_playlists": num_playlists,
+            },
+            safe=False,
+            status=status.HTTP_200_OK,
+        )
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+class PopulateDatabaseView(APIView):
+    def post(self, request, format=None):
+        try:
+
+            print("Populating database...")
+            start_time = time.time()
+
+            # SPOTIFY
+            spotify_api()
+
+            # APPLE MUSIC
+            apple_music()
+
+            # KWORB
+            kworb_all_time()
+
+            # DEEZER
+            deezer()
+
+            # BILLBOARD
+            billboard()
+
+            elapsed_time = time.time() - start_time
+            hours, rem = divmod(elapsed_time, 3600)
+            minutes, seconds = divmod(rem, 60)
+            formatted_time = "{:0>2}:{:0>2}:{:02}".format(
+                int(hours), int(minutes), int(seconds)
+            )
+            message = (
+                f"Database populated successfully! Took {formatted_time} to complete"
+            )
+
+            return Response({"message": message}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

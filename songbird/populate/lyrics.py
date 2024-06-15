@@ -18,6 +18,8 @@ def genius_lyrics():
     songs = Song.objects.filter(lyrics__isnull=True)
 
     print(f"Finding lyrics for: {songs.count()} songs")
+    errors = 0
+    timeouts = 0
 
     for song in songs:
         if (
@@ -39,12 +41,15 @@ def genius_lyrics():
                 continue
 
             # Check if the song name and the genius title are similar
-            similarity = fuzz.ratio(song_name.lower(), genius_song.title.lower())
-            if similarity < 70:
+            similarity = fuzz.ratio(
+                song_name.lower() + " " + artist_name.lower(),
+                genius_song.title.lower() + " " + genius_song.artist.lower(),
+            )
+            if similarity < 60:
                 print(
-                    f"Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
+                    f"SIMILARITY SMALL: Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
                 )
-                return
+                continue
 
             # Refactor lyrics
             lyrics = genius_song.lyrics.split("Lyrics")[1:]
@@ -56,9 +61,12 @@ def genius_lyrics():
             song.save()
 
         except requests.exceptions.Timeout:
-            print(
-                f"Request timed out for song {song_name} by {artist_name}. Skipping to next song."
-            )
+            print(f"TIMEOUT: song {song_name} by {artist_name}. Skipping to next song.")
+            timeouts += 1
+            continue
+        except Exception as e:
+            print(f"ERROR: {e}")
+            errors += 1
             continue
 
     # Songs without lyrics
@@ -66,6 +74,8 @@ def genius_lyrics():
     songs_names = [song.name for song in songs]
     print(f"Songs without lyrics: {songs.count()}")
     print(songs_names)
+    print(f"Total Errors: {errors}")
+    print(f"Total Timeouts: {timeouts}")
 
 
 def genius_lyrics_of_a_song(song_name):
@@ -89,6 +99,8 @@ def genius_lyrics_of_a_song(song_name):
 
     song_name = song.name
     artist_name = song.main_artist.name
+
+    print(song_name, artist_name)
     try:
         genius_song = genius.search_song(song_name, artist_name)
         print(genius_song)
@@ -100,10 +112,14 @@ def genius_lyrics_of_a_song(song_name):
             return
 
         # Check if the song name and the genius title are similar
-        similarity = fuzz.ratio(song_name.lower(), genius_song.title.lower())
-        if similarity < 70:
+        similarity = fuzz.ratio(
+            song_name.lower() + " " + artist_name.lower(),
+            genius_song.title.lower() + " " + genius_song.artist.lower(),
+        )
+        print(similarity)
+        if similarity < 60:
             print(
-                f"Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
+                f"SIMILARITY SMALL: Song name '{song_name}' and genius title '{genius_song.title}' are not similar. Skipping to next song."
             )
             return
 
@@ -117,9 +133,10 @@ def genius_lyrics_of_a_song(song_name):
         song.save()
 
     except requests.exceptions.Timeout:
-        print(
-            f"Request timed out for song {song_name} by {artist_name}. Skipping to next song."
-        )
+        print(f"TIMEOUT: Song {song_name} by {artist_name}. Skipping to next song.")
+        return
+    except Exception as e:
+        print(f"ERROR: {e}")
         return
 
 

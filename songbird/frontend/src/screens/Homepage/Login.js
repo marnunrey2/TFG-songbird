@@ -23,8 +23,13 @@ function Login() {
 
         axios.post('http://localhost:8000/api/login/', formData)
             .then(response => {
-                localStorage.setItem('user', JSON.stringify(response.data)); 
-                navigate('/dashboard');
+                if (response.data.is_superuser) {
+                    localStorage.setItem('user', JSON.stringify(response.data)); 
+                    navigate('/admin/dashboard');
+                } else {
+                    localStorage.setItem('user', JSON.stringify(response.data)); 
+                    navigate('/dashboard');
+                }
             })
             .catch(error => {
                 console.log(error);

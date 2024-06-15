@@ -68,6 +68,10 @@ h1 {
     justify-content: center;
 }
 
+.statistic-card-small {
+    width: 20%;
+}
+
 .statistic-card-4 h2,
 .statistic-card h2 {
     font-size: 1.5rem;
@@ -304,4 +308,51 @@ h1 {
 
 .table-td-2 {
     text-align: left !important;
+}
+
+
+/* ADMIN */
+
+.populate-button {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    display: block;
+    width: 30%;
+    height: 70px;
+    margin-bottom: 0 !important;
+}
+
+.populate-button:hover {
+    background-color: var(--primary-color-hover) !important;
+}
+
+.populate-button:focus {
+    background-color: var(--primary-color-hover) !important;
+}
+
+.populate-button:focus:hover {
+    background-color: var(--primary-color-hover) !important;
+}
+
+.populate-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    margin-top: 15px !important;
+}
+
+
+@media (max-width: 767px) {
+    .populate-button {
+        width: 40%;
+    }
+    .populate-message {
+        margin-left: auto;
+        margin-right: auto;
+        width: 60%;
+    }
+    
 }

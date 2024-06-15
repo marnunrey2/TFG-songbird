@@ -78,6 +78,7 @@ function UserArtists() {
                 />
             </Col>
         </Row>
+        {!user.is_superuser && 
         <Row className="search-container" style={{marginTop: 0, width: '95%'}}>
             <Col xs lg="1" className='filter-title'>Filter by:</Col>
             <Col xs lg="2">
@@ -106,6 +107,7 @@ function UserArtists() {
                 </Dropdown>
             </Col>
         </Row>
+        }
         <Container className="info">
         {loading ? 'Loading...' : filteredArtists.length > 0 ? filteredArtists.map((artist, index) => (
             <Link to={`/artist/${artist.name}`} key={index} className="info-card">

@@ -84,6 +84,7 @@ function UserSongs() {
                 />
             </Col>
         </Row>
+        {!user.is_superuser && 
         <Row className="search-container" style={{marginTop: 0, width: '95%'}}>
             <Col xs lg="1" className='filter-title'>Filter by:</Col>
             <Col xs lg="2">
@@ -112,6 +113,7 @@ function UserSongs() {
                 </Dropdown>
             </Col>
         </Row>
+        }
         <Container className="info">
         {loading ? 'Loading...' : filteredSongs.length > 0 ? filteredSongs.map((song, index) => (
             <Link to={`/song/${song.id}`} key={index} className="info-card-album">
@@ -134,11 +136,13 @@ function UserSongs() {
                         <div className="artist-name">{song && song.main_artist ? song.main_artist.name ? song.main_artist.name : song.main_artist : ''}</div>
                         {/* <div className="album-name">{song && song.album ? song.album.name ? song.album.name : song.album : ''}</div> */}
                     </Col>
-                    <Col md={4} className="song-info">
-                    <div onClick={(event) => handleFavoriteClick(event, song.id)} className="heart-icon">
-                        {user.liked_songs.map(song => song.id).includes(song.id) ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
-                    </div>
-                    </Col>
+                    {!user.is_superuser && 
+                        <Col md={4} className="song-info">
+                        <div onClick={(event) => handleFavoriteClick(event, song.id)} className="heart-icon">
+                            {user.liked_songs.map(song => song.id).includes(song.id) ? <HeartFill color="red" size={20} /> : <Heart color="black" size={20} />}
+                        </div>
+                        </Col>
+                    }
                 </Row>
             </Link>
         )) : <h2 style={{color: 'white'}}>No songs found</h2>}

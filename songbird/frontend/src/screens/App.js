@@ -43,6 +43,8 @@ import TopJapan from './User/tops/TopJapan';
 import TopSouthKorea from './User/tops/TopSouthKorea';
 import GeneralSearch from './User/GeneralSearch';
 
+// ADMIN
+import AdminDashboard from './Admin/AdminDashboard';
 
 function App() {
   return (
@@ -60,11 +62,11 @@ function App() {
 
         {/* USER ROUTES */}
         <Route path='/profile' element={<ProtectedRoute component={Profile} />} />
-        <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
-        <Route path='/recommendations' element={<ProtectedRoute component={Recommendations} />} />
-        <Route path="/user/songs" element={<ProtectedRoute component={UserSongs} />} />
-        <Route path="/user/artists" element={<ProtectedRoute component={UserArtists} />} />
-        <Route path="/user/albums" element={<ProtectedRoute component={UserAlbums} />} />
+        <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} role="user" />} />
+        <Route path='/recommendations' element={<ProtectedRoute component={Recommendations} role="user" />} />
+        <Route path="/songs" element={<ProtectedRoute component={UserSongs} />} />
+        <Route path="/artists" element={<ProtectedRoute component={UserArtists} />} />
+        <Route path="/albums" element={<ProtectedRoute component={UserAlbums} />} />
         <Route path="/song/:id" element={<ProtectedRoute component={SongDetails} />} />
         <Route path='/artist/:name' element={<ProtectedRoute component={ArtistDetails} />} />
         <Route path='/album/:id' element={<ProtectedRoute component={AlbumDetails} />} />
@@ -87,6 +89,8 @@ function App() {
         <Route path="/top-japan" element={<ProtectedRoute component={TopJapan} />} />
         <Route path="/top-south-korea" element={<ProtectedRoute component={TopSouthKorea} />} />
 
+        {/* ADMIN */}
+        <Route path="/admin/dashboard" element={<ProtectedRoute component={AdminDashboard} role="admin" />} />
 
       </Routes>
     </Router>

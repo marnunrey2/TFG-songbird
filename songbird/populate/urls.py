@@ -22,6 +22,8 @@ from .views import (
     SongSearchView,
     ArtistSearchView,
     AlbumSearchView,
+    admin_dashboard,
+    PopulateDatabaseView,
 )
 
 # router = DefaultRouter()
@@ -33,6 +35,7 @@ from .views import (
 urlpatterns = [
     # path("", include(router.urls)),
     path("populate/", populate_view, name="populate"),
+    path("admin/populate/", PopulateDatabaseView.as_view(), name="populate_database"),
     path("songs/", song_list, name="song-list"),
     path("artists/", artist_list, name="artist-list"),
     path("albums/", album_list, name="album-list"),
@@ -65,4 +68,6 @@ urlpatterns = [
     path("artists/<str:artist_name>/albums", artist_albums, name="artist-albums"),
     path("artists/<str:artist_name>/songs", artist_songs, name="artist-songs"),
     path("albums/<int:album_id>/", album_detail, name="album-detail"),
+    # ADMIN
+    path("admin/dashboard/", admin_dashboard, name="admin-dashboard"),
 ]

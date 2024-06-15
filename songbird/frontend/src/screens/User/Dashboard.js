@@ -12,7 +12,6 @@ function Dashboard() {
   let favouriteAlbum, favouriteArtist, favouriteGenreName;
 
   if (user.liked_songs.length > 0) {
-    console.log(user.liked_songs);
 
     // Liked albums
     const albumIds = user.liked_songs.map(song => song.album.id);

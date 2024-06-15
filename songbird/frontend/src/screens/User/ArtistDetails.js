@@ -45,11 +45,14 @@ function ArtistDetails() {
                         )}
                     </Col>
                     <Col md={4} className="song-details">
-                        <h2>{artist ? artist.name : ''}</h2>
+                        {artist.name && <h2>{artist.name}</h2>}
                         <h6><strong>Genres: </strong>{artist && artist.genres ? artist.genres.map(genre => genre.name).join(', ') : ''}</h6>
-                        
+                        {artist.followers &&
+                        <>
                         <h6><strong>Followers: </strong></h6>
                         <h6>{renderAvailabilityIcons()}</h6>
+                        </>
+                        }
                     </Col>
                 </Row>
                 <Row className="details-card-content align-items-start" style={{ marginTop: '40px' }}>

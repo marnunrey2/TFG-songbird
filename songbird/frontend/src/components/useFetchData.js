@@ -29,7 +29,7 @@ export function useFetchSongs(searchTerm, genre, setLoading) {
         url = `http://localhost:8000/api/songs-search/?q=${encodeURIComponent(searchTerm)}`;
         // Whoosh
         // url = `http://localhost:8000/api/song/search?search=${encodeURIComponent(searchTerm)}`;
-      } else if (genre !== 'No genre') {
+      } else if (genre && genre !== 'No genre') {
         url = `http://localhost:8000/api/songs?genre=${genre}&limit=150`;
       } else {
         url = `http://localhost:8000/api/songs?limit=100`;
@@ -72,7 +72,7 @@ export function useFetchArtists(searchTerm, genre, setLoading) {
       let url;
       if (searchTerm) {
         url = `http://localhost:8000/api/artists-search/?q=${encodeURIComponent(searchTerm)}`;
-      } else if (genre !== 'No genre') {
+      } else if (genre && genre !== 'No genre') {
         url = `http://localhost:8000/api/artists?genre=${genre}&limit=150`;
       } else {
         url = `http://localhost:8000/api/artists?limit=100`;
@@ -133,7 +133,7 @@ export function useFetchAlbums(searchTerm, genre, setLoading) {
         let url;
         if (searchTerm) {
           url = `http://localhost:8000/api/albums-search/?q=${encodeURIComponent(searchTerm)}`;
-        } else if (genre !== 'No genre') {
+        } else if (genre && genre !== 'No genre') {
           url = `http://localhost:8000/api/albums?genre=${genre}&limit=150`;
         } else {
           url = `http://localhost:8000/api/albums?limit=100`;
@@ -259,6 +259,23 @@ export function useFetchRecommendations(user_id, setLoading) {
             console.error("There was an error fetching the recommendations!", error);
         });
 }, [user_id, setLoading]);
+
+  return data;
+};
+
+
+export function useFetchAdminDashboard() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/api/admin/dashboard/`)
+      .then(response => {
+        setData(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching admin dashboard:', error);
+      });
+  }, []);
 
   return data;
 };

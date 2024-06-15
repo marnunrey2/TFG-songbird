@@ -72,7 +72,6 @@ def billboard():
         # If the song was created or if it exists and images is None, update the images field
         if created or (song.images is None and song_picture is not None):
             song.images = song_picture
-            song.save()
 
         # Create or update the collaborator
         for art in artists[1:]:
@@ -83,6 +82,8 @@ def billboard():
 
             # Add the collaborator to the song's collaborators
             song.collaborators.add(colab)
+
+        song.save()
 
         # Update "Billboard" playlist
         position, _ = Position.objects.get_or_create(position=pos)

@@ -76,6 +76,7 @@ function UserAlbums() {
                 />
             </Col>
         </Row>
+        {!user.is_superuser && 
         <Row className="search-container" style={{marginTop: 0, width: '95%'}}>
             <Col xs lg="1" className='filter-title'>Filter by:</Col>
             <Col xs lg="2">
@@ -104,6 +105,7 @@ function UserAlbums() {
                 </Dropdown>
             </Col>
         </Row>
+        }
         <Container className="info">
         {loading ? 'Loading...' : filteredAlbums.length > 0 ? filteredAlbums.map((album, index) => (
             <Link to={`/album/${album.id}`} key={index} className="info-card-album">

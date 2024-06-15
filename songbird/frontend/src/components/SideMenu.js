@@ -23,6 +23,7 @@ const SideMenu = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 1000);
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
         if (debouncedSearchTerm.trim() !== '') {
@@ -52,12 +53,15 @@ const SideMenu = () => {
                             className="search-input" 
                             placeholder="Search anything..." 
                         />
-                    </div>
+                    </div>        
+                    {!user.is_superuser? 
                     <Nav.Link as={Link} to="/dashboard" onClick={handleClick}>Dashboard</Nav.Link>
-                    <Nav.Link as={Link} to="/recommendations" onClick={handleClick}>Recommendations</Nav.Link>
-                    <Nav.Link as={Link} to="/user/songs" onClick={handleClick}>Songs</Nav.Link>
-                    <Nav.Link as={Link} to="/user/artists" onClick={handleClick}>Artists</Nav.Link>
-                    <Nav.Link as={Link} to="/user/albums" onClick={handleClick}>Albums</Nav.Link>
+                    : <Nav.Link as={Link} to="/admin/dashboard" onClick={handleClick}>Dashboard</Nav.Link>}
+                    {!user.is_superuser && 
+                    <Nav.Link as={Link} to="/recommendations" onClick={handleClick}>Recommendations</Nav.Link>}
+                    <Nav.Link as={Link} to="/songs" onClick={handleClick}>Songs</Nav.Link>
+                    <Nav.Link as={Link} to="/artists" onClick={handleClick}>Artists</Nav.Link>
+                    <Nav.Link as={Link} to="/albums" onClick={handleClick}>Albums</Nav.Link>
                     <NavDropdown title={<span className="menu-dropdown-title">Top</span>} id="basic-nav-dropdown" className="menu-dropdown">
                         <NavDropdown.Item as={Link} to="/hot-100-Billboard" onClick={handleClick}>Hot 100 Billboard</NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/all-time-top" onClick={handleClick}>All time top</NavDropdown.Item>
