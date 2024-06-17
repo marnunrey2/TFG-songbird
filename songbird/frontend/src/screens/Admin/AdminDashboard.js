@@ -12,7 +12,7 @@ function Dashboard() {
 
   const populateDatabase = async () => {
     setLoading(true);
-    setMessage('The database is being populated...');
+    setMessage('The database is being populated... This may take a few minutes.');
 
     const response = await fetch('http://localhost:8000/api/admin/populate/', { method: 'POST' });
     const data = await response.json();

@@ -29,7 +29,7 @@ function AlbumDetails() {
                     </Col>
                     <Col md={4} className="song-details">
                         <h2>{album ? album.name : ''}</h2>
-                        {album && album.genres.length > 0 ? <h6><strong>Genres: </strong>{album.genres.join(', ')}</h6> : <h6> </h6>}
+                        {album && album.genres.length > 0 ? <h6><strong>Genres: </strong>{album.genres.map( genre => genre.name).join(', ')}</h6> : <h6> </h6>}
                         <h6><strong>Release Date: </strong>{album ? album.release_date : ''}</h6>
                         <h6><strong>Total Tracks: </strong>{album ? album.total_tracks : ''}</h6>
                     </Col>

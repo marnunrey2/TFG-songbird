@@ -14,7 +14,7 @@ from .models import (
 )
 
 
-class UserViewTest(TestCase):
+class UserActionsTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.test_user = User.objects.create_user(
@@ -23,6 +23,7 @@ class UserViewTest(TestCase):
         self.test_user_profile = UserProfile.objects.create(user=self.test_user)
         artist = Artist.objects.create(name="test artist")
         self.test_song = Song.objects.create(name="test song", main_artist=artist)
+        UserSong.objects.create(user=self.test_user_profile, song=self.test_song)
 
     def test_signup(self):
         response = self.client.post(
@@ -58,7 +59,6 @@ class UserViewTest(TestCase):
         )
 
     def test_unlike_song(self):
-        UserSong.objects.create(user=self.test_user_profile, song=self.test_song)
         response = self.client.post(
             "/api/user/unlike_song/",
             {"user_id": self.test_user.id, "song_id": self.test_song.id},
@@ -168,7 +168,7 @@ class ModelsViewTest(TestCase):
         self.assertContains(response, "test website")
 
 
-class ViewTest(TestCase):
+class AdminTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.test_user = User.objects.create_user(

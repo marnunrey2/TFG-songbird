@@ -18,7 +18,8 @@ from .appleMusic import apple_music
 from .amazonMusic import amazon_music_api
 from .youtube import youtube_api
 from .billboard import billboard
-from .lyrics import genius_lyrics, genius_lyrics_of_a_song
+from .management.commands.lyrics import genius_lyrics, genius_lyrics_of_a_song
+from .management.commands.whoosh import index_data
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status, filters, viewsets
@@ -116,7 +117,7 @@ def populate_view(request):
     # print(f"Youtube: took {time.time() - start_time} seconds")
 
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
-    # # amazon_music_api()
+    # amazon_music_api()
 
     # # GENIUS LYRICS
     # start_time = time.time()
@@ -124,27 +125,13 @@ def populate_view(request):
     # genius_lyrics()
     # print(f"Genius: took {time.time() - start_time} seconds")
 
-    # GENIUS LYRICS OF A SONG
-    genius_lyrics_of_a_song("ME! (feat. Brendon Urie of Panic! At The Disco)")
+    # # GENIUS LYRICS OF A SONG
+    # genius_lyrics_of_a_song("ME! (feat. Brendon Urie of Panic! At The Disco)")
 
     # WHOOSH
-    # create_whoosh_index()
+    index_data()
 
     # Query all objects from each model
-
-    # genres = Genre.objects.all()
-    # songs = {}
-
-    # # For each genre, get the songs
-    # for genre in genres:
-    #     songs[genre.name] = []
-    #     # Get albums of the genre
-    #     albums = Album.objects.filter(genres__name=genre.name)
-    #     # Get songs of each album
-    #     for album in albums:
-    #         songs_album = album.album_songs.all()
-    #         songs[genre.name].append(songs_album)
-
     songs = Song.objects.all()
     artists = Artist.objects.all()
     albums = Album.objects.all()
@@ -291,7 +278,6 @@ def unlike_song(request):
 def recommend_songs_view(request, user_id):
     try:
         user = UserProfile.objects.get(user__id=int(user_id))
-        print(user)
         recommendations = recommend_songs(user)
         return JsonResponse(recommendations, safe=False, status=status.HTTP_200_OK)
     except UserProfile.DoesNotExist:
@@ -775,18 +761,39 @@ class PopulateDatabaseView(APIView):
 
             # SPOTIFY
             spotify_api()
+            print(f"Spotify API done. Time: {time.time()}")
 
             # APPLE MUSIC
             apple_music()
+            print(f"Apple Music done. Time: {time.time()}")
 
             # KWORB
             kworb_all_time()
+            print(f"Kworb done. Time: {time.time()}")
 
             # DEEZER
             deezer()
+            print(f"Deezer done. Time: {time.time()}")
 
             # BILLBOARD
             billboard()
+            print(f"Billboard done. Time: {time.time()}")
+
+            # YOUTUBE
+            # youtube_api()
+            # print(f"Youtube done. Time: {time.time()}")
+
+            # AMAZON MUSIC API NOT WORKING AT THE MOMENT
+            # amazon_music_api()
+            # print(f"Amazon Music done. Time: {time.time()}")
+
+            # GENIUS LYRICS
+            # genius_lyrics()
+            # print(f"Genius Lyrics done. Time: {time.time()}")
+
+            # WHOOSH
+            index_data()
+            print(f"Whoosh done. Time: {time.time()}")
 
             elapsed_time = time.time() - start_time
             hours, rem = divmod(elapsed_time, 3600)

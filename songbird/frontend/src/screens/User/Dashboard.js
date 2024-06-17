@@ -12,6 +12,7 @@ function Dashboard() {
   let favouriteAlbum, favouriteArtist, favouriteGenreName;
 
   if (user.liked_songs.length > 0) {
+    console.log(user.liked_songs);
 
     // Liked albums
     const albumIds = user.liked_songs.map(song => song.album.id);
@@ -35,6 +36,7 @@ function Dashboard() {
       return counts;
     }, {});
     const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b, artistIds[0]);
+    console.log(favouriteArtistId);
     favouriteArtist = user.liked_songs.find(song => song.main_artist.name === favouriteArtistId).main_artist;
     if (!favouriteArtist) {
       for (let song of user.liked_songs) {
