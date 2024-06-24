@@ -16,3 +16,6 @@ h1 {
 .btn-primary:hover {
     background-color: var(--primary-color-hover);
 }
+.form-control {
+    color: black;
+}

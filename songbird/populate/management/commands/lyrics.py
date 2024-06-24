@@ -10,7 +10,11 @@ from fuzzywuzzy import fuzz
 
 def genius_lyrics():
     # Load the .env file
-    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+    env_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")
+    )
+    load_dotenv(env_path)
     token = os.getenv("GENIUS_ACCESS_TOKEN")
 
     genius = lyricsgenius.Genius(token)
@@ -80,7 +84,7 @@ def genius_lyrics():
 
 
 class Command(BaseCommand):
-    help = "Index data for Whoosh search"
+    help = "Extracting lyrics from Genius API"
 
     def handle(self, *args, **kwargs):
         genius_lyrics()

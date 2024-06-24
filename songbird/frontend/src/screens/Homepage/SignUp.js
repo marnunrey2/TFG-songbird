@@ -72,31 +72,31 @@ function SignUp() {
     return (
         <div className='App'>
             <CustomNavbar />
-            <Container className='white-text'>
+            <Container>
             <Row className="justify-content-md-center">
             <Col md={4}>
-            <h1>Sign Up</h1>
+            <h1  className='white-text'>Sign Up</h1>
             <Form onSubmit={handleSubmit}>
                 {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
                 {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
                 <Form.Group controlId="formBasicFirstName" style={formGroupStyle}>
-                    <Form.Label>First Name*</Form.Label>
+                    <Form.Label className='white-text'>First Name*</Form.Label>
                     <Form.Control type="text" placeholder="Enter first name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                 </Form.Group>
                 
                 <Form.Group controlId="formBasicLastName" style={formGroupStyle}>
-                    <Form.Label>Last Name*</Form.Label>
+                    <Form.Label className='white-text'>Last Name*</Form.Label>
                     <Form.Control type="text" placeholder="Enter last name" value={lastName} onChange={e => setLastName(e.target.value)} />
                 </Form.Group>
                 
                 <Form.Group controlId="formBasicUsername" style={formGroupStyle}>
-                    <Form.Label>Username*</Form.Label>
+                    <Form.Label className='white-text'>Username*</Form.Label>
                     <Form.Control type="text" placeholder="Enter username" value={username} onChange={e => setUsername(e.target.value)} />
                 </Form.Group>
                 
                 <Form.Group controlId="formBasicEmail" style={formGroupStyle}>
-                    <Form.Label>Email address*</Form.Label>
+                    <Form.Label className='white-text'>Email address*</Form.Label>
                     <Form.Control type="email" placeholder="Enter email" value={email} onChange={e => setEmail(e.target.value)} />
                     <Form.Text className="text-muted white-text">
                         We'll never share your email with anyone else.
@@ -104,12 +104,12 @@ function SignUp() {
                 </Form.Group>
 
                 <Form.Group controlId="formBasicPassword" style={formGroupStyle}>
-                    <Form.Label>Password*</Form.Label>
+                    <Form.Label className='white-text'>Password*</Form.Label>
                     <Form.Control type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
 
                 <Form.Group controlId="formBasicPasswordConfirm" style={formGroupStyle}>
-                    <Form.Label>Confirm Password*</Form.Label>
+                    <Form.Label className='white-text'>Confirm Password*</Form.Label>
                     <Form.Control type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
                 </Form.Group>
                 

@@ -80,56 +80,61 @@ def populate_view(request):
 
     print("Populating database...")
 
-    # # SPOTIFY
-    # start_time = time.time()
-    # print("\nSpotify API: starting...")
-    # spotify_api()
-    # print(f"Spotify API: took {time.time() - start_time} seconds")
+    # SPOTIFY
+    start_time = time.time()
+    print("\nSpotify API: starting...")
+    spotify_api()
+    print(f"Spotify API: took {time.time() - start_time} seconds")
 
-    # # APPLE MUSIC
-    # start_time = time.time()
-    # print("\nApple Music: starting...")
-    # apple_music()
-    # print(f"Apple Music: took {time.time() - start_time} seconds")
+    # APPLE MUSIC
+    start_time = time.time()
+    print("\nApple Music: starting...")
+    apple_music()
+    print(f"Apple Music: took {time.time() - start_time} seconds")
 
-    # # KWORB
-    # start_time = time.time()
-    # print("\nKworb: starting...")
-    # kworb_all_time()
-    # print(f"Kworb: took {time.time() - start_time} seconds")
+    # KWORB
+    start_time = time.time()
+    print("\nKworb: starting...")
+    kworb_all_time()
+    print(f"Kworb: took {time.time() - start_time} seconds")
 
-    # # DEEZER
-    # start_time = time.time()
-    # print("\nDeezer: starting...")
-    # deezer()
-    # print(f"Deezer: took {time.time() - start_time} seconds")
+    # DEEZER
+    start_time = time.time()
+    print("\nDeezer: starting...")
+    deezer()
+    print(f"Deezer: took {time.time() - start_time} seconds")
 
-    # # BILLBOARD
-    # start_time = time.time()
-    # print("\nBillboard: starting...")
-    # billboard()
-    # print(f"Billboard: took {time.time() - start_time} seconds")
+    # BILLBOARD
+    start_time = time.time()
+    print("\nBillboard: starting...")
+    billboard()
+    print(f"Billboard: took {time.time() - start_time} seconds")
 
-    # # YOUTUBE
-    # start_time = time.time()
-    # print("\nYoutube: starting...")
-    # youtube_api()
-    # print(f"Youtube: took {time.time() - start_time} seconds")
+    # YOUTUBE
+    start_time = time.time()
+    print("\nYoutube: starting...")
+    youtube_api()
+    print(f"Youtube: took {time.time() - start_time} seconds")
 
     # # AMAZON MUSIC API NOT WORKING AT THE MOMENT
     # amazon_music_api()
 
-    # # GENIUS LYRICS
-    # start_time = time.time()
-    # print("\nGenius: starting...")
-    # genius_lyrics()
-    # print(f"Genius: took {time.time() - start_time} seconds")
+    # GENIUS LYRICS
+    start_time = time.time()
+    print("\nGenius: starting...")
+    genius_lyrics()
+    print(f"Genius: took {time.time() - start_time} seconds")
 
     # # GENIUS LYRICS OF A SONG
     # genius_lyrics_of_a_song("ME! (feat. Brendon Urie of Panic! At The Disco)")
 
     # WHOOSH
     index_data()
+
+    # User.objects.all().delete()
+    # UserProfile.objects.all().delete()
+    # print(User.objects.all())
+    # print(UserProfile.objects.all())
 
     # Query all objects from each model
     songs = Song.objects.all()
@@ -159,10 +164,6 @@ def populate_view(request):
 @csrf_exempt
 def signup(request):
     if request.method == "POST":
-        # User.objects.all().delete()
-        # UserProfile.objects.all().delete()
-        # print(User.objects.all())
-        # print(UserProfile.objects.all())
 
         username = request.POST.get("username")
         email = request.POST.get("email")

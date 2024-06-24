@@ -12,10 +12,9 @@ function Dashboard() {
   let favouriteAlbum, favouriteArtist, favouriteGenreName;
 
   if (user.liked_songs.length > 0) {
-    console.log(user.liked_songs);
 
     // Liked albums
-    const albumIds = user.liked_songs.map(song => song.album.id);
+    const albumIds = user.liked_songs.filter(song => song.album).map(song => song.album.id);
     uniqueAlbumIds = [...new Set(albumIds)];
 
     // Liked artists
@@ -35,15 +34,7 @@ function Dashboard() {
       counts[id] = (counts[id] || 0) + 1;
       return counts;
     }, {});
-    const favouriteArtistId = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b, artistIds[0]);
-    console.log(favouriteArtistId);
-    favouriteArtist = user.liked_songs.find(song => song.main_artist.name === favouriteArtistId).main_artist;
-    if (!favouriteArtist) {
-      for (let song of user.liked_songs) {
-        favouriteArtist = song.collaborators.find(artist => artist.id === Number(favouriteArtistId));
-        if (favouriteArtist) break;
-      }
-    }
+    favouriteArtist = Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b, artistIds[0]);
 
     // Favourite genre
     let genreNames = user.liked_songs.flatMap(song => [song.main_artist.genres.map(genre => genre.name), ...song.collaborators.flatMap(artist => artist.genres.map(genre => genre.name))]).flat();
@@ -83,7 +74,7 @@ function Dashboard() {
         </div>
         <div className="statistic-card-4">
           <h2>Favourite Artist:</h2>
-          {favouriteArtist ? <h3>{favouriteArtist.name}</h3> : <h3>No favourite artist yet</h3>}
+          {favouriteArtist ? <h3>{favouriteArtist}</h3> : <h3>No favourite artist yet</h3>}
         </div>
         <div className="statistic-card-4">
           <h2>Favourite Genre:</h2>
