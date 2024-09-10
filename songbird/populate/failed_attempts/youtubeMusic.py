@@ -39,10 +39,10 @@ def youtube_api():
 
 def youtube_token():
     client_id = (
-        "68827693716-mpcjd7d4onls3ofikmj07prg194rk4f7.apps.googleusercontent.com"
+        "Youtube client id"
     )
-    client_secret = "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"
-    api_key = "AIzaSyCd2I915u6iEy2MmpytUXH4En6pMFo9Sk0"
+    client_secret = "Youtube client secret"
+    api_key = "Youtube API key"
 
     youtube = build("youtube", "v3", developerKey=api_key)
     return youtube
