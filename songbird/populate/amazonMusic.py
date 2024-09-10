@@ -35,7 +35,7 @@ def amazon_music_api():
     access_token = input("Please enter a new access token: ")
 
     # Security Id
-    profile_id = "amzn1.application.72b588cbc0d549449095eb4147c3b7a4"
+    profile_id = "Amazon profile id"
 
     # Top 50 Most played: International -> B07QHGBGC9
     playlist_id = "B0794G8R8W"
