@@ -4,9 +4,9 @@ access_token = "Atza|IwEBILf-9jZIjyV_smYGrwDxc1_GnpZlvMNy3FfxBgvOy70pLKP8W0qtcn4
 refresh_token = "Atzr|IwEBIGCosn2DFu1u3WYB83Uac6LA9zh4j8Cjo0RwGFMWnoaoP6z86ER6XTBOlOLK_yyI6OBKnTKKSsoP2Xk7AuihZNNqkkcOVdN4dDpYvu-OIHN_fA7zjzY0kTro-VtHI09H402TG9HDGIJ6yPhIijmM6yi2jtzdKAVev0_mEqAt1Q7pU9R_o7GzOLI4N7vE-w-X6cHkeXF-jdcSzWJB1x4btypdGegzawk8FFd4kUWc94aXGgJJOR5wl5r5iafES_r54jMsvpONl0zg2Ee1aD-x5blq07h-eASZGDMEaa4gdfYxvGT2YHjYeMed4pLH3x3aUfYQCh9FZYB5laUcCn-l-8bgzP4bPWcfba442w-3P4MJxC901np5wM8sQ4V3T1LwdkPoI8N6LZdXQFcMt02nq5Nw"
 expires_in = 3600
 
-client_id = "amzn1.application-oa2-client.7c0d83cb1c9d4f048bfa5e9b4f390806"
+client_id = "Amazon client id"
 client_secret = (
-    "amzn1.oa2-cs.v1.9287a294bb74d3afd078534e40484585d191601050eacaa08709598335ea5012"
+    "Amazon client secret"
 )
 url = "https://api.amazon.com/auth/o2/token"
 grant_type = "refresh_token"
