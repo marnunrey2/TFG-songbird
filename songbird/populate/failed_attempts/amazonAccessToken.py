@@ -1,9 +1,9 @@
 import requests
 
 ### Paso 2. Access token
-client_id = "amzn1.application-oa2-client.7c0d83cb1c9d4f048bfa5e9b4f390806"
+client_id = "Amazon client id"
 client_secret = (
-    "amzn1.oa2-cs.v1.9287a294bb74d3afd078534e40484585d191601050eacaa08709598335ea5012"
+    "Amazon client secret"
 )
 
 url = "https://api.amazon.com/auth/o2/token"
